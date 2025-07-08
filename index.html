@@ -11,9 +11,17 @@
       background: url('mooreclub1.png') center top no-repeat;
       background-size: cover;
       background-attachment: fixed;
+      color: #ddd;
     }
     .bg-overlay {
       background-color: rgba(0, 0, 0, 0.85);
+    }
+    .card {
+      background-color: #6b21a8;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      box-shadow: 0 0 15px rgb(107 33 168 / 0.6);
+      margin-bottom: 1rem;
     }
     .btn {
       background-color: #6b21a8;
@@ -29,150 +37,168 @@
       background-color: #5b189b;
     }
     .btn-red {
-      background-color: #ef4444;
-    }
-    .btn-red:hover {
       background-color: #dc2626;
     }
-    .card {
-      background-color: #6b21a8;
-      padding: 1rem;
+    .btn-red:hover {
+      background-color: #b91c1c;
+    }
+    input[type=number] {
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.375rem;
+      border: none;
+      width: 3.5rem;
+      text-align: center;
+    }
+    fieldset {
+      border: 2px solid #a78bfa;
       border-radius: 0.5rem;
-      color: white;
-      box-shadow: 0 0 15px rgba(107,33,168,0.5);
-      margin-bottom: 1rem;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
     }
-    .card img {
-      max-width: 80px;
-      margin-bottom: 0.5rem;
-      border-radius: 0.25rem;
+    legend {
+      font-weight: 700;
+      color: #d8b4fe;
+      padding: 0 0.5rem;
     }
-    .card-products img {
-      max-width: 100px;
-      margin-bottom: 0.75rem;
-    }
-    #productos-container {
+    .grid-cols-2 {
       display: grid;
-      grid-template-columns: repeat(auto-fill,minmax(150px,1fr));
+      grid-template-columns: repeat(2, 1fr);
       gap: 1rem;
+    }
+    @media(min-width: 768px) {
+      .md\\:grid-cols-4 {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+    .flex {
+      display: flex;
+    }
+    .flex-col {
+      flex-direction: column;
+    }
+    .items-center {
+      align-items: center;
+    }
+    .text-center {
+      text-align: center;
+    }
+    img {
+      max-width: 100px;
+      border-radius: 0.375rem;
     }
   </style>
 </head>
-<body class="text-purple-200">
-  <div class="bg-overlay min-h-screen p-6">
-    <!-- NAV -->
-    <nav class="bg-purple-900 text-white px-6 py-4 flex justify-between items-center mb-6 rounded">
-      <h1 class="text-xl font-bold cursor-pointer" onclick="mostrarInicio()">Moore Club</h1>
-      <ul class="flex space-x-6 text-sm">
-        <li><a href="#" onclick="mostrarInicio()" class="hover:underline">Inicio</a></li>
-        <li><a href="#" onclick="mostrarEmpleados()" class="hover:underline">Empleados</a></li>
-        <li><a href="#" onclick="mostrarProductos()" class="hover:underline">Productos</a></li>
-      </ul>
-    </nav>
+<body class="bg-overlay min-h-screen p-8">
+  <nav class="flex justify-between mb-6 text-white">
+    <h1 class="text-xl font-bold cursor-pointer" onclick="mostrarInicio()">Moore Club</h1>
+    <ul class="flex space-x-6 text-sm">
+      <li><a href="#" onclick="mostrarInicio()" class="hover:underline">Inicio</a></li>
+      <li><a href="#" onclick="mostrarLoginEmpleado()" class="hover:underline">Empleados</a></li>
+      <li><a href="#" onclick="mostrarProductos()" class="hover:underline">Productos</a></li>
+    </ul>
+  </nav>
 
-    <main id="contenido">
-      <!-- Aquí se cargará el contenido dinámico -->
-    </main>
-  </div>
+  <main id="contenido">
+    <!-- Contenido dinámico -->
+  </main>
 
   <script>
-    // Datos productos con nombres y rutas correctas
+    // Estado global
     const productos = [
-      {id:"tito", nombre: "Tito Dios Griego", img:"Tito.png"},
-      {id:"tita", nombre: "La Tita", img:"Tita.png"},
-      {id:"mascara", nombre: "Mascara Dominante “Cat Vanilla”", img:"Mascara.png"},
-      {id:"pinzas", nombre: "Pinzas LED “Sweet Pain”", img:"Pinzas.png"},
-      {id:"condones", nombre: "Preservativos “Espadas del Deseo”", img:"condones.png"},
-      {id:"dildo", nombre: "Dildo Doble “Fusión Morada”", img:"Dildo.webp"},
-      {id:"banana", nombre: "Banana Pelada", img:"banana.png"},
-      {id:"magdalenas", nombre: "Magdalenas con Glaseado Rosa", img:"magdalenas.png"},
-      {id:"berenjena", nombre: "Berenjena Rellena", img:"berenjena.png"},
-      {id:"coctel", nombre: "Cóctel Dulce", img:"Coctel.png"},
-      {id:"trago", nombre: "Trago Afrutado", img:"trago afrutado.png"},
-      {id:"almejas", nombre: "Almejas Picantes", img:"almejas.png"}
+      {id:"tito", nombre:"Tito Dios Griego", img:"Tito.png"},
+      {id:"tita", nombre:"La Tita", img:"Tita.png"},
+      {id:"mascara", nombre:"Mascara Dominante “Cat Vanilla”", img:"Mascara.png"},
+      {id:"pinzas", nombre:"Pinzas LED “Sweet Pain”", img:"Pinzas.png"},
+      {id:"condones", nombre:"Preservativos “Espadas del Deseo”", img:"condones espadas del deseo.png"},
+      {id:"dildo", nombre:"Dildo Doble “Fusión Morada”", img:"Dildo.webp"},
+      {id:"banana", nombre:"Banana Pelada", img:"banana.png"},
+      {id:"magdalenas", nombre:"Magdalenas con Glaseado Rosa", img:"magdalenas.png"},
+      {id:"berenjena", nombre:"Berenjena Rellena", img:"berenjena.png"},
+      {id:"coctel", nombre:"Cóctel Dulce", img:"Coctel.png"},
+      {id:"trago", nombre:"Trago Afrutado", img:"trago afrutado.png"},
+      {id:"almejas", nombre:"Almejas Picantes", img:"almejas.png"},
     ];
 
-    // Estado global guardado en localStorage
+    // Estructura ventas
     let estado = {
+      usuarioActual: null,
       usuarios: {},
-      ventas: {},
-      usuarioActual: null
+      ventas: {}
     };
 
-    function cargarEstado() {
-      const guardado = localStorage.getItem('mooreClubEstado');
-      if (guardado) {
-        estado = JSON.parse(guardado);
-      } else {
-        estado = {usuarios:{}, ventas:{}, usuarioActual:null};
-        productos.forEach(p => estado.ventas[p.id] = 0);
-      }
-    }
-    function guardarEstado() {
-      localStorage.setItem('mooreClubEstado', JSON.stringify(estado));
-    }
-
-    // Formato hh:mm:ss desde segundos
+    // Formateo segundos a hh:mm:ss
     function formatearTiempo(segundos) {
-      const hrs = Math.floor(segundos/3600);
-      const min = Math.floor((segundos % 3600)/60);
-      const seg = segundos % 60;
-      return `${hrs.toString().padStart(2,'0')}:${min.toString().padStart(2,'0')}:${seg.toString().padStart(2,'0')}`;
+      const h = Math.floor(segundos / 3600);
+      const m = Math.floor((segundos % 3600) / 60);
+      const s = segundos % 60;
+      return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
     }
 
-    // Mostrar pantalla inicio bienvenida
+    // Mostrar Inicio - sencillo y elegante
     function mostrarInicio() {
       const contenido = document.getElementById('contenido');
       contenido.innerHTML = `
-        <h2 class="text-2xl font-bold mb-4">Bienvenido a Moore Club</h2>
-        <p>Explora nuestras secciones y vive la experiencia única.</p>
-        <div class="mt-6 bg-purple-700 rounded p-6 flex justify-center gap-8 max-w-lg mx-auto">
-          <div class="text-center">
-            <img src="Tito.png" alt="Tito Giovanni" class="mx-auto mb-2 rounded" width="100" />
-            <h3 class="font-semibold">Tito Giovanni</h3>
-            <p>Maestro de ceremonias y corazón de Moore. Carisma y elegancia en estado puro.</p>
+        <div class="card">
+          <h2 class="text-xl font-bold mb-2">Bienvenido a Moore Club</h2>
+          <p>Explora nuestras secciones y vive la experiencia única de nuestro club.</p>
+          <div class="mt-4">
+            <button class="btn" onclick="mostrarLoginEmpleado()">Área Empleados</button>
+            <button class="btn" onclick="mostrarProductos()">Nuestros Productos</button>
           </div>
-          <div class="text-center">
-            <img src="Tita.png" alt="Marta" class="mx-auto mb-2 rounded" width="100" />
-            <h3 class="font-semibold">Marta</h3>
-            <p>La musa del club, sensualidad y actitud que cautiva en cada show.</p>
+          <div class="flex space-x-8 mt-8 text-white text-center">
+            <div>
+              <img src="Tito y Marta.png" alt="Tito y Marta" style="max-width:200px; border-radius: 0.5rem;"/>
+              <p class="mt-2 font-semibold">Tito Giovanni y Marta</p>
+              <p>Maestro de ceremonias y musa del club. Carisma y sensualidad pura.</p>
+            </div>
+            <div>
+              <img src="Mascara.png" alt="Máscara Dominante" style="max-width:150px; border-radius: 0.5rem;"/>
+              <p class="mt-2 font-semibold">Objetos Destacados</p>
+              <p>Disfruta de nuestra selección exclusiva de productos con estilo y poder.</p>
+            </div>
           </div>
-        </div>
-        <div class="mt-8 flex justify-center gap-6">
-          <button class="btn" onclick="mostrarEmpleados()">Área Empleados</button>
-          <button class="btn" onclick="mostrarProductos()">Nuestros Productos</button>
         </div>
       `;
     }
 
-    // Mostrar panel login empleados
-    function mostrarLogin() {
+    // Mostrar login empleados
+    function mostrarLoginEmpleado() {
       const contenido = document.getElementById('contenido');
       contenido.innerHTML = `
-        <h2 class="text-2xl font-bold mb-4">Acceso Empleados</h2>
-        <div class="max-w-md bg-black bg-opacity-30 p-6 rounded shadow mx-auto">
-          <label class="block mb-2 text-white">Nombre completo:</label>
-          <input id="nombreEmpleado" type="text" class="w-full px-3 py-2 text-black mb-4" placeholder="ejemplo: tito giovanni" />
-          <button class="btn w-full" onclick="iniciarSesion()">Entrar</button>
-        </div>`;
+        <div class="card">
+          <h2 class="text-xl font-bold mb-4">Acceso Empleados</h2>
+          <label>Nombre:</label>
+          <input type="text" id="inputNombre" placeholder="Escribe tu nombre" class="w-full p-2 mb-4 rounded" />
+          <button class="btn" onclick="loginEmpleado()">Entrar</button>
+        </div>
+      `;
     }
 
-    // Validar e iniciar sesión
-    function iniciarSesion() {
-      const nombre = document.getElementById('nombreEmpleado').value.trim().toLowerCase();
-      if (!nombre) {
-        alert('Debes ingresar un nombre válido');
+    // Login empleado simple sin contraseña para demo
+    function loginEmpleado() {
+      const nombre = document.getElementById('inputNombre').value.trim().toLowerCase();
+      if(!nombre) {
+        alert('Introduce un nombre válido');
         return;
       }
-      if (!estado.usuarios[nombre]) {
-        estado.usuarios[nombre] = { fichado: false, inicio: null, tiempoHoy: 0, tiempoSemana: 0, tiempoTotal: 0 };
-      }
       estado.usuarioActual = nombre;
-      guardarEstado();
+      if (!estado.usuarios[nombre]) {
+        estado.usuarios[nombre] = {
+          fichado: false,
+          inicio: null,
+          tiempoHoy: 0,
+          tiempoSemana: 0,
+          tiempoTotal: 0
+        };
+      }
+      if (!estado.ventas) estado.ventas = {};
+      productos.forEach(p => {
+        if (!(p.id in estado.ventas)) estado.ventas[p.id] = 0;
+      });
       mostrarPanelEmpleado();
     }
 
-    // Mostrar panel empleado con fichaje y ventas
+    // Mostrar panel empleado
     function mostrarPanelEmpleado() {
       const contenido = document.getElementById('contenido');
       const u = estado.usuarios[estado.usuarioActual];
@@ -191,16 +217,76 @@
           <p>Horas trabajadas esta semana: <strong>${formatearTiempo(u.tiempoSemana)}</strong></p>
           <p>Horas totales acumuladas: <strong>${formatearTiempo(u.tiempoTotal)}</strong></p>
         </div>
+
         <div class="card">
           <h3 class="font-semibold mb-4">Ventas registradas</h3>
           <p class="mb-2">Registrar ventas de productos:</p>
-          <div id="ventas-container" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
+          <fieldset class="mb-6 p-4 border rounded border-purple-400">
+            <legend class="font-semibold mb-2">Objetos</legend>
+            <div id="ventas-objetos" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
+          </fieldset>
+          <fieldset class="mb-6 p-4 border rounded border-purple-400">
+            <legend class="font-semibold mb-2">Comida y Bebida</legend>
+            <div id="ventas-comida" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
+          </fieldset>
           <p class="mt-4 font-semibold">Totales globales:</p>
           <ul id="totales-globales" class="list-disc pl-6"></ul>
-        </div>`;
+        </div>
+      `;
 
-      mostrarProductosVenta();
+      mostrarProductosVentaSeparado();
       mostrarTotalesGlobales();
+    }
+
+    // Mostrar productos venta separados en objetos y comida
+    function mostrarProductosVentaSeparado() {
+      const contObjetos = document.getElementById('ventas-objetos');
+      const contComida = document.getElementById('ventas-comida');
+      contObjetos.innerHTML = '';
+      contComida.innerHTML = '';
+
+      const objetosIDs = ["tito", "tita", "mascara", "pinzas", "condones", "dildo"];
+      const comidaIDs = ["banana", "magdalenas", "berenjena", "coctel", "trago", "almejas"];
+
+      productos.forEach(p => {
+        const div = document.createElement('div');
+        div.className = 'card flex flex-col items-center text-center';
+        div.innerHTML = `
+          <img src="${p.img}" alt="${p.nombre}" />
+          <strong class="mt-2 mb-1">${p.nombre}</strong>
+          <input type="number" min="0" value="0" id="input-${p.id}" class="w-16 text-black text-center rounded" />
+          <button class="btn mt-2" onclick="agregarVenta('${p.id}')">+ Añadir Venta</button>
+          <p>Total: <span id="total-${p.id}">${estado.ventas[p.id] || 0}</span></p>
+        `;
+
+        if (objetosIDs.includes(p.id)) {
+          contObjetos.appendChild(div);
+        } else if (comidaIDs.includes(p.id)) {
+          contComida.appendChild(div);
+        }
+      });
+    }
+
+    // Añadir venta producto
+    function agregarVenta(id) {
+      const input = document.getElementById(`input-${id}`);
+      let cantidad = parseInt(input.value);
+      if (isNaN(cantidad) || cantidad <= 0) return;
+      estado.ventas[id] = (estado.ventas[id] || 0) + cantidad;
+      document.getElementById(`total-${id}`).textContent = estado.ventas[id];
+      input.value = 0;
+      mostrarTotalesGlobales();
+    }
+
+    // Mostrar totales globales de ventas
+    function mostrarTotalesGlobales() {
+      const ul = document.getElementById('totales-globales');
+      ul.innerHTML = '';
+      productos.forEach(p => {
+        const li = document.createElement('li');
+        li.textContent = `${p.nombre}: ${estado.ventas[p.id] || 0}`;
+        ul.appendChild(li);
+      });
     }
 
     // Fichar entrada
@@ -212,7 +298,6 @@
       }
       u.fichado = true;
       u.inicio = Date.now();
-      guardarEstado();
       mostrarPanelEmpleado();
     }
 
@@ -223,119 +308,22 @@
         alert('No has fichado entrada');
         return;
       }
-      const ahora = Date.now();
-      const segundosTrabajados = Math.floor((ahora - u.inicio) / 1000);
+      const tiempo = Math.floor((Date.now() - u.inicio) / 1000);
+      u.tiempoHoy += tiempo;
+      u.tiempoSemana += tiempo;
+      u.tiempoTotal += tiempo;
       u.fichado = false;
       u.inicio = null;
-      u.tiempoHoy += segundosTrabajados;
-      u.tiempoSemana += segundosTrabajados;
-      u.tiempoTotal += segundosTrabajados;
-      guardarEstado();
       mostrarPanelEmpleado();
     }
 
     // Cerrar sesión
     function cerrarSesion() {
       estado.usuarioActual = null;
-      guardarEstado();
       mostrarInicio();
     }
 
-    // Mostrar productos para venta en panel empleado
-    function mostrarProductosVenta() {
-      const cont = document.getElementById('ventas-container');
-      cont.innerHTML = '';
-      productos.forEach(p => {
-        const div = document.createElement('div');
-        div.className = 'card flex flex-col items-center text-center';
-        div.innerHTML = `
-          <img src="${p.img}" alt="${p.nombre}" />
-          <strong class="mt-2 mb-1">${p.nombre}</strong>
-          <input type="number" min="0" value="0" id="input-${p.id}" class="w-16 text-black text-center rounded" />
-          <button class="btn mt-2" onclick="agregarVenta('${p.id}')">+ Añadir Venta</button>
-          <p>Total: <span id="total-${p.id}">${estado.ventas[p.id] || 0}</span></p>
-        `;
-        cont.appendChild(div);
-      });
-    }
-
-    // Añadir ventas
-    function agregarVenta(id) {
-      const input = document.getElementById(`input-${id}`);
-      let cantidad = parseInt(input.value);
-      if (isNaN(cantidad) || cantidad <= 0) {
-        alert('Introduce un número válido');
-        return;
-      }
-      estado.ventas[id] = (estado.ventas[id] || 0) + cantidad;
-      input.value = 0;
-      guardarEstado();
-      mostrarTotalesGlobales();
-      mostrarPanelEmpleado();
-    }
-
-    // Mostrar totales globales ventas
-    function mostrarTotalesGlobales() {
-      const ul = document.getElementById('totales-globales');
-      if (!ul) return;
-      ul.innerHTML = '';
-      productos.forEach(p => {
-        const li = document.createElement('li');
-        li.textContent = `${p.nombre}: ${estado.ventas[p.id] || 0}`;
-        ul.appendChild(li);
-      });
-    }
-
-    // Mostrar panel productos (solo imagen y nombre)
-    function mostrarProductos() {
-      const contenido = document.getElementById('contenido');
-      contenido.innerHTML = `
-        <h2 class="text-2xl font-bold mb-4">Productos Moore Club</h2>
-        <div id="productos-container" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
-        <button class="btn mt-4" onclick="mostrarInicio()">Volver</button>
-      `;
-
-      const container = document.getElementById('productos-container');
-      container.innerHTML = '';
-      productos.forEach(p => {
-        const card = document.createElement('div');
-        card.className = 'card-products bg-purple-700 rounded p-4 text-white text-center shadow-lg';
-        card.innerHTML = `
-          <img src="${p.img}" alt="${p.nombre}" />
-          <h3 class="font-semibold mt-2">${p.nombre}</h3>
-        `;
-        container.appendChild(card);
-      });
-    }
-
-    // Mostrar panel empleados o inicio si no hay sesión
-    function mostrarEmpleados() {
-      if (!estado.usuarioActual) {
-        mostrarLogin();
-      } else {
-        mostrarPanelEmpleado();
-      }
-    }
-
-    // Carga inicial
-    cargarEstado();
     mostrarInicio();
-
-    // Guardar estado antes de cerrar ventana (por si hay fichajes abiertos)
-    window.addEventListener('beforeunload', () => {
-      if (estado.usuarioActual) {
-        const u = estado.usuarios[estado.usuarioActual];
-        if (u.fichado && u.inicio) {
-          const ahora = Date.now();
-          const segundos = Math.floor((ahora - u.inicio) / 1000);
-          u.tiempoHoy += segundos;
-          u.tiempoSemana += segundos;
-          u.tiempoTotal += segundos;
-          u.inicio = ahora; // reinicia el inicio para no duplicar tiempo
-          guardarEstado();
-        }
-      }
-    });
   </script>
 </body>
 </html>
