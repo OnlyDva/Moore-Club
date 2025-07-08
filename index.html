@@ -48,41 +48,51 @@
     let empleados = cargarDatos('empleados', ['tito giovanni']);
     let fichajes = cargarDatos('fichajes', {});
     let ventas = cargarDatos('ventas', {});
-    let masterInterval = null;
+    let relojAnimacionID = null;
 
     // ===================================================================================
-    //  2. LÓGICA DEL RELOJ
+    //  2. LÓGICA DEL RELOJ con requestAnimationFrame
     // ===================================================================================
-    function iniciarReloj(nombre) {
-      detenerReloj(); 
-      masterInterval = setInterval(() => {
-        const datosFichaje = fichajes[nombre];
-        if (!datosFichaje || !datosFichaje.fichado) {
-          detenerReloj();
-          return;
-        }
-        
-        const tiempoHoyElemento = document.getElementById('tiempoHoy');
-        if (tiempoHoyElemento) {
-          const tiempoTranscurrido = Date.now() - datosFichaje.inicio + datosFichaje.hoy;
-          tiempoHoyElemento.textContent = formatearTiempo(tiempoTranscurrido);
-        }
+    function relojLoop() {
+      const nombre = cargarDatos('currentUser', null, sessionStorage);
+      if (!nombre) {
+        detenerReloj();
+        return;
+      }
 
-        const sesionElemento = document.getElementById('tiempoSesion');
-        if (sesionElemento) {
-          const tiempoSesion = Date.now() - datosFichaje.inicio;
-          sesionElemento.textContent = formatearTiempo(tiempoSesion);
-        }
-      }, 1000);
+      const datosFichaje = fichajes[nombre];
+      if (!datosFichaje || !datosFichaje.fichado) {
+        detenerReloj();
+        return;
+      }
+
+      const tiempoHoyElemento = document.getElementById('tiempoHoy');
+      if (tiempoHoyElemento) {
+        const tiempoTranscurrido = Date.now() - datosFichaje.inicio + datosFichaje.hoy;
+        tiempoHoyElemento.textContent = formatearTiempo(tiempoTranscurrido);
+      }
+
+      const sesionElemento = document.getElementById('tiempoSesion');
+      if (sesionElemento) {
+        const tiempoSesion = Date.now() - datosFichaje.inicio;
+        sesionElemento.textContent = formatearTiempo(tiempoSesion);
+      }
+      
+      relojAnimacionID = requestAnimationFrame(relojLoop);
+    }
+
+    function iniciarReloj() {
+      detenerReloj();
+      relojAnimacionID = requestAnimationFrame(relojLoop);
     }
 
     function detenerReloj() {
-      if (masterInterval) {
-        clearInterval(masterInterval);
-        masterInterval = null;
+      if (relojAnimacionID) {
+        cancelAnimationFrame(relojAnimacionID);
+        relojAnimacionID = null;
       }
     }
-
+    
     // ===================================================================================
     //  3. LÓGICA DE VISTAS (DIBUJADO)
     // ===================================================================================
@@ -122,7 +132,7 @@
         guardarDatos('currentUser', nombre, sessionStorage);
         mostrarPanelEmpleados(nombre);
         if (fichajes[nombre] && fichajes[nombre].fichado) {
-          iniciarReloj(nombre);
+          iniciarReloj();
         }
       } else { alert('Acceso denegado.'); }
     }
@@ -135,7 +145,7 @@
         fichajes[nombre] = datosFichaje;
         guardarDatos('fichajes', fichajes);
         mostrarPanelEmpleados(nombre);
-        iniciarReloj(nombre);
+        iniciarReloj();
       }
     }
 
@@ -162,7 +172,7 @@
     }
     
     // ===================================================================================
-    //  5. FUNCIONES AUXILIARES
+    //  5. FUNCIONES AUXILIARES (Completas y bien formateadas)
     // ===================================================================================
     function cargarDatos(clave, valorPorDefecto, storage = localStorage) {
       const datosGuardados = storage.getItem(clave);
@@ -234,7 +244,7 @@
         if (currentUser && empleados.includes(currentUser)) {
             mostrarPanelEmpleados(currentUser);
             if (fichajes[currentUser] && fichajes[currentUser].fichado) {
-                iniciarReloj(currentUser);
+                iniciarReloj();
             }
         } else {
             mostrarInicio();
