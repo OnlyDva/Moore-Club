@@ -65,10 +65,7 @@
     }
 
     function detenerReloj() {
-      if (masterInterval) {
-        clearInterval(masterInterval);
-        masterInterval = null;
-      }
+      if (masterInterval) { clearInterval(masterInterval); masterInterval = null; }
     }
     
     // ===================================================================================
@@ -87,7 +84,7 @@
             tiempoHoy += tiempoDesdeFichaje; tiempoSemana += tiempoDesdeFichaje; tiempoTotal += tiempoDesdeFichaje;
         }
         const productosVentaHTML = productos.map(p => crearTarjetaProducto(p, true, nombre)).join('');
-        document.getElementById('contenido').innerHTML = `<div class="p-6 bg-purple-900 bg-opacity-90 rounded-lg max-w-6xl mx-auto shadow-lg"><div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-bold">Panel de Fichaje: <span class="text-purple-300">${nombre}</span></h2><button class="btn" style="background-color: #d63636;" onclick="cerrarSesion()">Cerrar Sesión</button></div><div class="bg-purple-800 p-4 rounded-lg mb-6 grid grid-cols-1 md:grid-cols-4 gap-4 text-center items-center"><div><p class="text-sm text-purple-300">TIEMPO HOY</p><p id="tiempoHoy" class="font-mono text-xl">${formatearTiempo(tiempoHoy)}</p></div><div><p class="text-sm text-purple-300">TIEMPO SEMANA</p><p id="tiempoSemana" class="font-mono text-xl">${formatearTiempo(tiempoSemana)}</p></div><div><p class="text-sm text-purple-300">TIEMPO TOTAL</p><p id="tiempoTotal" class="font-mono text-xl">${formatearTiempo(tiempoTotal)}</p></div><div class="bg-purple-700 p-2 rounded-lg"><p class="text-sm text-purple-200">SESIÓN ACTUAL</p><p id="tiempoSesion" class="font-mono text-xl font-bold text-white">00:00:00</p></div></div><div class="text-center mb-8"><button class="btn text-lg px-6 py-3" onclick="fichar('${nombre}')">Fichar Entrada</button><button class="btn text-lg px-6 py-3" onclick="desfichar('${nombre}')">Fichar Salida</button></div><h3 class="text-xl font-semibold mb-4 border-t border-purple-700 pt-6">Registrar Ventas</h3><div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4" id="productosVenta">${productosVentaHTML}</div></div>`;
+        document.getElementById('contenido').innerHTML = `<div class="p-6 bg-purple-900 bg-opacity-90 rounded-lg max-w-6xl mx-auto shadow-lg"><div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-bold">Panel de Fichaje: <span class="text-purple-300 capitalize">${nombre}</span></h2><button class="btn" style="background-color: #d63636;" onclick="cerrarSesion()">Cerrar Sesión</button></div><div class="bg-purple-800 p-4 rounded-lg mb-6 grid grid-cols-1 md:grid-cols-4 gap-4 text-center items-center"><div><p class="text-sm text-purple-300">TIEMPO HOY</p><p id="tiempoHoy" class="font-mono text-xl">${formatearTiempo(tiempoHoy)}</p></div><div><p class="text-sm text-purple-300">TIEMPO SEMANA</p><p id="tiempoSemana" class="font-mono text-xl">${formatearTiempo(tiempoSemana)}</p></div><div><p class="text-sm text-purple-300">TIEMPO TOTAL</p><p id="tiempoTotal" class="font-mono text-xl">${formatearTiempo(tiempoTotal)}</p></div><div class="bg-purple-700 p-2 rounded-lg"><p class="text-sm text-purple-200">SESIÓN ACTUAL</p><p id="tiempoSesion" class="font-mono text-xl font-bold text-white">00:00:00</p></div></div><div class="text-center mb-8"><button class="btn text-lg px-6 py-3" onclick="fichar('${nombre}')">Fichar Entrada</button><button class="btn text-lg px-6 py-3" onclick="desfichar('${nombre}')">Fichar Salida</button></div><h3 class="text-xl font-semibold mb-4 border-t border-purple-700 pt-6">Registrar Ventas</h3><div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4" id="productosVenta">${productosVentaHTML}</div></div>`;
     }
 
     function mostrarPanelProductos() {
@@ -100,47 +97,60 @@
       document.getElementById('contenido').innerHTML = `<div class="max-w-md mx-auto bg-black bg-opacity-30 p-8 rounded-lg shadow-lg"><h2 class="text-2xl font-bold mb-4 text-center">Acceso Empleados</h2><label class="block mb-2">Nombre completo:</label><input id="nombreInput" type="text" class="w-full px-3 py-2 text-black mb-4 rounded" placeholder="nombre y apellido en minúsculas" /><div class="flex justify-between"><button onclick="verificarAccesoVIP()" class="btn">Entrar</button><button onclick="mostrarInicio()" class="btn" style="background-color:#5b189b;">Volver</button></div></div>`;
     }
 
-    // --- NUEVAS FUNCIONES DE ADMINISTRADOR ---
     function mostrarLoginAdmin() {
       detenerReloj();
       document.getElementById('contenido').innerHTML = `<div class="max-w-md mx-auto bg-black bg-opacity-50 p-8 rounded-lg shadow-lg border-2 border-purple-400"><h2 class="text-3xl font-bold mb-4 text-center text-purple-300">Acceso Privado - Tito Giovanni</h2><label class="block mb-2">Contraseña de Administrador:</label><input id="adminPassInput" type="password" class="w-full px-3 py-2 text-black mb-4 rounded" /><div class="flex justify-between"><button onclick="verificarAccesoAdmin()" class="btn">Entrar</button><button onclick="mostrarInicio()" class="btn" style="background-color:#5b189b;">Volver</button></div></div>`;
     }
 
+    // --- NUEVO PANEL DE ADMINISTRADOR EN TABLA ---
     function mostrarPanelAdmin() {
       detenerReloj();
-      let html = `<div class="max-w-7xl mx-auto"><h1 class="text-4xl font-bold text-center mb-8">Panel de Administración</h1>`;
-
+      let tableRowsHTML = '';
       empleados.forEach(empleado => {
         const datosFichaje = gestionarReseteoDatos(empleado);
-        const datosVentas = ventas[empleado] || { fecha: 'N/A', productos: {} };
-        
-        html += `<div class="bg-purple-900 bg-opacity-80 p-6 rounded-lg mb-6 shadow-xl">`;
-        html += `<h2 class="text-2xl font-bold text-purple-300 capitalize border-b border-purple-700 pb-2 mb-4">${empleado}</h2>`;
+        const datosVentas = gestionarReseteoDatos(empleado, true);
 
-        // Sección de Horas
-        html += `<h3 class="text-xl font-semibold mb-2">Registro de Horas</h3>`;
-        html += `<div class="grid grid-cols-3 gap-4 mb-4">
-                    <div class="bg-purple-800 p-3 rounded text-center"><p class="text-sm opacity-70">Hoy</p><p class="font-mono text-lg">${formatearTiempo(datosFichaje.hoy)}</p></div>
-                    <div class="bg-purple-800 p-3 rounded text-center"><p class="text-sm opacity-70">Semana</p><p class="font-mono text-lg">${formatearTiempo(datosFichaje.semana)}</p></div>
-                    <div class="bg-purple-800 p-3 rounded text-center"><p class="text-sm opacity-70">Total</p><p class="font-mono text-lg">${formatearTiempo(datosFichaje.total)}</p></div>
-                 </div>`;
+        // Calcular ventas totales
+        let ventasHoy = 0;
+        let ventasTotal = 0;
+        if (datosVentas && datosVentas.productos) {
+            for (const prodId in datosVentas.productos) {
+                ventasHoy += datosVentas.productos[prodId].hoy;
+                ventasTotal += datosVentas.productos[prodId].total;
+            }
+        }
         
-        // Sección de Ventas
-        html += `<h3 class="text-xl font-semibold mt-6 mb-2">Registro de Ventas</h3>`;
-        html += `<div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">`;
-        productos.forEach(producto => {
-            const ventaProducto = datosVentas.productos[producto.id] || { hoy: 0, total: 0 };
-            html += `<div class="bg-purple-800 p-3 rounded text-center text-sm">
-                        <img src="${producto.imagen}" alt="${producto.nombre}" class="mx-auto w-16 h-16 object-cover rounded-md mb-2" />
-                        <p class="font-semibold">${producto.nombre}</p>
-                        <p>Hoy: <span class="font-bold text-purple-300">${ventaProducto.hoy}</span></p>
-                        <p>Total: <span class="font-bold text-purple-300">${ventaProducto.total}</span></p>
-                     </div>`;
-        });
-        html += `</div></div>`; // Cierre del grid de ventas y del panel de empleado
+        tableRowsHTML += `<tr class="border-b border-purple-800 hover:bg-purple-900">
+            <td class="p-3 capitalize">${empleado}</td>
+            <td class="p-3 font-mono">${formatearTiempo(datosFichaje.hoy)}</td>
+            <td class="p-3 font-mono">${formatearTiempo(datosFichaje.semana)}</td>
+            <td class="p-3 font-mono">${formatearTiempo(datosFichaje.total)}</td>
+            <td class="p-3 font-mono text-center">${ventasHoy}</td>
+            <td class="p-3 font-mono text-center">${ventasTotal}</td>
+        </tr>`;
       });
-      
-      html += `<div class="text-center mt-8"><button onclick="mostrarInicio()" class="btn">Volver a Inicio</button></div></div>`;
+
+      const html = `<div class="max-w-7xl mx-auto">
+          <h1 class="text-4xl font-bold text-center mb-8">Panel de Administración</h1>
+          <div class="overflow-x-auto bg-purple-900 bg-opacity-80 rounded-lg shadow-xl">
+              <table class="w-full text-left">
+                  <thead class="bg-purple-800 text-purple-200 uppercase text-sm">
+                      <tr>
+                          <th class="p-3">Empleado</th>
+                          <th class="p-3">Horas Hoy</th>
+                          <th class="p-3">Horas Semana</th>
+                          <th class="p-3">Horas Total</th>
+                          <th class="p-3 text-center">Ventas Hoy (uds.)</th>
+                          <th class="p-3 text-center">Ventas Total (uds.)</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                      ${tableRowsHTML}
+                  </tbody>
+              </table>
+          </div>
+          <div class="text-center mt-8"><button onclick="mostrarInicio()" class="btn">Volver a Inicio</button></div>
+      </div>`;
       document.getElementById('contenido').innerHTML = html;
     }
 
@@ -223,15 +233,14 @@
     function crearTarjetaProducto(producto, esPanelVenta = false, nombreEmpleado = '') {
       let totalVentasHoy = 0;
       let totalVentasHist = 0;
-      if (ventas[nombreEmpleado] && ventas[nombreEmpleado].productos[producto.id]) {
+      if (ventas[nombreEmpleado] && ventas[nombreEmpleado].productos && ventas[nombreEmpleado].productos[producto.id]) {
           totalVentasHoy = ventas[nombreEmpleado].productos[producto.id].hoy;
           totalVentasHist = ventas[nombreEmpleado].productos[producto.id].total;
       }
-
+      const desc = `Hoy: ${totalVentasHoy} | Total: ${totalVentasHist}`;
       const inputVentasHTML = esPanelVenta 
-        ? `<div class="mt-2"><input type="number" min="0" value="0" id="input-${producto.id}" class="w-20 px-2 py-1 text-black rounded" onchange="actualizarVentas('${producto.id}', '${nombreEmpleado}')" /><p class="text-xs mt-1">Hoy: ${totalVentasHoy} | Total: ${totalVentasHist}</p></div>`
+        ? `<div class="mt-2"><input type="number" min="0" value="0" id="input-${producto.id}" class="w-20 px-2 py-1 text-black rounded" onchange="actualizarVentas('${producto.id}', '${nombreEmpleado}')" /><p class="text-xs mt-1">${desc}</p></div>` 
         : `<p class="text-purple-300 text-sm mt-2">${producto.descripcion || ''}</p>`;
-
       return `<div class="producto-card bg-purple-800 rounded-lg p-2 text-center shadow-md flex flex-col justify-between text-sm"><div><img src="${producto.imagen}" alt="${producto.nombre}" class="mx-auto mb-2 w-20 h-20 object-cover rounded" /><h3 class="text-white font-semibold leading-tight">${producto.nombre}</h3></div><div>${inputVentasHTML}</div></div>`;
     }
 
@@ -251,7 +260,7 @@
 
       guardarDatos('ventas', ventas);
       input.value = 0; 
-      mostrarPanelEmpleados(nombreEmpleado); // Redibuja para actualizar los contadores
+      mostrarPanelEmpleados(nombreEmpleado);
     }
 
     function formatearTiempo(ms) {
@@ -270,7 +279,6 @@
         return Math.ceil((((d - yearStart) / 86400000) + 1)/7);
     }
     
-    // --- FUNCIÓN DE GESTIÓN DE DATOS UNIFICADA ---
     function gestionarReseteoDatos(nombre, esVenta = false) {
         const ahora = new Date();
         const anio = ahora.getFullYear();
@@ -313,7 +321,7 @@
     //  INICIALIZACIÓN
     // ===================================================================================
     document.addEventListener('DOMContentLoaded', () => {
-        empleados = cargarDatos('empleados', ['tito giovanni', 'marta']); // Añadido marta para pruebas
+        empleados = cargarDatos('empleados', ['tito giovanni', 'marta']);
         fichajes = cargarDatos('fichajes', {});
         ventas = cargarDatos('ventas', {});
 
