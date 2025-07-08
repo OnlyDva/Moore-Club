@@ -1,0 +1,3 @@
+[functions]
+  directory = "netlify/functions"
+  # timezone = "Europe/Madrid" # Opcional: define la zona horaria si necesitas funciones basadas en tiempo
