@@ -50,7 +50,7 @@
     //  1. FUENTE DE DATOS Y ESTADO
     // ===================================================================================
     const productos = [ { id: 'tito_griego', nombre: 'Tito Dios Griego', imagen: 'Tito.png' }, { id: 'la_tita', nombre: 'La Tita', imagen: 'Tita.png' }, { id: 'mascara_cat', nombre: 'Máscara Dominante “Cat Vanilla”', imagen: 'Mascara.png' }, { id: 'pinzas_led', nombre: 'Pinzas LED “Sweet Pain”', imagen: 'Pinzas.png' }, { id: 'preservativos', nombre: 'Preservativos “Espadas del Deseo”', imagen: 'condones.png' }, { id: 'dildo_doble', nombre: 'Dildo Doble “Fusión Morada”', imagen: 'Dildo.webp' }, { id: 'banana', nombre: 'Banana Pelada', imagen: 'banana.png' }, { id: 'magdalenas', nombre: 'Magdalenas con Glaseado Rosa', imagen: 'magdalenas.png' }, { id: 'berenjena', nombre: 'Berenjena Rellena', imagen: 'berenjena.png' }, { id: 'coctel', nombre: 'Cóctel Dulce', imagen: 'Coctel.png' }, { id: 'trago_afrutado', nombre: 'Trago Afrutado', imagen: 'trago afrutado.png' }, { id: 'almejas', nombre: 'Almejas Picantes', imagen: 'almejas.png' }];
-    let empleados, fichajes, ventas, habitaciones, anuncios;
+    let empleados, fichajes, ventas, habitaciones, anuncios, libroNegro, listaNegra;
     let fichajeInterval = null, habitacionesInterval = null, dashboardInterval = null;
 
     // ===================================================================================
@@ -88,7 +88,7 @@
 
     function iniciarDashboard() {
         detenerDashboard();
-        dashboardInterval = setInterval(actualizarDashboard, 5000); // Actualiza cada 5 segundos
+        dashboardInterval = setInterval(actualizarDashboard, 5000);
     }
     function detenerDashboard() { if(dashboardInterval) { clearInterval(dashboardInterval); dashboardInterval = null; } }
 
@@ -124,8 +124,9 @@
         
         const hayNotificaciones = comprobarNuevosAnuncios(nombre);
         const notificacionHTML = `<div class="relative"><button onclick="mostrarAnuncios('${nombre}')" class="text-2xl">🔔</button>${hayNotificaciones ? '<div class="notification-dot"></div>' : ''}</div>`;
+        const listaNegraBtn = `<button onclick="mostrarListaNegraPublica()" class="btn text-xs py-1">Ver Vetados</button>`;
 
-        document.getElementById('contenido').innerHTML = `<div class="p-6 bg-purple-900 bg-opacity-90 rounded-lg max-w-6xl mx-auto shadow-lg"><div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-bold">Panel de Fichaje: <span class="text-purple-300 capitalize">${nombre}</span></h2><div class="flex items-center gap-4">${notificacionHTML}<button class="btn" style="background-color: #d63636;" onclick="cerrarSesion()">Cerrar Sesión</button></div></div><div class="bg-purple-800 p-4 rounded-lg mb-6 grid grid-cols-1 md:grid-cols-4 gap-4 text-center items-center"><div><p class="text-sm text-purple-300">TIEMPO HOY</p><p id="tiempoHoy" class="font-mono text-xl">${formatearTiempo(tiempoHoy)}</p></div><div><p class="text-sm text-purple-300">TIEMPO SEMANA</p><p id="tiempoSemana" class="font-mono text-xl">${formatearTiempo(tiempoSemana)}</p></div><div><p class="text-sm text-purple-300">TIEMPO TOTAL</p><p id="tiempoTotal" class="font-mono text-xl">${formatearTiempo(tiempoTotal)}</p></div><div class="bg-purple-700 p-2 rounded-lg"><p class="text-sm text-purple-200">SESIÓN ACTUAL</p><p id="tiempoSesion" class="font-mono text-xl font-bold text-white">00:00:00</p></div></div><div class="text-center mb-8"><button class="btn text-lg px-6 py-3" onclick="fichar('${nombre}')">Fichar Entrada</button><button class="btn text-lg px-6 py-3" onclick="desfichar('${nombre}')">Fichar Salida</button></div>
+        document.getElementById('contenido').innerHTML = `<div class="p-6 bg-purple-900 bg-opacity-90 rounded-lg max-w-6xl mx-auto shadow-lg"><div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-bold">Panel de Fichaje: <span class="text-purple-300 capitalize">${nombre}</span></h2><div class="flex items-center gap-4">${listaNegraBtn}${notificacionHTML}<button class="btn" style="background-color: #d63636;" onclick="cerrarSesion()">Cerrar Sesión</button></div></div><div class="bg-purple-800 p-4 rounded-lg mb-6 grid grid-cols-1 md:grid-cols-4 gap-4 text-center items-center"><div><p class="text-sm text-purple-300">TIEMPO HOY</p><p id="tiempoHoy" class="font-mono text-xl">${formatearTiempo(tiempoHoy)}</p></div><div><p class="text-sm text-purple-300">TIEMPO SEMANA</p><p id="tiempoSemana" class="font-mono text-xl">${formatearTiempo(tiempoSemana)}</p></div><div><p class="text-sm text-purple-300">TIEMPO TOTAL</p><p id="tiempoTotal" class="font-mono text-xl">${formatearTiempo(tiempoTotal)}</p></div><div class="bg-purple-700 p-2 rounded-lg"><p class="text-sm text-purple-200">SESIÓN ACTUAL</p><p id="tiempoSesion" class="font-mono text-xl font-bold text-white">00:00:00</p></div></div><div class="text-center mb-8"><button class="btn text-lg px-6 py-3" onclick="fichar('${nombre}')">Fichar Entrada</button><button class="btn text-lg px-6 py-3" onclick="desfichar('${nombre}')">Fichar Salida</button></div>
         <h3 class="text-xl font-semibold mb-4 border-t border-purple-700 pt-6">Gestión de Habitaciones</h3><div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">${habitacionesHTML}</div>
         <h3 class="text-xl font-semibold mb-4 border-t border-purple-700 pt-6">Registrar Ventas</h3><div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4" id="productosVenta">${productosVentaHTML}</div></div>`;
         iniciarRelojHabitaciones();
@@ -171,19 +172,8 @@
       detenerRelojHabitaciones();
       detenerDashboard();
       
-      const dashboardHTML = `<div class="mb-8 p-6 bg-purple-900 bg-opacity-50 rounded-lg">
-        <h2 class="text-2xl font-bold mb-4">Dashboard en Tiempo Real</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div><h3 class="font-semibold mb-2">Empleados Activos</h3><ul id="dashboard-empleados" class="space-y-1 text-sm"></ul></div>
-            <div><h3 class="font-semibold mb-2">Habitaciones Ocupadas</h3><ul id="dashboard-habitaciones" class="space-y-1 text-sm"></ul></div>
-        </div>
-      </div>`;
-      
-      const anunciosHTML = `<div class="mb-8 p-6 bg-purple-900 bg-opacity-50 rounded-lg">
-        <h2 class="text-2xl font-bold mb-4">Publicar Anuncio Global</h2>
-        <textarea id="anuncioTexto" class="w-full p-2 text-black rounded mb-2" rows="3" placeholder="Escribe tu anuncio aquí..."></textarea>
-        <button onclick="publicarAnuncio()" class="btn">Publicar</button>
-      </div>`;
+      const dashboardHTML = `<div class="mb-8 p-6 bg-purple-900 bg-opacity-50 rounded-lg"><h2 class="text-2xl font-bold mb-4">Dashboard en Tiempo Real</h2><div class="grid grid-cols-1 md:grid-cols-2 gap-6"><div><h3 class="font-semibold mb-2">Empleados Activos</h3><ul id="dashboard-empleados" class="space-y-1 text-sm"></ul></div><div><h3 class="font-semibold mb-2">Habitaciones Ocupadas</h3><ul id="dashboard-habitaciones" class="space-y-1 text-sm"></ul></div></div></div>`;
+      const anunciosHTML = `<div class="mb-8 p-6 bg-purple-900 bg-opacity-50 rounded-lg"><h2 class="text-2xl font-bold mb-4">Publicar Anuncio Global</h2><textarea id="anuncioTexto" class="w-full p-2 text-black rounded mb-2" rows="3" placeholder="Escribe tu anuncio aquí..."></textarea><button onclick="publicarAnuncio()" class="btn">Publicar</button></div>`;
 
       let tablaEmpleadosHTML = '';
       empleados.forEach(empleado => {
@@ -196,9 +186,14 @@
       const gestionHTML = `<div class="mb-8 p-6 bg-purple-900 bg-opacity-50 rounded-lg"><h2 class="text-2xl font-bold mb-4">Gestionar Empleados</h2><div class="flex flex-col md:flex-row gap-4"><input type="text" id="newEmployeeName" class="flex-grow px-3 py-2 text-black rounded" placeholder="Nombre y apellido..."><input type="password" id="newEmployeePass" class="flex-grow px-3 py-2 text-black rounded" placeholder="Contraseña..."><button onclick="anadirEmpleado()" class="btn">Añadir Empleado</button></div></div>`;
       const tablaHTML = `<div class="overflow-x-auto bg-purple-900 bg-opacity-80 rounded-lg shadow-xl"><table class="w-full text-left"><thead class="bg-purple-800 text-purple-200 uppercase text-sm"><tr><th class="p-3">Empleado</th><th class="p-3">Horas Hoy</th><th class="p-3">Horas Semana</th><th class="p-3">Horas Total</th><th class="p-3 text-center">Ventas Hoy (uds.)</th><th class="p-3 text-center">Ventas Total (uds.)</th><th class="p-3 text-center">Acciones</th></tr></thead><tbody>${tablaEmpleadosHTML}</tbody></table></div>`;
       
-      document.getElementById('contenido').innerHTML = `<div class="max-w-7xl mx-auto"><h1 class="text-4xl font-bold text-center mb-8">Panel de Administración</h1>${dashboardHTML}${anunciosHTML}${gestionHTML}${tablaHTML}<div class="text-center mt-8"><button onclick="mostrarInicio()" class="btn">Volver a Inicio</button></div></div>`;
-      actualizarDashboard(); // Primera ejecución inmediata
+      const libroNegroHTML = `<div class="mb-8 p-6 bg-purple-900 bg-opacity-50 rounded-lg"><h2 class="text-2xl font-bold mb-4">Libro Negro de Contactos</h2><div class="flex flex-col md:flex-row gap-4 mb-4"><input type="text" id="libroNombre" class="flex-grow px-3 py-2 text-black rounded" placeholder="Nombre del contacto..."><select id="libroRelacion" class="px-3 py-2 text-black rounded"><option value="Aliado">Aliado</option><option value="Rival">Rival</option><option value="Neutral">Neutral</option></select><input type="text" id="libroNotas" class="flex-grow px-3 py-2 text-black rounded" placeholder="Notas..."><button onclick="anadirAlLibroNegro()" class="btn">Añadir</button></div><ul id="listaLibroNegro" class="space-y-2"></ul></div>`;
+      const listaNegraHTML = `<div class="mb-8 p-6 bg-purple-900 bg-opacity-50 rounded-lg"><h2 class="text-2xl font-bold mb-4">Lista Negra (Personas Vetadas)</h2><div class="flex flex-col md:flex-row gap-4 mb-4"><input type="text" id="vetadoNombre" class="flex-grow px-3 py-2 text-black rounded" placeholder="Nombre de la persona..."><input type="text" id="vetadoMotivo" class="flex-grow px-3 py-2 text-black rounded" placeholder="Motivo del veto..."><button onclick="anadirAListaNegra()" class="btn">Vetar</button></div><ul id="listaDeVetados" class="space-y-2"></ul></div>`;
+
+      document.getElementById('contenido').innerHTML = `<div class="max-w-7xl mx-auto"><h1 class="text-4xl font-bold text-center mb-8">Panel de Administración</h1>${dashboardHTML}${anunciosHTML}${gestionHTML}${tablaHTML}${libroNegroHTML}${listaNegraHTML}<div class="text-center mt-8"><button onclick="mostrarInicio()" class="btn">Volver a Inicio</button></div></div>`;
+      actualizarDashboard();
       iniciarDashboard();
+      actualizarLibroNegro();
+      actualizarListaNegra();
     }
     
     function actualizarDashboard() {
@@ -252,7 +247,7 @@
         const pass = inputPass.value;
         if (!nombre || !pass) { alert('El nombre y la contraseña son obligatorios.'); return; }
         if (empleados.find(e => e.nombre === nombre)) { alert('Este empleado ya existe.'); return; }
-        empleados.push({ nombre: nombre, passHash: hashPassword(pass) });
+        empleados.push({ nombre: nombre, passHash: hashPassword(pass), ultimoAnuncioVisto: 0 });
         guardarDatos('empleados', empleados);
         mostrarPanelAdmin();
     }
@@ -349,7 +344,7 @@
     function publicarAnuncio() {
         const texto = document.getElementById('anuncioTexto').value.trim();
         if (texto) {
-            anuncios.unshift({ id: Date.now(), texto: texto }); // Añade al principio
+            anuncios.unshift({ id: Date.now(), texto: texto });
             guardarDatos('anuncios', anuncios);
             document.getElementById('anuncioTexto').value = '';
             alert('Anuncio publicado.');
@@ -361,7 +356,7 @@
         if (anuncios.length === 0) {
             mensaje = "No hay anuncios recientes.";
         } else {
-            anuncios.slice(0, 5).forEach(anuncio => { // Muestra los 5 más recientes
+            anuncios.slice(0, 5).forEach(anuncio => {
                 mensaje += `- ${anuncio.texto}\n`;
             });
         }
@@ -374,7 +369,7 @@
         if (empleado && anuncios.length > 0) {
             empleado.ultimoAnuncioVisto = anuncios[0].id;
             guardarDatos('empleados', empleados);
-            mostrarPanelEmpleados(nombre); // Redibuja para quitar el punto rojo
+            mostrarPanelEmpleados(nombre);
         }
     }
 
@@ -383,6 +378,71 @@
         if (!empleado || anuncios.length === 0) return false;
         const ultimoAnuncioId = anuncios[0].id;
         return empleado.ultimoAnuncioVisto !== ultimoAnuncioId;
+    }
+
+    function anadirAlLibroNegro() {
+        const nombre = document.getElementById('libroNombre').value.trim();
+        const relacion = document.getElementById('libroRelacion').value;
+        const notas = document.getElementById('libroNotas').value.trim();
+        if (!nombre) { alert("El nombre del contacto es obligatorio."); return; }
+        libroNegro.push({ id: Date.now(), nombre, relacion, notas });
+        guardarDatos('libroNegro', libroNegro);
+        actualizarLibroNegro();
+        document.getElementById('libroNombre').value = '';
+        document.getElementById('libroNotas').value = '';
+    }
+
+    function eliminarDelLibro(id) {
+        libroNegro = libroNegro.filter(c => c.id !== id);
+        guardarDatos('libroNegro', libroNegro);
+        actualizarLibroNegro();
+    }
+
+    function actualizarLibroNegro() {
+        const lista = document.getElementById('listaLibroNegro');
+        if (!lista) return;
+        lista.innerHTML = '';
+        libroNegro.forEach(contacto => {
+            lista.innerHTML += `<li class="flex justify-between items-center p-2 bg-purple-800 rounded"><span><strong class="capitalize">${contacto.nombre}</strong> (${contacto.relacion}) - ${contacto.notas}</span><button onclick="eliminarDelLibro(${contacto.id})" class="text-red-500 font-bold px-2">X</button></li>`;
+        });
+    }
+
+    function anadirAListaNegra() {
+        const nombre = document.getElementById('vetadoNombre').value.trim();
+        const motivo = document.getElementById('vetadoMotivo').value.trim();
+        if (!nombre || !motivo) { alert("El nombre y el motivo son obligatorios."); return; }
+        listaNegra.push({ id: Date.now(), nombre, motivo });
+        guardarDatos('listaNegra', listaNegra);
+        actualizarListaNegra();
+        document.getElementById('vetadoNombre').value = '';
+        document.getElementById('vetadoMotivo').value = '';
+    }
+
+    function eliminarDeListaNegra(id) {
+        listaNegra = listaNegra.filter(p => p.id !== id);
+        guardarDatos('listaNegra', listaNegra);
+        actualizarListaNegra();
+    }
+    
+    function actualizarListaNegra() {
+        const lista = document.getElementById('listaDeVetados');
+        if (!lista) return;
+        lista.innerHTML = '';
+        listaNegra.forEach(persona => {
+            lista.innerHTML += `<li class="flex justify-between items-center p-2 bg-red-900 bg-opacity-50 rounded"><span><strong class="capitalize">${persona.nombre}</strong> - ${persona.motivo}</span><button onclick="eliminarDeListaNegra(${persona.id})" class="text-white font-bold px-2">X</button></li>`;
+        });
+    }
+    
+    function mostrarListaNegraPublica() {
+        let mensaje = "--- LISTA NEGRA ---\nPersonas con acceso denegado al local:\n\n";
+        if (listaNegra.length === 0) {
+            mensaje += "Actualmente no hay nadie en la lista negra.";
+        } else {
+            listaNegra.forEach(p => {
+                mensaje += `- ${p.nombre} (Motivo: ${p.motivo})\n`;
+            });
+        }
+        alert(mensaje);
     }
 
     // ===================================================================================
@@ -404,10 +464,7 @@
     document.addEventListener('DOMContentLoaded', () => {
         let empleadosGuardados = cargarDatos('empleados', []);
         if (!Array.isArray(empleadosGuardados) || empleadosGuardados.length === 0 || !empleadosGuardados[0].hasOwnProperty('passHash')) {
-            empleados = [
-                {nombre: 'tito giovanni', passHash: hashPassword('1234'), ultimoAnuncioVisto: 0},
-                {nombre: 'marta', passHash: hashPassword('1234'), ultimoAnuncioVisto: 0}
-            ];
+            empleados = [ {nombre: 'tito giovanni', passHash: hashPassword('1234'), ultimoAnuncioVisto: 0}, {nombre: 'marta', passHash: hashPassword('1234'), ultimoAnuncioVisto: 0} ];
         } else {
             empleados = empleadosGuardados;
         }
@@ -415,6 +472,8 @@
         fichajes = cargarDatos('fichajes', {});
         ventas = cargarDatos('ventas', {});
         anuncios = cargarDatos('anuncios', []);
+        libroNegro = cargarDatos('libroNegro', []);
+        listaNegra = cargarDatos('listaNegra', []);
         habitaciones = cargarDatos('habitaciones', []);
         
         if (!Array.isArray(habitaciones) || habitaciones.length !== 10 || !habitaciones[0].hasOwnProperty('reservas')) {
