@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-R" />
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Moore Club - La Tentación Empieza Aquí</title>
   <script src="https://cdn.tailwindcss.com"></script>
@@ -75,6 +75,9 @@
     productos.forEach(p => { ventasIniciales[p.id] = 0; });
     let ventas = cargarDatos('ventas', ventasIniciales);
 
+    // Variable global para nuestro único intervalo
+    let masterInterval = null;
+
 
     // ===================================================================================
     //  3. LÓGICA DE NAVEGACIÓN Y VISTAS
@@ -126,29 +129,24 @@
                     <h2 class="text-2xl font-bold">Panel de Fichaje: <span class="text-purple-300">${nombre}</span></h2>
                     <button class="btn" style="background-color: #d63636;" onclick="cerrarSesion()">Cerrar Sesión</button>
                 </div>
-
                 <div class="bg-purple-800 p-4 rounded-lg mb-6 grid grid-cols-1 md:grid-cols-4 gap-4 text-center items-center">
                     <div><p class="text-sm text-purple-300">TIEMPO HOY</p><p id="tiempoHoy" class="font-mono text-xl">${formatearTiempo(tiempoHoy)}</p></div>
                     <div><p class="text-sm text-purple-300">TIEMPO SEMANA</p><p class="font-mono text-xl">${formatearTiempo(datosFichaje.semana)}</p></div>
                     <div><p class="text-sm text-purple-300">TIEMPO TOTAL</p><p class="font-mono text-xl">${formatearTiempo(datosFichaje.total)}</p></div>
                     <div class="bg-purple-700 p-2 rounded-lg"><p class="text-sm text-purple-200">SESIÓN ACTUAL</p><p id="tiempoSesion" class="font-mono text-xl font-bold text-white">00:00:00</p></div>
                 </div>
-
                  <div class="text-center mb-8">
                     <button class="btn text-lg px-6 py-3" onclick="fichar('${nombre}')">Fichar Entrada</button>
                     <button class="btn text-lg px-6 py-3" onclick="desfichar('${nombre}')">Fichar Salida</button>
                  </div>
-
                 <h3 class="text-xl font-semibold mb-4 border-t border-purple-700 pt-6">Registrar Ventas</h3>
                 <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4" id="productosVenta">${productosVentaHTML}</div>
             </div>`;
         
-        if (window.tiempoIntervalo) clearInterval(window.tiempoIntervalo);
-        if (window.sesionIntervalo) clearInterval(window.sesionIntervalo);
-
+        // Detiene cualquier intervalo anterior y arranca uno nuevo si es necesario
+        if (masterInterval) clearInterval(masterInterval);
         if (datosFichaje.fichado) {
-            window.tiempoIntervalo = setInterval(() => actualizarTiempoDisplay(nombre), 1000);
-            window.sesionIntervalo = setInterval(() => actualizarTiempoSesion(nombre), 1000);
+            masterInterval = setInterval(() => actualizarTodosLosTiempos(nombre), 1000);
         }
     }
 
@@ -225,8 +223,7 @@
     }
 
     function cerrarSesion() {
-      if (window.tiempoIntervalo) clearInterval(window.tiempoIntervalo);
-      if (window.sesionIntervalo) clearInterval(window.sesionIntervalo);
+      if (masterInterval) clearInterval(masterInterval);
       sessionStorage.removeItem('currentUser');
       mostrarInicio();
     }
@@ -273,25 +270,27 @@
         return datos;
     }
     
-    function actualizarTiempoDisplay(nombre) {
-      const datosFichaje = fichajes[nombre];
-      if (datosFichaje && datosFichaje.fichado) {
-        const tiempoElemento = document.getElementById('tiempoHoy');
-        if(tiempoElemento) {
-            const tiempoTranscurrido = Date.now() - datosFichaje.inicio + datosFichaje.hoy;
-            tiempoElemento.textContent = formatearTiempo(tiempoTranscurrido);
-        }
-      }
-    }
-    
-    function actualizarTiempoSesion(nombre) {
+    // --- NUEVA FUNCIÓN UNIFICADA PARA ACTUALIZAR LOS RELOJES ---
+    function actualizarTodosLosTiempos(nombre) {
         const datosFichaje = fichajes[nombre];
-        if (datosFichaje && datosFichaje.inicio) {
-            const sesionElemento = document.getElementById('tiempoSesion');
-            if (sesionElemento) {
-                const tiempoSesion = Date.now() - datosFichaje.inicio;
-                sesionElemento.textContent = formatearTiempo(tiempoSesion);
-            }
+        // Si por alguna razón ya no estamos fichados, detenemos el reloj
+        if (!datosFichaje || !datosFichaje.fichado) {
+            if (masterInterval) clearInterval(masterInterval);
+            return;
+        }
+
+        // Actualizar "Tiempo Hoy"
+        const tiempoHoyElemento = document.getElementById('tiempoHoy');
+        if (tiempoHoyElemento) {
+            const tiempoTranscurrido = Date.now() - datosFichaje.inicio + datosFichaje.hoy;
+            tiempoHoyElemento.textContent = formatearTiempo(tiempoTranscurrido);
+        }
+
+        // Actualizar "Sesión Actual"
+        const sesionElemento = document.getElementById('tiempoSesion');
+        if (sesionElemento) {
+            const tiempoSesion = Date.now() - datosFichaje.inicio;
+            sesionElemento.textContent = formatearTiempo(tiempoSesion);
         }
     }
 
