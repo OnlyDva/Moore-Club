@@ -33,11 +33,11 @@
     /* Estilos para el Chatbot */
     #chatbot-button {
         position: fixed;
-        bottom: 40px; /* Más arriba */
+        bottom: 150px; /* Más arriba, altura media */
         right: 20px;
         border-radius: 50%;
-        width: 80px; /* Más grande */
-        height: 80px; /* Más grande */
+        width: 100px; /* Más grande */
+        height: 100px; /* Más grande */
         overflow: hidden;
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
         cursor: pointer;
@@ -62,10 +62,10 @@
 
     #chatbot-container {
         position: fixed;
-        bottom: 120px; /* Encima del botón más grande */
+        bottom: 260px; /* Encima del botón más grande (150px + 100px + 10px margen) */
         right: 20px;
-        width: 400px; /* Más grande */
-        height: 550px; /* Más grande */
+        width: 450px; /* Más grande */
+        height: 600px; /* Más grande */
         background-color: #1a1a2e;
         border-radius: 10px;
         box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
@@ -611,10 +611,11 @@
 
             if (empleado && hashPassword(pass) === empleado.passHash) {
                 sessionStorage.setItem('currentUser', nombre);
-                await gestionarReseteoDatos(nombre);
-                await gestionarResionarReseteoDatos(nombre, true);
-                mostrarPanelEmpleados(nombre);
-                const datosFichaje = fichajes[nombre];
+                await gestionarReseteoDatos(currentUser); // Esto gestiona fichajes
+                // *** CORRECCIÓN DE ERROR AQUÍ: LA LÍNEA REPETIDA Y MAL ESCRITA FUE ELIMINADA ***
+                await gestionarReseteoDatos(currentUser, true); // Esto gestiona ventas
+                mostrarPanelEmpleados(currentUser);
+                const datosFichaje = fichajes[currentUser];
                 if (datosFichaje && datosFichaje.fichado) {
                     iniciarRelojFichaje(datosFichaje.inicio, datosFichaje.hoy, datosFichaje.semana, datosFichaje.total);
                 }
@@ -747,7 +748,6 @@
             const cliente = document.getElementById(`cliente-hab-${id}`).value.trim();
             const fecha = document.getElementById(`fecha-hab-${id}`).value;
             const hora = document.getElementById(`hora-hab-${id}`).value;
-            // CORRECCIÓN DEL SYNTAXERROR AQUÍ
             const duracion = parseInt(document.getElementById(`duracion-hab-${id}`).value);
 
             if (!cliente || !fecha || !hora || isNaN(duracion) || duracion <= 0) {
