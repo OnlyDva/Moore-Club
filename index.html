@@ -23,9 +23,24 @@
       font-weight: 600;
       cursor: pointer;
       transition: background-color 0.3s;
+      margin-right: 0.5rem;
     }
     .btn:hover {
       background-color: #5b189b;
+    }
+    #mensaje {
+      margin-top: 1rem;
+      padding: 0.5rem 1rem;
+      background-color: #9f7aea;
+      color: white;
+      border-radius: 0.375rem;
+      font-weight: 600;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      max-width: 300px;
+    }
+    #mensaje.visible {
+      opacity: 1;
     }
   </style>
 </head>
@@ -37,9 +52,7 @@
       <h1 class="text-xl font-bold cursor-pointer" onclick="mostrarInicio()">Moore Club</h1>
       <ul class="flex space-x-6 text-sm">
         <li><a href="#" onclick="mostrarInicio()" class="hover:underline">Inicio</a></li>
-        <li><a href="#" onclick="mostrarPanelFichaje()" class="hover:underline">Fichaje</a></li>
-        <li><a href="#" onclick="mostrarPanelVentasPeluches()" class="hover:underline">Ventas Peluches</a></li>
-        <li><a href="#" onclick="mostrarPanelVentasComida()" class="hover:underline">Ventas Comida</a></li>
+        <li><a href="#" onclick="empleadoActual ? mostrarPanelEmpleados() : mostrarLoginFichaje()" class="hover:underline">Empleados</a></li>
       </ul>
     </nav>
 
@@ -51,56 +64,41 @@
   </div>
 
 <script>
-  // ------ Datos y estados ------
-
-  // Empleado actual (simulamos sesión)
+  // Datos y estados
   let empleadoActual = null;
 
-  // Estados fichaje
   let estadosTrabajo = JSON.parse(localStorage.getItem('estadosTrabajo')) || {
     'tito giovanni': { fichado: false, inicio: null, tiempoAcumulado: 0 },
-    // Puedes añadir más empleados aquí
+    'marta as': { fichado: false, inicio: null, tiempoAcumulado: 0 }
   };
 
-  // Ventas peluches
   const productosPeluches = [
-    { id: 'tito', nombre: 'Tito Dios Griego', img: 'url_tito.png' },
-    { id: 'tita', nombre: 'La Tita', img: 'url_tita.png' },
-    { id: 'mascara', nombre: 'Máscara Dominante “Cat Vanilla”', img: 'url_mascara.png' },
-    { id: 'pinzas', nombre: 'Pinzas LED “Sweet Pain”', img: 'url_pinzas.png' },
-    { id: 'condones', nombre: 'Condones “Espadas del Deseo”', img: 'url_condones.png' },
-    { id: 'dildo', nombre: 'Dildo Doble “Fusión Morada”', img: 'url_dildo.png' }
+    { id: 'tito', nombre: 'Tito Dios Griego', img: 'tito.png' },
+    { id: 'tita', nombre: 'La Tita', img: 'tita.png' },
+    { id: 'mascara', nombre: 'Máscara Dominante “Cat Vanilla”', img: 'mascara.png' },
+    { id: 'pinzas', nombre: 'Pinzas LED “Sweet Pain”', img: 'pinzas.png' },
+    { id: 'condones', nombre: 'Condones “Espadas del Deseo”', img: 'condones.png' },
+    { id: 'dildo', nombre: 'Dildo Doble “Fusión Morada”', img: 'dildo.png' }
   ];
 
   let ventasPeluches = JSON.parse(localStorage.getItem('ventasPeluches')) || {
-    tito: 0,
-    tita: 0,
-    mascara: 0,
-    pinzas: 0,
-    condones: 0,
-    dildo: 0
+    tito: 0, tita: 0, mascara: 0, pinzas: 0, condones: 0, dildo: 0
   };
 
-  // Ventas comida y bebida
   const productosComida = [
-    { id: 'banana', nombre: 'Banana pelada con glaseado y cerezas', img: 'url_banana.png', descripcion: 'Provocadora y dulce hasta el final.' },
-    { id: 'magdalenas', nombre: 'Magdalenas con glaseado rosa', img: 'url_magdalenas.png', descripcion: 'Dos razones para pecar.' },
-    { id: 'berenjena', nombre: 'Berenjena rellena', img: 'url_berenjena.png', descripcion: 'Caliente y jugosa, te va a dejar sudando.' },
-    { id: 'coctel', nombre: 'Cóctel dulce con cereza y fresa', img: 'url_coctel.png', descripcion: 'Tierno al principio, travieso al final.' },
-    { id: 'trago', nombre: 'Trago afrutado y ácido', img: 'url_trago.png', descripcion: 'Refresca y se te queda pegado.' },
-    { id: 'almejas', nombre: 'Almejas picantes con limón', img: 'url_almejas.png', descripcion: 'Suave por fuera, fuego por dentro.' }
+    { id: 'banana', nombre: 'Banana pelada con glaseado y cerezas', img: 'banana.png', descripcion: 'Provocadora y dulce hasta el final.' },
+    { id: 'magdalenas', nombre: 'Magdalenas con glaseado rosa', img: 'magdalenas.png', descripcion: 'Dos razones para pecar.' },
+    { id: 'berenjena', nombre: 'Berenjena rellena', img: 'berenjena.png', descripcion: 'Caliente y jugosa, te va a dejar sudando.' },
+    { id: 'coctel', nombre: 'Cóctel dulce con cereza y fresa', img: 'coctel.png', descripcion: 'Tierno al principio, travieso al final.' },
+    { id: 'trago', nombre: 'Trago afrutado y ácido', img: 'trago.png', descripcion: 'Refresca y se te queda pegado.' },
+    { id: 'almejas', nombre: 'Almejas picantes con limón', img: 'almejas.png', descripcion: 'Suave por fuera, fuego por dentro.' }
   ];
 
   let ventasComida = JSON.parse(localStorage.getItem('ventasComida')) || {
-    banana: 0,
-    magdalenas: 0,
-    berenjena: 0,
-    coctel: 0,
-    trago: 0,
-    almejas: 0
+    banana: 0, magdalenas: 0, berenjena: 0, coctel: 0, trago: 0, almejas: 0
   };
 
-  // ------ Guardar estados en localStorage ------
+  // Guardar estados
   function guardarEstadosTrabajo() {
     localStorage.setItem('estadosTrabajo', JSON.stringify(estadosTrabajo));
   }
@@ -111,29 +109,22 @@
     localStorage.setItem('ventasComida', JSON.stringify(ventasComida));
   }
 
-  // ------ Funciones UI ------
+  // Mensajes sin alertas
+  function mostrarMensaje(texto) {
+    const mensaje = document.getElementById('mensaje');
+    if (!mensaje) return;
+    mensaje.textContent = texto;
+    mensaje.classList.add('visible');
+    setTimeout(() => mensaje.classList.remove('visible'), 3000);
+  }
 
-  // Mostrar inicio
+  // UI
+
   function mostrarInicio() {
     empleadoActual = null;
     document.getElementById('contenido').innerHTML = `
       <h2 class="text-2xl font-bold mb-4">Bienvenido a Moore Club</h2>
       <p>Explora nuestras secciones y vive la experiencia.</p>
-    `;
-  }
-
-  // Panel fichaje
-  function mostrarPanelFichaje() {
-    if (!empleadoActual) {
-      return mostrarLoginFichaje();
-    }
-    actualizarEstadoGeneral();
-    document.getElementById('contenido').innerHTML = `
-      <h2 class="text-2xl font-bold mb-4">Panel de Fichaje - ${empleadoActual}</h2>
-      <button class="btn mr-2" onclick="ficharEntrada()">Fichar Entrada</button>
-      <button class="btn mr-2" onclick="ficharSalida()">Fichar Salida</button>
-      <button class="btn bg-red-600 hover:bg-red-700" onclick="cerrarSesion()">Cerrar Sesión</button>
-      <div class="mt-4" id="estadoGeneral"></div>
     `;
   }
 
@@ -146,21 +137,22 @@
         <input id="nombreEmpleado" type="text" class="w-full px-3 py-2 mb-4 text-black" placeholder="Ej: tito giovanni" />
         <button onclick="loginEmpleado()" class="btn w-full">Entrar</button>
       </div>
+      <div id="mensaje"></div>
     `;
   }
 
   function loginEmpleado() {
     const nombre = document.getElementById('nombreEmpleado').value.trim().toLowerCase();
     if (!nombre) {
-      alert('Introduce un nombre válido');
+      mostrarMensaje('Introduce un nombre válido');
       return;
     }
     if (!(nombre in estadosTrabajo)) {
-      alert('Empleado no registrado');
+      mostrarMensaje('Empleado no registrado');
       return;
     }
     empleadoActual = nombre;
-    mostrarPanelFichaje();
+    mostrarPanelEmpleados();
   }
 
   function cerrarSesion() {
@@ -168,24 +160,52 @@
     mostrarInicio();
   }
 
-  // Fichar entrada
+  // Panel empleados con submenú
+  function mostrarPanelEmpleados() {
+    const contenido = document.getElementById('contenido');
+    contenido.innerHTML = `
+      <h2 class="text-2xl font-bold mb-4">Panel Empleados - ${empleadoActual}</h2>
+      <div class="mb-4 space-x-4">
+        <button class="btn" onclick="mostrarFichaje()">Fichaje</button>
+        <button class="btn" onclick="mostrarVentasPeluches()">Ventas Peluches</button>
+        <button class="btn" onclick="mostrarVentasComida()">Ventas Comida</button>
+        <button class="btn bg-red-600 hover:bg-red-700" onclick="cerrarSesion()">Cerrar Sesión</button>
+      </div>
+      <div id="subcontenido"></div>
+      <div id="mensaje"></div>
+    `;
+    mostrarFichaje();
+  }
+
+  // Fichaje
+  function mostrarFichaje() {
+    const subcontenido = document.getElementById('subcontenido');
+    const estado = estadosTrabajo[empleadoActual];
+    subcontenido.innerHTML = `
+      <button class="btn mr-2" onclick="ficharEntrada()">Fichar Entrada</button>
+      <button class="btn mr-2" onclick="ficharSalida()">Fichar Salida</button>
+      <div class="mt-4" id="estadoGeneral"></div>
+    `;
+    actualizarEstadoGeneral();
+  }
+
   function ficharEntrada() {
     const estado = estadosTrabajo[empleadoActual];
     if (estado.fichado) {
-      alert('Ya estás fichado');
+      mostrarMensaje('Ya estás fichado');
       return;
     }
     estado.fichado = true;
     estado.inicio = Date.now();
     guardarEstadosTrabajo();
     actualizarEstadoGeneral();
+    mostrarMensaje('Fichado correctamente');
   }
 
-  // Fichar salida
   function ficharSalida() {
     const estado = estadosTrabajo[empleadoActual];
     if (!estado.fichado) {
-      alert('No estás fichado');
+      mostrarMensaje('No estás fichado');
       return;
     }
     estado.fichado = false;
@@ -193,9 +213,9 @@
     estado.inicio = null;
     guardarEstadosTrabajo();
     actualizarEstadoGeneral();
+    mostrarMensaje('Salida registrada');
   }
 
-  // Actualizar panel con tiempos calculados
   function actualizarEstadoGeneral() {
     const cont = document.getElementById('estadoGeneral');
     const hoy = new Date();
@@ -247,12 +267,10 @@
     cont.innerHTML = html;
   }
 
-  // ------ Panel Ventas Peluches ------
-
-  function mostrarPanelVentasPeluches() {
-    const contenido = document.getElementById('contenido');
-    let html = `<h2 class="text-2xl font-bold mb-4">Gestión de Ventas Peluches</h2><div class="grid grid-cols-1 md:grid-cols-2 gap-6">`;
-
+  // Ventas Peluches
+  function mostrarVentasPeluches() {
+    const subcontenido = document.getElementById('subcontenido');
+    let html = `<div class="grid grid-cols-1 md:grid-cols-2 gap-6">`;
     productosPeluches.forEach(p => {
       html += `
         <div class="bg-black bg-opacity-30 p-4 rounded">
@@ -263,16 +281,15 @@
           <button onclick="agregarVenta('${p.id}')" class="btn w-full">Añadir ventas</button>
         </div>`;
     });
-
     html += '</div>';
-    contenido.innerHTML = html;
+    subcontenido.innerHTML = html;
   }
 
   function agregarVenta(id) {
     const input = document.getElementById(`input-${id}`);
     const valor = parseInt(input.value);
     if (isNaN(valor) || valor <= 0) {
-      alert('Introduce una cantidad válida');
+      mostrarMensaje('Introduce una cantidad válida');
       return;
     }
     ventasPeluches[id] += valor;
@@ -281,12 +298,10 @@
     input.value = '';
   }
 
-  // ------ Panel Ventas Comida ------
-
-  function mostrarPanelVentasComida() {
-    const contenido = document.getElementById('contenido');
-    let html = `<h2 class="text-2xl font-bold mb-4">Gestión de Ventas Comida y Bebida</h2><div class="grid grid-cols-1 md:grid-cols-2 gap-6">`;
-
+  // Ventas Comida y Bebida
+  function mostrarVentasComida() {
+    const subcontenido = document.getElementById('subcontenido');
+    let html = `<div class="grid grid-cols-1 md:grid-cols-2 gap-6">`;
     productosComida.forEach(p => {
       html += `
         <div class="bg-black bg-opacity-30 p-4 rounded">
@@ -298,16 +313,15 @@
           <button onclick="agregarVentaComida('${p.id}')" class="btn w-full">Añadir ventas</button>
         </div>`;
     });
-
     html += '</div>';
-    contenido.innerHTML = html;
+    subcontenido.innerHTML = html;
   }
 
   function agregarVentaComida(id) {
     const input = document.getElementById(`input-comida-${id}`);
     const valor = parseInt(input.value);
     if (isNaN(valor) || valor <= 0) {
-      alert('Introduce una cantidad válida');
+      mostrarMensaje('Introduce una cantidad válida');
       return;
     }
     ventasComida[id] += valor;
@@ -315,7 +329,9 @@
     document.getElementById(`total-comida-${id}`).textContent = ventasComida[id];
     input.value = '';
   }
+
 </script>
 
 </body>
 </html>
+
