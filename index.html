@@ -42,21 +42,19 @@
 
   <script>
     // ===================================================================================
-    //  1. FUENTE DE DATOS CENTRALIZADA
+    //  1. FUENTE DE DATOS CENTRALIZADA (NOMBRES DE IMAGEN CORREGIDOS)
     // ===================================================================================
     const productos = [
         { id: 'tito_griego', nombre: 'Tito Dios Griego', descripcion: 'Figura divina, musculoso, con toga morada.', imagen: 'Tito.png' },
         { id: 'la_tita', nombre: 'La Tita', descripcion: 'Muñeca provocadora con actitud descarada.', imagen: 'Tita.png' },
         { id: 'mascara_cat', nombre: 'Máscara Dominante “Cat Vanilla”', descripcion: 'Cuero morado con orejas felinas.', imagen: 'Mascara.png' },
         { id: 'pinzas_led', nombre: 'Pinzas LED “Sweet Pain”', descripcion: 'Pinzas con corazones LED que brillan.', imagen: 'Pinzas.png' },
-        // CORREGIDO: 'condones.png' -> 'preservativos.png' para que coincida con el nombre del producto.
-        { id: 'preservativos', nombre: 'Preservativos “Espadas del Deseo”', descripcion: 'Rojo y azul en envase negro brillante.', imagen: 'preservativos.png' },
+        { id: 'preservativos', nombre: 'Preservativos “Espadas del Deseo”', descripcion: 'Rojo y azul en envase negro brillante.', imagen: 'condones.png' },
         { id: 'dildo_doble', nombre: 'Dildo Doble “Fusión Morada”', descripcion: 'Flexible y listo para retos atrevidos.', imagen: 'Dildo.webp' },
         { id: 'banana', nombre: 'Banana Pelada', descripcion: 'Provocadora y dulce hasta el final.', imagen: 'banana.png' },
         { id: 'magdalenas', nombre: 'Magdalenas con Glaseado Rosa', descripcion: 'Dos razones para pecar.', imagen: 'magdalenas.png' },
         { id: 'berenjena', nombre: 'Berenjena Rellena', descripcion: 'Caliente y jugosa. Te va a dejar sudando.', imagen: 'berenjena.png' },
         { id: 'coctel', nombre: 'Cóctel Dulce', descripcion: 'Tierno al principio, travieso al final.', imagen: 'Coctel.png' },
-        // CORREGIDO: 'tragoafrutado.png' es el nombre correcto del archivo.
         { id: 'trago_afrutado', nombre: 'Trago Afrutado', descripcion: 'Refresca... y se te queda pegado.', imagen: 'tragoafrutado.png' },
         { id: 'almejas', nombre: 'Almejas Picantes', descripcion: 'Suave por fuera, fuego por dentro.', imagen: 'almejas.png' }
     ];
@@ -68,82 +66,49 @@
         const datosGuardados = storage.getItem(clave);
         return datosGuardados ? JSON.parse(datosGuardados) : valorPorDefecto;
     }
-
     function guardarDatos(clave, datos, storage = localStorage) {
         storage.setItem(clave, JSON.stringify(datos));
     }
-
-    // Datos persistentes (no se borran al cerrar pestaña)
     let empleados = cargarDatos('empleados', ['tito giovanni']);
     let fichajes = cargarDatos('fichajes', {});
     const ventasIniciales = {};
     productos.forEach(p => { ventasIniciales[p.id] = 0; });
     let ventas = cargarDatos('ventas', ventasIniciales);
 
+
     // ===================================================================================
     //  3. LÓGICA DE NAVEGACIÓN Y VISTAS
     // ===================================================================================
-    function crearTarjetaProducto(producto, esPanelVenta = false) {
-      const totalVentas = ventas[producto.id] || 0;
-      const inputVentasHTML = esPanelVenta 
-        ? `<input type="number" min="0" value="0" id="input-${producto.id}" class="w-20 px-2 py-1 mt-2 text-black rounded" onchange="actualizarVentas('${producto.id}')" /><p class="mt-2 text-sm">Total: <span id="total-${producto.id}">${totalVentas}</span></p>` 
-        : `<p class="text-purple-300 text-sm mt-2">${producto.descripcion}</p>`;
-      return `<div class="producto-card bg-purple-800 rounded-lg p-4 text-center shadow-md flex flex-col justify-between"><div><img src="${producto.imagen}" alt="${producto.nombre}" class="mx-auto mb-3" /><h3 class="text-white font-semibold">${producto.nombre}</h3></div><div>${inputVentasHTML}</div></div>`;
-    }
-
+    
     function mostrarInicio() {
-      // (Esta función no ha cambiado, se omite por brevedad en la explicación, pero está en el código)
-       const contenido = document.getElementById('contenido');
+      const contenido = document.getElementById('contenido');
       contenido.innerHTML = `
-        <div class="p-8 max-w-6xl mx-auto rounded-lg bg-purple-900 bg-opacity-90 shadow-lg">
+        <div class="p-4 md:p-8 max-w-7xl mx-auto rounded-lg bg-purple-900 bg-opacity-90 shadow-lg">
           <header class="mb-8 text-center">
             <h1 class="text-5xl font-extrabold text-white drop-shadow-lg mb-2">Bienvenido a Moore Club</h1>
-            <p class="text-purple-300 text-lg">Vive la experiencia única de nuestro club. Explora secciones, productos y gestiona el fichaje de nuestro personal.</p>
+            <p class="text-purple-300 text-lg">Donde la tentación y la elegancia se encuentran.</p>
           </header>
-          <section class="flex flex-wrap justify-center gap-8 mb-12">
-            <div class="p-4 bg-purple-700 rounded-lg text-center w-64 hover:scale-105 transition-transform shadow-md">
-              <img src="Tito.png" alt="Tito Giovanni" class="mx-auto mb-4 w-32 rounded-full border-4 border-purple-500" />
-              <h2 class="text-xl font-semibold text-white mb-2">Tito Giovanni</h2>
-              <p class="text-purple-200 text-sm">Maestro de ceremonias y corazón de Moore. Carisma y elegancia en estado puro.</p>
+          
+          <div class="flex flex-col md:flex-row items-center gap-8">
+            <div class="md:w-1/2">
+              <img src="image_0f479b.png" alt="Tito y Marta" class="rounded-lg shadow-2xl w-full h-auto object-cover" />
             </div>
-            <div class="p-4 bg-purple-700 rounded-lg text-center w-64 hover:scale-105 transition-transform shadow-md">
-              <img src="Marta.png" alt="Marta" class="mx-auto mb-4 w-32 rounded-full border-4 border-purple-500" />
-              <h2 class="text-xl font-semibold text-white mb-2">Marta</h2>
-              <p class="text-purple-200 text-sm">La musa del club, sensualidad y actitud que cautiva en cada show.</p>
+            
+            <div class="md:w-1/2 space-y-6">
+              <div class="bg-purple-800 bg-opacity-50 p-4 rounded-lg">
+                <h2 class="text-2xl font-bold text-white mb-2">Tito Giovanni</h2>
+                <p class="text-purple-200">El carismático maestro de ceremonias y corazón de Moore. Su elegancia y estilo inconfundible, siempre vestido de morado, garantizan una noche inolvidable. Es el anfitrión perfecto, el alma de la fiesta.</p>
+              </div>
+              <div class="bg-purple-800 bg-opacity-50 p-4 rounded-lg">
+                <h2 class="text-2xl font-bold text-white mb-2">Marta</h2>
+                <p class="text-purple-200">La musa indiscutible del club. Con una actitud que cautiva y una sensualidad que desarma, Marta es la protagonista de los shows más aclamados. Su presencia en el escenario es pura magia y provocación.</p>
+              </div>
             </div>
-          </section>
+          </div>
+
           <div class="mt-10 flex justify-center gap-8">
             <button onclick="mostrarLoginVIP()" class="btn">Área Empleados</button>
             <button onclick="mostrarPanelProductos()" class="btn">Nuestros Productos</button>
-          </div>
-        </div>`;
-    }
-
-    function mostrarPanelProductos() {
-      // (Esta función no ha cambiado)
-       const contenido = document.getElementById('contenido');
-      const productosHTML = productos.map(p => crearTarjetaProducto(p, false)).join('');
-      contenido.innerHTML = `
-        <h2 class="text-2xl font-bold mb-6 text-center">Productos Moore Club</h2>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-          ${productosHTML}
-        </div>
-        <div class="text-center">
-           <button onclick="mostrarInicio()" class="btn mt-8">Volver</button>
-        </div>`;
-    }
-
-    function mostrarLoginVIP() {
-      // (Esta función no ha cambiado)
-       const contenido = document.getElementById('contenido');
-      contenido.innerHTML = `
-        <div class="max-w-md mx-auto bg-black bg-opacity-30 p-8 rounded-lg shadow-lg">
-          <h2 class="text-2xl font-bold mb-4 text-center">Acceso Empleados</h2>
-          <label class="block mb-2">Nombre completo:</label>
-          <input id="nombreInput" type="text" class="w-full px-3 py-2 text-black mb-4 rounded" placeholder="nombre y apellido en minúsculas" />
-          <div class="flex justify-between">
-            <button onclick="verificarAccesoVIP()" class="btn">Entrar</button>
-            <button onclick="mostrarInicio()" class="btn" style="background-color:#5b189b;">Volver</button>
           </div>
         </div>`;
     }
@@ -152,7 +117,7 @@
         const contenido = document.getElementById('contenido');
         const datosFichaje = gestionarReseteoTiempos(nombre);
         
-        const tiempoActual = datosFichaje.fichado ? (Date.now() - datosFichaje.inicio + datosFichaje.hoy) : datosFichaje.hoy;
+        const tiempoHoy = datosFichaje.fichado ? (Date.now() - datosFichaje.inicio + datosFichaje.hoy) : datosFichaje.hoy;
         const productosVentaHTML = productos.map(p => crearTarjetaProducto(p, true)).join('');
 
         contenido.innerHTML = `
@@ -162,10 +127,11 @@
                     <button class="btn" style="background-color: #d63636;" onclick="cerrarSesion()">Cerrar Sesión</button>
                 </div>
 
-                <div class="bg-purple-800 p-4 rounded-lg mb-6 grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
-                    <div><p class="text-sm text-purple-300">TIEMPO HOY</p><p id="tiempoHoy" class="font-mono text-xl">${formatearTiempo(tiempoActual)}</p></div>
+                <div class="bg-purple-800 p-4 rounded-lg mb-6 grid grid-cols-1 md:grid-cols-4 gap-4 text-center items-center">
+                    <div><p class="text-sm text-purple-300">TIEMPO HOY</p><p id="tiempoHoy" class="font-mono text-xl">${formatearTiempo(tiempoHoy)}</p></div>
                     <div><p class="text-sm text-purple-300">TIEMPO SEMANA</p><p class="font-mono text-xl">${formatearTiempo(datosFichaje.semana)}</p></div>
                     <div><p class="text-sm text-purple-300">TIEMPO TOTAL</p><p class="font-mono text-xl">${formatearTiempo(datosFichaje.total)}</p></div>
+                    <div class="bg-purple-700 p-2 rounded-lg"><p class="text-sm text-purple-200">SESIÓN ACTUAL</p><p id="tiempoSesion" class="font-mono text-xl font-bold text-white">00:00:00</p></div>
                 </div>
 
                  <div class="text-center mb-8">
@@ -177,21 +143,55 @@
                 <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4" id="productosVenta">${productosVentaHTML}</div>
             </div>`;
         
+        if (window.tiempoIntervalo) clearInterval(window.tiempoIntervalo);
+        if (window.sesionIntervalo) clearInterval(window.sesionIntervalo);
+
         if (datosFichaje.fichado) {
-            if (!window.tiempoIntervalo) { window.tiempoIntervalo = setInterval(() => actualizarTiempoDisplay(nombre), 1000); }
-        } else {
-            clearInterval(window.tiempoIntervalo);
-            window.tiempoIntervalo = null;
+            window.tiempoIntervalo = setInterval(() => actualizarTiempoDisplay(nombre), 1000);
+            window.sesionIntervalo = setInterval(() => actualizarTiempoSesion(datosFichaje.inicio), 1000);
         }
     }
 
+    function crearTarjetaProducto(producto, esPanelVenta = false) {
+      const totalVentas = ventas[producto.id] || 0;
+      const inputVentasHTML = esPanelVenta 
+        ? `<input type="number" min="0" value="0" id="input-${producto.id}" class="w-20 px-2 py-1 mt-2 text-black rounded" onchange="actualizarVentas('${producto.id}')" /><p class="mt-2 text-sm">Total: <span id="total-${producto.id}">${totalVentas}</span></p>` 
+        : `<p class="text-purple-300 text-sm mt-2">${producto.descripcion}</p>`;
+      return `<div class="producto-card bg-purple-800 rounded-lg p-4 text-center shadow-md flex flex-col justify-between"><div><img src="${producto.imagen}" alt="${producto.nombre}" class="mx-auto mb-3" /><h3 class="text-white font-semibold">${producto.nombre}</h3></div><div>${inputVentasHTML}</div></div>`;
+    }
+
+    function mostrarPanelProductos() {
+      const contenido = document.getElementById('contenido');
+      const productosHTML = productos.map(p => crearTarjetaProducto(p, false)).join('');
+      contenido.innerHTML = `
+        <h2 class="text-2xl font-bold mb-6 text-center">Productos Moore Club</h2>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">${productosHTML}</div>
+        <div class="text-center">
+           <button onclick="mostrarInicio()" class="btn mt-8">Volver</button>
+        </div>`;
+    }
+
+    function mostrarLoginVIP() {
+      const contenido = document.getElementById('contenido');
+      contenido.innerHTML = `
+        <div class="max-w-md mx-auto bg-black bg-opacity-30 p-8 rounded-lg shadow-lg">
+          <h2 class="text-2xl font-bold mb-4 text-center">Acceso Empleados</h2>
+          <label class="block mb-2">Nombre completo:</label>
+          <input id="nombreInput" type="text" class="w-full px-3 py-2 text-black mb-4 rounded" placeholder="nombre y apellido en minúsculas" />
+          <div class="flex justify-between">
+            <button onclick="verificarAccesoVIP()" class="btn">Entrar</button>
+            <button onclick="mostrarInicio()" class="btn" style="background-color:#5b189b;">Volver</button>
+          </div>
+        </div>`;
+    }
+    
     // ===================================================================================
     //  4. FUNCIONES DE LÓGICA (Acciones del usuario)
     // ===================================================================================
     function verificarAccesoVIP() {
       const nombre = document.getElementById('nombreInput')?.value.trim().toLowerCase();
       if (empleados.includes(nombre)) {
-        guardarDatos('currentUser', nombre, sessionStorage); // Guarda el usuario en la sesión
+        guardarDatos('currentUser', nombre, sessionStorage);
         mostrarPanelEmpleados(nombre);
       } else {
         alert('Acceso denegado. El nombre no se encuentra en la lista de empleados.');
@@ -225,8 +225,9 @@
     }
 
     function cerrarSesion() {
-      if (window.tiempoIntervalo) { clearInterval(window.tiempoIntervalo); window.tiempoIntervalo = null; }
-      sessionStorage.removeItem('currentUser'); // Borra al usuario de la sesión
+      if (window.tiempoIntervalo) clearInterval(window.tiempoIntervalo);
+      if (window.sesionIntervalo) clearInterval(window.sesionIntervalo);
+      sessionStorage.removeItem('currentUser');
       mostrarInicio();
     }
     
@@ -263,23 +264,10 @@
         const ahora = new Date();
         const hoyStr = ahora.toISOString().split('T')[0];
         const semanaNum = getWeekNumber(ahora);
-
         let datos = fichajes[nombre] || {};
-        
-        // Inicializar si es la primera vez
         if (!datos.total) datos = { total: 0, hoy: 0, semana: 0, fecha: null, numSemana: null, fichado: false, inicio: null };
-        
-        // Resetear si es un nuevo día
-        if (datos.fecha !== hoyStr) {
-            datos.hoy = 0;
-            datos.fecha = hoyStr;
-        }
-        // Resetear si es una nueva semana
-        if (datos.numSemana !== semanaNum) {
-            datos.semana = 0;
-            datos.numSemana = semanaNum;
-        }
-
+        if (datos.fecha !== hoyStr) { datos.hoy = 0; datos.fecha = hoyStr; }
+        if (datos.numSemana !== semanaNum) { datos.semana = 0; datos.numSemana = semanaNum; }
         fichajes[nombre] = datos;
         guardarDatos('fichajes', fichajes);
         return datos;
@@ -294,6 +282,14 @@
             tiempoElemento.textContent = formatearTiempo(tiempoTranscurrido);
         }
       }
+    }
+    
+    function actualizarTiempoSesion(inicio) {
+        const sesionElemento = document.getElementById('tiempoSesion');
+        if (sesionElemento) {
+            const tiempoSesion = Date.now() - inicio;
+            sesionElemento.textContent = formatearTiempo(tiempoSesion);
+        }
     }
 
     // ===================================================================================
