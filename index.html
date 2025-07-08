@@ -123,7 +123,7 @@
                 <div class="mt-4 text-left text-sm">
                     <p class="font-bold mb-2">Horas ya reservadas para hoy:</p>
                     <ul class="list-disc list-inside space-y-1 h-24 overflow-y-auto">
-                        ${hab.reservas.filter(r => new Date(r.inicio).toDateString() === new Date().toDateString()).map(r => `<li>${new Date(r.inicio).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})} - ${new Date(r.fin).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</li>`).join('') || '<li>Ninguna reserva hoy.</li>'}
+                        ${hab.reservas.filter(r => new Date(r.inicio).toDateString() === new Date().toDateString()).sort((a,b)=>a.inicio-b.inicio).map(r => `<li>${new Date(r.inicio).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})} - ${new Date(r.fin).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</li>`).join('') || '<li>Ninguna reserva hoy.</li>'}
                     </ul>
                 </div>
                 <div id="form-hab-${hab.id}" class="mt-4 text-left">
@@ -244,7 +244,6 @@
         if (!Array.isArray(habitaciones) || habitaciones.length !== 10) {
             habitaciones = [];
             for (let i = 1; i <= 10; i++) {
-                // CORREGIDO: Se asegura de que todas las habitaciones nuevas tengan la propiedad 'reservas'.
                 habitaciones.push({ id: i, nombre: `Habitación ${i}`, reservas: [] });
             }
         }
