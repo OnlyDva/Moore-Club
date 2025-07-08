@@ -1,46 +1,4 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Moore Club - La Tentación Empieza Aquí</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    body {
-      font-family: 'Inter', sans-serif;
-      background: url('mooreclub1.webp') center top no-repeat;
-      background-size: cover;
-      background-attachment: fixed;
-      color: white;
-    }
-    .bg-overlay { background-color: rgba(0, 0, 0, 0.85); }
-    .btn {
-      background-color: #6b21a8; color: white; padding: 0.5rem 1rem;
-      border-radius: 0.375rem; font-weight: 600; cursor: pointer;
-      transition: background-color 0.3s; margin-right: 0.5rem;
-    }
-    .btn:hover { background-color: #5b189b; }
-    .producto-card img {
-      border-radius: 0.5rem; height: 96px; width: 96px;
-      object-fit: cover;
-    }
-    #contenido { min-height: 60vh; }
-  </style>
-</head>
-<body class="text-purple-200">
-  <div class="bg-overlay min-h-screen">
-    <nav class="bg-purple-900 text-white px-6 py-4 flex justify-between items-center">
-      <h1 class="text-xl font-bold cursor-pointer" onclick="mostrarInicio()">Moore Club</h1>
-      <ul class="flex space-x-6 text-sm">
-        <li><a href="#" onclick="mostrarInicio()" class="hover:underline">Inicio</a></li>
-        <li><a href="#" onclick="mostrarLoginVIP()" class="hover:underline">Empleados</a></li>
-        <li><a href="#" onclick="mostrarPanelProductos()" class="hover:underline">Productos</a></li>
-      </ul>
-    </nav>
-    <main id="contenido" class="p-8"></main>
-  </div>
-
-  <script>
+<script>
     // ===================================================================================
     //  1. FUENTE DE DATOS Y ESTADO
     // ===================================================================================
@@ -48,14 +6,16 @@
     let empleados;
     let fichajes;
     let ventas;
-    let masterInterval = null;
+    let habitaciones;
+    let fichajeInterval = null;
+    let habitacionesInterval = null;
 
     // ===================================================================================
-    //  2. LÓGICA DEL RELOJ
+    //  2. LÓGICA DE TEMPORIZADORES
     // ===================================================================================
-    function iniciarReloj(horaInicio, baseHoy, baseSemana, baseTotal) {
-      detenerReloj();
-      masterInterval = setInterval(() => {
+    function iniciarRelojFichaje(horaInicio, baseHoy, baseSemana, baseTotal) {
+      detenerRelojFichaje();
+      fichajeInterval = setInterval(() => {
         const tiempoSesion = Date.now() - horaInicio;
         document.getElementById('tiempoHoy').textContent = formatearTiempo(baseHoy + tiempoSesion);
         document.getElementById('tiempoSemana').textContent = formatearTiempo(baseSemana + tiempoSesion);
@@ -64,58 +24,140 @@
       }, 1000);
     }
 
-    function detenerReloj() {
-      if (masterInterval) { clearInterval(masterInterval); masterInterval = null; }
+    function detenerRelojFichaje() {
+      if (fichajeInterval) {
+        clearInterval(fichajeInterval);
+        fichajeInterval = null;
+      }
+    }
+
+    function iniciarRelojHabitaciones() {
+      detenerRelojHabitaciones();
+      habitacionesInterval = setInterval(() => {
+        habitaciones.forEach(hab => {
+          if (hab.estado === 'ocupada') {
+            const tiempoRestanteElem = document.getElementById(`timer-hab-${hab.id}`);
+            if (tiempoRestanteElem) {
+              const restante = hab.tiempoFin - Date.now();
+              if (restante > 0) {
+                tiempoRestanteElem.textContent = formatearTiempo(restante);
+              } else {
+                tiempoRestanteElem.textContent = "¡TIEMPO AGOTADO!";
+                tiempoRestanteElem.classList.add('text-red-500');
+              }
+            }
+          }
+        });
+      }, 1000);
+    }
+
+    function detenerRelojHabitaciones() {
+      if (habitacionesInterval) {
+        clearInterval(habitacionesInterval);
+        habitacionesInterval = null;
+      }
     }
     
     // ===================================================================================
-    //  3. LÓGICA DE VISTAS
+    //  3. LÓGICA DE VISTAS (DIBUJADO)
     // ===================================================================================
     function mostrarInicio() {
-      detenerReloj();
+      detenerRelojFichaje();
+      detenerRelojHabitaciones();
       document.getElementById('contenido').innerHTML = `<div class="p-4 md:p-8 max-w-7xl mx-auto rounded-lg bg-purple-900 bg-opacity-90 shadow-lg"><header class="mb-8 text-center"><h1 class="text-5xl font-extrabold text-white drop-shadow-lg mb-2">Bienvenido a Moore Club</h1><p class="text-purple-300 text-lg">Donde la tentación y la elegancia se encuentran.</p></header><div class="flex flex-col md:flex-row items-center gap-8"><div class="md:w-5/12"><img src="Tito y Marta.png" alt="Tito y Marta" class="rounded-lg shadow-2xl w-full h-auto object-cover" /></div><div class="md:w-7/12 space-y-6"><div class="bg-purple-800 bg-opacity-50 p-4 rounded-lg"><h2 class="text-2xl font-bold text-white mb-2">Tito Giovanni</h2><p class="text-purple-200">El carismático maestro de ceremonias y corazón de Moore. Su elegancia y estilo inconfundible, siempre vestido de morado, garantizan una noche inolvidable. Es el anfitrión perfecto, el alma de la fiesta.</p></div><div class="bg-purple-800 bg-opacity-50 p-4 rounded-lg"><h2 class="text-2xl font-bold text-white mb-2">Marta</h2><p class="text-purple-200">La musa indiscutible del club. Con una actitud que cautiva y una sensualidad que desarma, Marta es la protagonista de los shows más aclamados. Su presencia en el escenario es pura magia y provocación.</p></div></div></div><div class="mt-10 flex justify-center gap-4"><button onclick="mostrarLoginVIP()" class="btn">Área Empleados</button><button onclick="mostrarLoginAdmin()" class="btn" style="background-color: #a855f7;">Tito Giovanni</button></div></div>`;
     }
 
     function mostrarPanelEmpleados(nombre) {
-        const datosFichaje = gestionarReseteoDatos(nombre);
-        let tiempoHoy = datosFichaje.hoy; let tiempoSemana = datosFichaje.semana; let tiempoTotal = datosFichaje.total;
-        if (datosFichaje.fichado) {
-            const tiempoDesdeFichaje = Date.now() - datosFichaje.inicio;
-            tiempoHoy += tiempoDesdeFichaje; tiempoSemana += tiempoDesdeFichaje; tiempoTotal += tiempoDesdeFichaje;
+      const datosFichaje = gestionarReseteoDatos(nombre);
+      let tiempoHoy = datosFichaje.hoy;
+      let tiempoSemana = datosFichaje.semana;
+      let tiempoTotal = datosFichaje.total;
+      if (datosFichaje.fichado) {
+        const tiempoDesdeFichaje = Date.now() - datosFichaje.inicio;
+        tiempoHoy += tiempoDesdeFichaje;
+        tiempoSemana += tiempoDesdeFichaje;
+        tiempoTotal += tiempoDesdeFichaje;
+      }
+      const productosVentaHTML = productos.map(p => crearTarjetaProducto(p, true, nombre)).join('');
+
+      let habitacionesHTML = '';
+      habitaciones.forEach(hab => {
+        let controles = '';
+        if (hab.estado === 'disponible') {
+          controles = `<button class="btn text-sm py-1" onclick="darLlave(${hab.id})">Llave Dada</button>`;
+        } else {
+          controles = `<div class="font-mono text-lg" id="timer-hab-${hab.id}">--:--:--</div>
+                             <button class="btn text-xs py-1" onclick="anadirTiempoHabitacion(${hab.id}, 30)">+30 min</button>
+                             <button class="btn text-xs py-1" style="background-color:#c44" onclick="liberarHabitacion(${hab.id})">Liberar</button>`;
         }
-        const productosVentaHTML = productos.map(p => crearTarjetaProducto(p, true, nombre)).join('');
-        document.getElementById('contenido').innerHTML = `<div class="p-6 bg-purple-900 bg-opacity-90 rounded-lg max-w-6xl mx-auto shadow-lg"><div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-bold">Panel de Fichaje: <span class="text-purple-300 capitalize">${nombre}</span></h2><button class="btn" style="background-color: #d63636;" onclick="cerrarSesion()">Cerrar Sesión</button></div><div class="bg-purple-800 p-4 rounded-lg mb-6 grid grid-cols-1 md:grid-cols-4 gap-4 text-center items-center"><div><p class="text-sm text-purple-300">TIEMPO HOY</p><p id="tiempoHoy" class="font-mono text-xl">${formatearTiempo(tiempoHoy)}</p></div><div><p class="text-sm text-purple-300">TIEMPO SEMANA</p><p id="tiempoSemana" class="font-mono text-xl">${formatearTiempo(tiempoSemana)}</p></div><div><p class="text-sm text-purple-300">TIEMPO TOTAL</p><p id="tiempoTotal" class="font-mono text-xl">${formatearTiempo(tiempoTotal)}</p></div><div class="bg-purple-700 p-2 rounded-lg"><p class="text-sm text-purple-200">SESIÓN ACTUAL</p><p id="tiempoSesion" class="font-mono text-xl font-bold text-white">00:00:00</p></div></div><div class="text-center mb-8"><button class="btn text-lg px-6 py-3" onclick="fichar('${nombre}')">Fichar Entrada</button><button class="btn text-lg px-6 py-3" onclick="desfichar('${nombre}')">Fichar Salida</button></div><h3 class="text-xl font-semibold mb-4 border-t border-purple-700 pt-6">Registrar Ventas</h3><div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4" id="productosVenta">${productosVentaHTML}</div></div>`;
+        habitacionesHTML += `<div class="bg-purple-800 p-3 rounded-lg text-center"><p class="font-bold">${hab.nombre}</p>${controles}</div>`;
+      });
+
+      document.getElementById('contenido').innerHTML = `<div class="p-6 bg-purple-900 bg-opacity-90 rounded-lg max-w-6xl mx-auto shadow-lg">
+            <div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-bold">Panel de Fichaje: <span class="text-purple-300 capitalize">${nombre}</span></h2><button class="btn" style="background-color: #d63636;" onclick="cerrarSesion()">Cerrar Sesión</button></div>
+            <div class="bg-purple-800 p-4 rounded-lg mb-6 grid grid-cols-1 md:grid-cols-4 gap-4 text-center items-center"><div><p class="text-sm text-purple-300">TIEMPO HOY</p><p id="tiempoHoy" class="font-mono text-xl">${formatearTiempo(tiempoHoy)}</p></div><div><p class="text-sm text-purple-300">TIEMPO SEMANA</p><p id="tiempoSemana" class="font-mono text-xl">${formatearTiempo(tiempoSemana)}</p></div><div><p class="text-sm text-purple-300">TIEMPO TOTAL</p><p id="tiempoTotal" class="font-mono text-xl">${formatearTiempo(tiempoTotal)}</p></div><div class="bg-purple-700 p-2 rounded-lg"><p class="text-sm text-purple-200">SESIÓN ACTUAL</p><p id="tiempoSesion" class="font-mono text-xl font-bold text-white">00:00:00</p></div></div>
+            <div class="text-center mb-8"><button class="btn text-lg px-6 py-3" onclick="fichar('${nombre}')">Fichar Entrada</button><button class="btn text-lg px-6 py-3" onclick="desfichar('${nombre}')">Fichar Salida</button></div>
+            <h3 class="text-xl font-semibold mb-4 border-t border-purple-700 pt-6">Gestión de Habitaciones</h3><div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">${habitacionesHTML}</div>
+            <h3 class="text-xl font-semibold mb-4 border-t border-purple-700 pt-6">Registrar Ventas</h3><div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4" id="productosVenta">${productosVentaHTML}</div>
+        </div>`;
+      iniciarRelojHabitaciones();
     }
 
     function mostrarPanelProductos() {
-      detenerReloj();
-      document.getElementById('contenido').innerHTML = `<h2 class="text-2xl font-bold mb-6 text-center">Productos Moore Club</h2><div class="grid grid-cols-2 md:grid-cols-4 gap-6">${productos.map(p => crearTarjetaProducto(p, false)).join('')}</div><div class="text-center"><button onclick="mostrarInicio()" class="btn mt-8">Volver</button></div>`;
+      detenerRelojFichaje();
+      detenerRelojHabitaciones();
+      const contenido = document.getElementById('contenido');
+      const productosHTML = productos.map(p => crearTarjetaProducto(p, false)).join('');
+      contenido.innerHTML = `<h2 class="text-2xl font-bold mb-6 text-center">Productos Moore Club</h2><div class="grid grid-cols-2 md:grid-cols-4 gap-6">${productosHTML}</div><div class="text-center"><button onclick="mostrarInicio()" class="btn mt-8">Volver</button></div>`;
     }
-    
+
+    function mostrarPanelHabitaciones() {
+      detenerRelojFichaje();
+      detenerRelojHabitaciones();
+      let html = `<div class="max-w-7xl mx-auto text-center"><h1 class="text-4xl font-bold mb-8">Nuestras Habitaciones</h1><div class="grid grid-cols-2 md:grid-cols-5 gap-6">`;
+      habitaciones.forEach(hab => {
+        const estadoClass = hab.estado === 'disponible' ? 'border-green-500' : 'border-red-500 opacity-60';
+        const estadoTexto = hab.estado.charAt(0).toUpperCase() + hab.estado.slice(1);
+        html += `<div class="border-2 ${estadoClass} rounded-lg p-6 flex flex-col items-center justify-center bg-purple-900 bg-opacity-50">
+                        <h2 class="text-2xl font-bold">${hab.nombre}</h2>
+                        <p class="text-lg mt-2">${estadoTexto}</p>
+                        ${hab.estado === 'disponible' ? '<button class="btn mt-4" onclick="alert(\'Contacta con nuestro personal para reservar esta habitación.\')">Reservar</button>' : ''}
+                     </div>`;
+      });
+      html += `</div></div>`;
+      document.getElementById('contenido').innerHTML = html;
+    }
+
     function mostrarLoginVIP() {
-      detenerReloj();
-      document.getElementById('contenido').innerHTML = `<div class="max-w-md mx-auto bg-black bg-opacity-30 p-8 rounded-lg shadow-lg"><h2 class="text-2xl font-bold mb-4 text-center">Acceso Empleados</h2><label class="block mb-2">Nombre completo:</label><input id="nombreInput" type="text" class="w-full px-3 py-2 text-black mb-4 rounded" placeholder="nombre y apellido en minúsculas" /><div class="flex justify-between"><button onclick="verificarAccesoVIP()" class="btn">Entrar</button><button onclick="mostrarInicio()" class="btn" style="background-color:#5b189b;">Volver</button></div></div>`;
+      detenerRelojFichaje();
+      detenerRelojHabitaciones();
+      const contenido = document.getElementById('contenido');
+      contenido.innerHTML = `<div class="max-w-md mx-auto bg-black bg-opacity-30 p-8 rounded-lg shadow-lg"><h2 class="text-2xl font-bold mb-4 text-center">Acceso Empleados</h2><label class="block mb-2">Nombre completo:</label><input id="nombreInput" type="text" class="w-full px-3 py-2 text-black mb-4 rounded" placeholder="nombre y apellido en minúsculas" /><div class="flex justify-between"><button onclick="verificarAccesoVIP()" class="btn">Entrar</button><button onclick="mostrarInicio()" class="btn" style="background-color:#5b189b;">Volver</button></div></div>`;
     }
 
     function mostrarLoginAdmin() {
-      detenerReloj();
-      document.getElementById('contenido').innerHTML = `<div class="max-w-md mx-auto bg-black bg-opacity-50 p-8 rounded-lg shadow-lg border-2 border-purple-400"><h2 class="text-3xl font-bold mb-4 text-center text-purple-300">Acceso Privado - Tito Giovanni</h2><label class="block mb-2">Contraseña de Administrador:</label><input id="adminPassInput" type="password" class="w-full px-3 py-2 text-black mb-4 rounded" /><div class="flex justify-between"><button onclick="verificarAccesoAdmin()" class="btn">Entrar</button><button onclick="mostrarInicio()" class="btn" style="background-color:#5b189b;">Volver</button></div></div>`;
+      detenerRelojFichaje();
+      detenerRelojHabitaciones();
+      const contenido = document.getElementById('contenido');
+      contenido.innerHTML = `<div class="max-w-md mx-auto bg-black bg-opacity-50 p-8 rounded-lg shadow-lg border-2 border-purple-400"><h2 class="text-3xl font-bold mb-4 text-center text-purple-300">Acceso Privado - Tito Giovanni</h2><label class="block mb-2">Contraseña de Administrador:</label><input id="adminPassInput" type="password" class="w-full px-3 py-2 text-black mb-4 rounded" /><div class="flex justify-between"><button onclick="verificarAccesoAdmin()" class="btn">Entrar</button><button onclick="mostrarInicio()" class="btn" style="background-color:#5b189b;">Volver</button></div></div>`;
     }
 
     function mostrarPanelAdmin() {
-      detenerReloj();
+      detenerRelojFichaje();
+      detenerRelojHabitaciones();
       let tableRowsHTML = '';
       empleados.forEach(empleado => {
         const datosFichaje = gestionarReseteoDatos(empleado);
         const datosVentas = gestionarReseteoDatos(empleado, true);
-        let ventasHoy = 0; let ventasTotal = 0;
+        let ventasHoy = 0;
+        let ventasTotal = 0;
         if (datosVentas && datosVentas.productos) {
-            for (const prodId in datosVentas.productos) {
-                ventasHoy += datosVentas.productos[prodId].hoy;
-                ventasTotal += datosVentas.productos[prodId].total;
-            }
+          for (const prodId in datosVentas.productos) {
+            ventasHoy += datosVentas.productos[prodId].hoy;
+            ventasTotal += datosVentas.productos[prodId].total;
+          }
         }
-        
+
         tableRowsHTML += `<tr class="border-b border-purple-800 hover:bg-purple-900">
             <td class="p-3 capitalize">${empleado}</td>
             <td class="p-3 font-mono">${formatearTiempo(datosFichaje.hoy)}</td>
@@ -159,8 +201,11 @@
     //  4. LÓGICA DE CONTROL
     // ===================================================================================
     function verificarAccesoAdmin() {
-        if (document.getElementById('adminPassInput')?.value === "D.VaSong11") mostrarPanelAdmin();
-        else alert('Contraseña incorrecta.');
+      if (document.getElementById('adminPassInput')?.value === "D.VaSong11") {
+        mostrarPanelAdmin();
+      } else {
+        alert('Contraseña incorrecta.');
+      }
     }
 
     function verificarAccesoVIP() {
@@ -170,39 +215,39 @@
         mostrarPanelEmpleados(nombre);
         const datosFichaje = fichajes[nombre];
         if (datosFichaje && datosFichaje.fichado) {
-          iniciarReloj(datosFichaje.inicio, datosFichaje.hoy, datosFichaje.semana, datosFichaje.total);
+          iniciarRelojFichaje(datosFichaje.inicio, datosFichaje.hoy, datosFichaje.semana, datosFichaje.total);
         }
-      } else { alert('Acceso denegado.'); }
+      } else {
+        alert('Acceso denegado.');
+      }
     }
 
     function anadirEmpleado() {
-        const input = document.getElementById('newEmployeeName');
-        const nombre = input.value.trim().toLowerCase();
-        if (!nombre) {
-            alert('El nombre no puede estar vacío.');
-            return;
-        }
-        if (empleados.includes(nombre)) {
-            alert('Este empleado ya existe.');
-            return;
-        }
-        empleados.push(nombre);
-        guardarDatos('empleados', empleados);
-        mostrarPanelAdmin(); // Refresca el panel para mostrar el nuevo empleado
+      const input = document.getElementById('newEmployeeName');
+      const nombre = input.value.trim().toLowerCase();
+      if (!nombre) {
+        alert('El nombre no puede estar vacío.');
+        return;
+      }
+      if (empleados.includes(nombre)) {
+        alert('Este empleado ya existe.');
+        return;
+      }
+      empleados.push(nombre);
+      guardarDatos('empleados', empleados);
+      mostrarPanelAdmin();
     }
 
     function eliminarEmpleado(nombre) {
-        if (confirm(`¿Estás seguro de que quieres eliminar a ${nombre}?\nEsta acción es permanente y borrará todos sus datos.`)) {
-            empleados = empleados.filter(e => e !== nombre);
-            delete fichajes[nombre];
-            delete ventas[nombre];
-            
-            guardarDatos('empleados', empleados);
-            guardarDatos('fichajes', fichajes);
-            guardarDatos('ventas', ventas);
-            
-            mostrarPanelAdmin(); // Refresca el panel para quitar al empleado
-        }
+      if (confirm(`¿Estás seguro de que quieres eliminar a ${nombre}?\nEsta acción es permanente y borrará todos sus datos.`)) {
+        empleados = empleados.filter(e => e !== nombre);
+        delete fichajes[nombre];
+        delete ventas[nombre];
+        guardarDatos('empleados', empleados);
+        guardarDatos('fichajes', fichajes);
+        guardarDatos('ventas', ventas);
+        mostrarPanelAdmin();
+      }
     }
 
     function fichar(nombre) {
@@ -213,12 +258,12 @@
         fichajes[nombre] = datosFichaje;
         guardarDatos('fichajes', fichajes);
         mostrarPanelEmpleados(nombre);
-        iniciarReloj(datosFichaje.inicio, datosFichaje.hoy, datosFichaje.semana, datosFichaje.total);
+        iniciarRelojFichaje(datosFichaje.inicio, datosFichaje.hoy, datosFichaje.semana, datosFichaje.total);
       }
     }
 
     function desfichar(nombre) {
-      detenerReloj();
+      detenerRelojFichaje();
       let datosFichaje = gestionarReseteoDatos(nombre);
       if (datosFichaje.fichado) {
         const tiempoTrabajado = Date.now() - datosFichaje.inicio;
@@ -234,11 +279,45 @@
     }
 
     function cerrarSesion() {
-      detenerReloj();
+      detenerRelojFichaje();
+      detenerRelojHabitaciones();
       sessionStorage.removeItem('currentUser');
       mostrarInicio();
     }
-    
+
+    function darLlave(id) {
+      const hab = habitaciones.find(h => h.id === id);
+      if (hab && hab.estado === 'disponible') {
+        hab.estado = 'ocupada';
+        hab.tiempoFin = Date.now() + 30 * 60 * 1000;
+        guardarDatos('habitaciones', habitaciones);
+        const currentUser = cargarDatos('currentUser', null, sessionStorage);
+        mostrarPanelEmpleados(currentUser);
+      }
+    }
+
+    function anadirTiempoHabitacion(id, minutos) {
+      const hab = habitaciones.find(h => h.id === id);
+      if (hab && hab.estado === 'ocupada') {
+        const baseTiempo = hab.tiempoFin < Date.now() ? Date.now() : hab.tiempoFin;
+        hab.tiempoFin = baseTiempo + minutos * 60 * 1000;
+        guardarDatos('habitaciones', habitaciones);
+        const currentUser = cargarDatos('currentUser', null, sessionStorage);
+        mostrarPanelEmpleados(currentUser);
+      }
+    }
+
+    function liberarHabitacion(id) {
+      const hab = habitaciones.find(h => h.id === id);
+      if (hab) {
+        hab.estado = 'disponible';
+        hab.tiempoFin = 0;
+        guardarDatos('habitaciones', habitaciones);
+        const currentUser = cargarDatos('currentUser', null, sessionStorage);
+        mostrarPanelEmpleados(currentUser);
+      }
+    }
+
     // ===================================================================================
     //  5. FUNCIONES AUXILIARES
     // ===================================================================================
@@ -258,10 +337,11 @@
     }
 
     function crearTarjetaProducto(producto, esPanelVenta = false, nombreEmpleado = '') {
-      let totalVentasHoy = 0; let totalVentasHist = 0;
+      let totalVentasHoy = 0;
+      let totalVentasHist = 0;
       if (ventas[nombreEmpleado] && ventas[nombreEmpleado].productos && ventas[nombreEmpleado].productos[producto.id]) {
-          totalVentasHoy = ventas[nombreEmpleado].productos[producto.id].hoy;
-          totalVentasHist = ventas[nombreEmpleado].productos[producto.id].total;
+        totalVentasHoy = ventas[nombreEmpleado].productos[producto.id].hoy;
+        totalVentasHist = ventas[nombreEmpleado].productos[producto.id].total;
       }
       const desc = `Hoy: ${totalVentasHoy} | Total: ${totalVentasHist}`;
       const inputVentasHTML = esPanelVenta 
@@ -273,7 +353,9 @@
     function actualizarVentas(productoId, nombreEmpleado) {
       const input = document.getElementById(`input-${productoId}`);
       let nuevaCantidad = parseInt(input.value);
-      if (isNaN(nuevaCantidad) || nuevaCantidad < 0) { nuevaCantidad = 0; }
+      if (isNaN(nuevaCantidad) || nuevaCantidad < 0) {
+        nuevaCantidad = 0;
+      }
       if (nuevaCantidad === 0) return;
 
       const datosVentas = gestionarReseteoDatos(nombreEmpleado, true);
@@ -350,13 +432,22 @@
         empleados = cargarDatos('empleados', ['tito giovanni', 'marta']);
         fichajes = cargarDatos('fichajes', {});
         ventas = cargarDatos('ventas', {});
+        
+        let habsGuardadas = cargarDatos('habitaciones', []);
+        if (!Array.isArray(habsGuardadas) || habsGuardadas.length === 0) {
+            habsGuardadas = [];
+            for (let i = 1; i <= 10; i++) {
+                habsGuardadas.push({ id: i, nombre: `Habitación ${i}`, estado: 'disponible', tiempoFin: 0 });
+            }
+        }
+        habitaciones = habsGuardadas;
 
         const currentUser = cargarDatos('currentUser', null, sessionStorage);
         if (currentUser && empleados.includes(currentUser)) {
             mostrarPanelEmpleados(currentUser);
             const datosFichaje = fichajes[currentUser];
             if (datosFichaje && datosFichaje.fichado) {
-                iniciarReloj(datosFichaje.inicio, datosFichaje.hoy, datosFichaje.semana, datosFichaje.total);
+                iniciarRelojFichaje(datosFichaje.inicio, datosFichaje.hoy, datosFichaje.semana, datosFichaje.total);
             }
         } else {
             mostrarInicio();
