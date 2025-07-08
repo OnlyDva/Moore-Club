@@ -42,7 +42,7 @@
 
   <script>
     // ===================================================================================
-    //  1. FUENTE DE DATOS CENTRALIZADA (NOMBRES DE IMAGEN CORREGIDOS)
+    //  1. FUENTE DE DATOS CENTRALIZADA
     // ===================================================================================
     const productos = [
         { id: 'tito_griego', nombre: 'Tito Dios Griego', descripcion: 'Figura divina, musculoso, con toga morada.', imagen: 'Tito.png' },
@@ -55,7 +55,8 @@
         { id: 'magdalenas', nombre: 'Magdalenas con Glaseado Rosa', descripcion: 'Dos razones para pecar.', imagen: 'magdalenas.png' },
         { id: 'berenjena', nombre: 'Berenjena Rellena', descripcion: 'Caliente y jugosa. Te va a dejar sudando.', imagen: 'berenjena.png' },
         { id: 'coctel', nombre: 'Cóctel Dulce', descripcion: 'Tierno al principio, travieso al final.', imagen: 'Coctel.png' },
-        { id: 'trago_afrutado', nombre: 'Trago Afrutado', descripcion: 'Refresca... y se te queda pegado.', imagen: 'tragoafrutado.png' },
+        // CORREGIDO: Nombre del archivo con espacio
+        { id: 'trago_afrutado', nombre: 'Trago Afrutado', descripcion: 'Refresca... y se te queda pegado.', imagen: 'trago afrutado.png' },
         { id: 'almejas', nombre: 'Almejas Picantes', descripcion: 'Suave por fuera, fuego por dentro.', imagen: 'almejas.png' }
     ];
 
@@ -91,7 +92,7 @@
           
           <div class="flex flex-col md:flex-row items-center gap-8">
             <div class="md:w-1/2">
-              <img src="image_0f479b.png" alt="Tito y Marta" class="rounded-lg shadow-2xl w-full h-auto object-cover" />
+              <img src="Tito y Marta.png" alt="Tito y Marta" class="rounded-lg shadow-2xl w-full h-auto object-cover" />
             </div>
             
             <div class="md:w-1/2 space-y-6">
