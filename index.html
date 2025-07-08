@@ -292,19 +292,21 @@
     pararContador()
   }
 
-  // Contador tiempo fichado
+  // Contador tiempo fichado (solo cuenta tiempo desde fichar, sin acumular en el display)
   function iniciarContador() {
     const contador = document.getElementById('contador')
     if (!contador) return
+
     function actualizar() {
       const estado = estadosTrabajo[empleadoActual]
       if (!estado.fichado || !estado.inicio) {
         contador.textContent = '00:00:00'
         return
       }
-      const tiempo = Date.now() - estado.inicio + estado.tiempoAcumulado
-      contador.textContent = formatearTiempo(tiempo)
+      const tiempoDesdeFichaje = Date.now() - estado.inicio
+      contador.textContent = formatearTiempo(tiempoDesdeFichaje)
     }
+
     actualizar()
     intervaloContador = setInterval(actualizar, 1000)
   }
