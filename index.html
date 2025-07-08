@@ -8,37 +8,23 @@
   <style>
     body {
       font-family: 'Inter', sans-serif;
-      /* Asegúrate de que la imagen 'mooreclub1.png' esté en la misma carpeta que este archivo HTML */
       background: url('mooreclub1.png') center top no-repeat;
       background-size: cover;
       background-attachment: fixed;
       color: white;
     }
-    .bg-overlay {
-      background-color: rgba(0, 0, 0, 0.85);
-    }
+    .bg-overlay { background-color: rgba(0, 0, 0, 0.85); }
     .btn {
-      background-color: #6b21a8;
-      color: white;
-      padding: 0.5rem 1rem;
-      border-radius: 0.375rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background-color 0.3s;
-      margin-right: 0.5rem;
+      background-color: #6b21a8; color: white; padding: 0.5rem 1rem;
+      border-radius: 0.375rem; font-weight: 600; cursor: pointer;
+      transition: background-color 0.3s; margin-right: 0.5rem;
     }
-    .btn:hover {
-      background-color: #5b189b;
-    }
+    .btn:hover { background-color: #5b189b; }
     .producto-card img {
-      border-radius: 0.5rem;
-      height: 96px; /* Altura fija para consistencia */
-      width: 96px;  /* Ancho fijo para consistencia */
-      object-fit: cover; /* Asegura que la imagen cubra el espacio sin deformarse */
+      border-radius: 0.5rem; height: 96px; width: 96px;
+      object-fit: cover;
     }
-    #contenido {
-      min-height: 60vh;
-    }
+    #contenido { min-height: 60vh; }
   </style>
 </head>
 <body class="text-purple-200">
@@ -51,93 +37,63 @@
         <li><a href="#" onclick="mostrarPanelProductos()" class="hover:underline">Productos</a></li>
       </ul>
     </nav>
-
     <main id="contenido" class="p-8"></main>
   </div>
 
   <script>
     // ===================================================================================
     //  1. FUENTE DE DATOS CENTRALIZADA
-    //  Ahora todos los productos están en un solo lugar. Si quieres añadir, quitar o
-    //  modificar un producto, solo tienes que cambiarlo aquí.
     // ===================================================================================
     const productos = [
-      { id: 'tito_griego', nombre: 'Tito Dios Griego', descripcion: 'Figura divina, musculoso, con toga morada.', imagen: 'Tito.png' },
-      { id: 'la_tita', nombre: 'La Tita', descripcion: 'Muñeca provocadora con actitud descarada.', imagen: 'Tita.png' },
-      { id: 'mascara_cat', nombre: 'Máscara Dominante “Cat Vanilla”', descripcion: 'Cuero morado con orejas felinas.', imagen: 'Mascara.png' },
-      { id: 'pinzas_led', nombre: 'Pinzas LED “Sweet Pain”', descripcion: 'Pinzas con corazones LED que brillan.', imagen: 'Pinzas.png' },
-      { id: 'preservativos', nombre: 'Preservativos “Espadas del Deseo”', descripcion: 'Rojo y azul en envase negro brillante.', imagen: 'condones.png' },
-      { id: 'dildo_doble', nombre: 'Dildo Doble “Fusión Morada”', descripcion: 'Flexible y listo para retos atrevidos.', imagen: 'Dildo.webp' },
-      { id: 'banana', nombre: 'Banana Pelada', descripcion: 'Provocadora y dulce hasta el final.', imagen: 'banana.png' },
-      { id: 'magdalenas', nombre: 'Magdalenas con Glaseado Rosa', descripcion: 'Dos razones para pecar.', imagen: 'magdalenas.png' },
-      { id: 'berenjena', nombre: 'Berenjena Rellena', descripcion: 'Caliente y jugosa. Te va a dejar sudando.', imagen: 'berenjena.png' },
-      { id: 'coctel', nombre: 'Cóctel Dulce', descripcion: 'Tierno al principio, travieso al final.', imagen: 'Coctel.png' },
-      { id: 'trago_afrutado', nombre: 'Trago Afrutado', descripcion: 'Refresca... y se te queda pegado.', imagen: 'tragoafrutado.png' },
-      { id: 'almejas', nombre: 'Almejas Picantes', descripcion: 'Suave por fuera, fuego por dentro.', imagen: 'almejas.png' }
+        { id: 'tito_griego', nombre: 'Tito Dios Griego', descripcion: 'Figura divina, musculoso, con toga morada.', imagen: 'Tito.png' },
+        { id: 'la_tita', nombre: 'La Tita', descripcion: 'Muñeca provocadora con actitud descarada.', imagen: 'Tita.png' },
+        { id: 'mascara_cat', nombre: 'Máscara Dominante “Cat Vanilla”', descripcion: 'Cuero morado con orejas felinas.', imagen: 'Mascara.png' },
+        { id: 'pinzas_led', nombre: 'Pinzas LED “Sweet Pain”', descripcion: 'Pinzas con corazones LED que brillan.', imagen: 'Pinzas.png' },
+        // CORREGIDO: 'condones.png' -> 'preservativos.png' para que coincida con el nombre del producto.
+        { id: 'preservativos', nombre: 'Preservativos “Espadas del Deseo”', descripcion: 'Rojo y azul en envase negro brillante.', imagen: 'preservativos.png' },
+        { id: 'dildo_doble', nombre: 'Dildo Doble “Fusión Morada”', descripcion: 'Flexible y listo para retos atrevidos.', imagen: 'Dildo.webp' },
+        { id: 'banana', nombre: 'Banana Pelada', descripcion: 'Provocadora y dulce hasta el final.', imagen: 'banana.png' },
+        { id: 'magdalenas', nombre: 'Magdalenas con Glaseado Rosa', descripcion: 'Dos razones para pecar.', imagen: 'magdalenas.png' },
+        { id: 'berenjena', nombre: 'Berenjena Rellena', descripcion: 'Caliente y jugosa. Te va a dejar sudando.', imagen: 'berenjena.png' },
+        { id: 'coctel', nombre: 'Cóctel Dulce', descripcion: 'Tierno al principio, travieso al final.', imagen: 'Coctel.png' },
+        // CORREGIDO: 'tragoafrutado.png' es el nombre correcto del archivo.
+        { id: 'trago_afrutado', nombre: 'Trago Afrutado', descripcion: 'Refresca... y se te queda pegado.', imagen: 'tragoafrutado.png' },
+        { id: 'almejas', nombre: 'Almejas Picantes', descripcion: 'Suave por fuera, fuego por dentro.', imagen: 'almejas.png' }
     ];
 
     // ===================================================================================
-    //  2. GESTIÓN DE DATOS (LocalStorage)
-    //  Funciones para cargar y guardar los datos del navegador.
+    //  2. GESTIÓN DE DATOS (LocalStorage y SessionStorage)
     // ===================================================================================
-    function cargarDatos(clave, valorPorDefecto) {
-        const datosGuardados = localStorage.getItem(clave);
+    function cargarDatos(clave, valorPorDefecto, storage = localStorage) {
+        const datosGuardados = storage.getItem(clave);
         return datosGuardados ? JSON.parse(datosGuardados) : valorPorDefecto;
     }
 
-    function guardarDatos(clave, datos) {
-        localStorage.setItem(clave, JSON.stringify(datos));
+    function guardarDatos(clave, datos, storage = localStorage) {
+        storage.setItem(clave, JSON.stringify(datos));
     }
 
-    // Inicialización de datos
+    // Datos persistentes (no se borran al cerrar pestaña)
     let empleados = cargarDatos('empleados', ['tito giovanni']);
     let fichajes = cargarDatos('fichajes', {});
-    
-    // Las ventas se inicializan dinámicamente desde la lista de productos
     const ventasIniciales = {};
     productos.forEach(p => { ventasIniciales[p.id] = 0; });
     let ventas = cargarDatos('ventas', ventasIniciales);
 
-
     // ===================================================================================
     //  3. LÓGICA DE NAVEGACIÓN Y VISTAS
-    //  Funciones que dibujan cada sección de la página.
     // ===================================================================================
-
-    // Función reutilizable para crear tarjetas de producto
     function crearTarjetaProducto(producto, esPanelVenta = false) {
       const totalVentas = ventas[producto.id] || 0;
       const inputVentasHTML = esPanelVenta 
-        ? `
-          <input
-            type="number"
-            min="0"
-            value="0"
-            id="input-${producto.id}"
-            class="w-20 px-2 py-1 mt-2 text-black rounded"
-            onchange="actualizarVentas('${producto.id}')"
-            aria-label="Cantidad de ventas para ${producto.nombre}"
-          />
-          <p class="mt-2 text-sm">Total: <span id="total-${producto.id}">${totalVentas}</span></p>
-        ` 
+        ? `<input type="number" min="0" value="0" id="input-${producto.id}" class="w-20 px-2 py-1 mt-2 text-black rounded" onchange="actualizarVentas('${producto.id}')" /><p class="mt-2 text-sm">Total: <span id="total-${producto.id}">${totalVentas}</span></p>` 
         : `<p class="text-purple-300 text-sm mt-2">${producto.descripcion}</p>`;
-
-      return `
-        <div class="producto-card bg-purple-800 rounded-lg p-4 text-center shadow-md flex flex-col justify-between">
-          <div>
-            <img src="${producto.imagen}" alt="${producto.nombre}" class="mx-auto mb-3" />
-            <h3 class="text-white font-semibold">${producto.nombre}</h3>
-          </div>
-          <div>
-            ${inputVentasHTML}
-          </div>
-        </div>`;
+      return `<div class="producto-card bg-purple-800 rounded-lg p-4 text-center shadow-md flex flex-col justify-between"><div><img src="${producto.imagen}" alt="${producto.nombre}" class="mx-auto mb-3" /><h3 class="text-white font-semibold">${producto.nombre}</h3></div><div>${inputVentasHTML}</div></div>`;
     }
 
-    // --- VISTAS ---
-    
     function mostrarInicio() {
-      const contenido = document.getElementById('contenido');
+      // (Esta función no ha cambiado, se omite por brevedad en la explicación, pero está en el código)
+       const contenido = document.getElementById('contenido');
       contenido.innerHTML = `
         <div class="p-8 max-w-6xl mx-auto rounded-lg bg-purple-900 bg-opacity-90 shadow-lg">
           <header class="mb-8 text-center">
@@ -164,7 +120,8 @@
     }
 
     function mostrarPanelProductos() {
-      const contenido = document.getElementById('contenido');
+      // (Esta función no ha cambiado)
+       const contenido = document.getElementById('contenido');
       const productosHTML = productos.map(p => crearTarjetaProducto(p, false)).join('');
       contenido.innerHTML = `
         <h2 class="text-2xl font-bold mb-6 text-center">Productos Moore Club</h2>
@@ -177,7 +134,8 @@
     }
 
     function mostrarLoginVIP() {
-      const contenido = document.getElementById('contenido');
+      // (Esta función no ha cambiado)
+       const contenido = document.getElementById('contenido');
       contenido.innerHTML = `
         <div class="max-w-md mx-auto bg-black bg-opacity-30 p-8 rounded-lg shadow-lg">
           <h2 class="text-2xl font-bold mb-4 text-center">Acceso Empleados</h2>
@@ -192,44 +150,35 @@
 
     function mostrarPanelEmpleados(nombre) {
         const contenido = document.getElementById('contenido');
-        if (!fichajes[nombre]) {
-            fichajes[nombre] = { fichado: false, inicio: null, tiempoAcumulado: 0 };
-            guardarDatos('fichajes', fichajes);
-        }
-
-        const fichaje = fichajes[nombre];
-        const tiempoActual = fichaje.fichado ? (Date.now() - fichaje.inicio + fichaje.tiempoAcumulado) : fichaje.tiempoAcumulado;
-
+        const datosFichaje = gestionarReseteoTiempos(nombre);
+        
+        const tiempoActual = datosFichaje.fichado ? (Date.now() - datosFichaje.inicio + datosFichaje.hoy) : datosFichaje.hoy;
         const productosVentaHTML = productos.map(p => crearTarjetaProducto(p, true)).join('');
 
         contenido.innerHTML = `
-            <div class="p-6 bg-purple-900 bg-opacity-90 rounded-lg max-w-5xl mx-auto shadow-lg">
+            <div class="p-6 bg-purple-900 bg-opacity-90 rounded-lg max-w-6xl mx-auto shadow-lg">
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-2xl font-bold">Panel de Fichaje: <span class="text-purple-300">${nombre}</span></h2>
-                    <button class="btn" style="background-color: #a055d6;" onclick="cerrarSesion()">Cerrar Sesión</button>
+                    <button class="btn" style="background-color: #d63636;" onclick="cerrarSesion()">Cerrar Sesión</button>
                 </div>
 
-                <div class="bg-purple-800 p-4 rounded-lg mb-6">
-                    <div class="flex items-center justify-around">
-                        <div>
-                            <button class="btn" onclick="fichar('${nombre}')">Fichar Entrada</button>
-                            <button class="btn" onclick="desfichar('${nombre}')">Fichar Salida</button>
-                        </div>
-                        <p class="text-lg">Tiempo total: <span id="tiempoTrabajado" class="font-mono text-xl">${formatearTiempo(tiempoActual)}</span></p>
-                    </div>
+                <div class="bg-purple-800 p-4 rounded-lg mb-6 grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                    <div><p class="text-sm text-purple-300">TIEMPO HOY</p><p id="tiempoHoy" class="font-mono text-xl">${formatearTiempo(tiempoActual)}</p></div>
+                    <div><p class="text-sm text-purple-300">TIEMPO SEMANA</p><p class="font-mono text-xl">${formatearTiempo(datosFichaje.semana)}</p></div>
+                    <div><p class="text-sm text-purple-300">TIEMPO TOTAL</p><p class="font-mono text-xl">${formatearTiempo(datosFichaje.total)}</p></div>
                 </div>
 
-                <h3 class="text-xl font-semibold mb-4">Registrar Ventas</h3>
-                <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4" id="productosVenta">
-                    ${productosVentaHTML}
-                </div>
+                 <div class="text-center mb-8">
+                    <button class="btn text-lg px-6 py-3" onclick="fichar('${nombre}')">Fichar Entrada</button>
+                    <button class="btn text-lg px-6 py-3" onclick="desfichar('${nombre}')">Fichar Salida</button>
+                 </div>
+
+                <h3 class="text-xl font-semibold mb-4 border-t border-purple-700 pt-6">Registrar Ventas</h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4" id="productosVenta">${productosVentaHTML}</div>
             </div>`;
-
-        // Iniciar o detener el temporizador
-        if (fichaje.fichado) {
-            if (!window.tiempoIntervalo) {
-                window.tiempoIntervalo = setInterval(() => actualizarTiempoDisplay(nombre), 1000);
-            }
+        
+        if (datosFichaje.fichado) {
+            if (!window.tiempoIntervalo) { window.tiempoIntervalo = setInterval(() => actualizarTiempoDisplay(nombre), 1000); }
         } else {
             clearInterval(window.tiempoIntervalo);
             window.tiempoIntervalo = null;
@@ -239,10 +188,10 @@
     // ===================================================================================
     //  4. FUNCIONES DE LÓGICA (Acciones del usuario)
     // ===================================================================================
-    
     function verificarAccesoVIP() {
       const nombre = document.getElementById('nombreInput')?.value.trim().toLowerCase();
       if (empleados.includes(nombre)) {
+        guardarDatos('currentUser', nombre, sessionStorage); // Guarda el usuario en la sesión
         mostrarPanelEmpleados(nombre);
       } else {
         alert('Acceso denegado. El nombre no se encuentra en la lista de empleados.');
@@ -250,50 +199,52 @@
     }
 
     function fichar(nombre) {
-      if (!fichajes[nombre].fichado) {
-        fichajes[nombre].fichado = true;
-        fichajes[nombre].inicio = Date.now();
+      let datosFichaje = gestionarReseteoTiempos(nombre);
+      if (!datosFichaje.fichado) {
+        datosFichaje.fichado = true;
+        datosFichaje.inicio = Date.now();
+        fichajes[nombre] = datosFichaje;
         guardarDatos('fichajes', fichajes);
-        mostrarPanelEmpleados(nombre); // Redibuja el panel para reflejar el cambio
+        mostrarPanelEmpleados(nombre);
       }
     }
 
     function desfichar(nombre) {
-      if (fichajes[nombre].fichado) {
-        fichajes[nombre].tiempoAcumulado += Date.now() - fichajes[nombre].inicio;
-        fichajes[nombre].fichado = false;
-        fichajes[nombre].inicio = null;
+      let datosFichaje = gestionarReseteoTiempos(nombre);
+      if (datosFichaje.fichado) {
+        const tiempoTrabajado = Date.now() - datosFichaje.inicio;
+        datosFichaje.hoy += tiempoTrabajado;
+        datosFichaje.semana += tiempoTrabajado;
+        datosFichaje.total += tiempoTrabajado;
+        datosFichaje.fichado = false;
+        datosFichaje.inicio = null;
+        fichajes[nombre] = datosFichaje;
         guardarDatos('fichajes', fichajes);
-        mostrarPanelEmpleados(nombre); // Redibuja el panel para reflejar el cambio
+        mostrarPanelEmpleados(nombre);
       }
     }
 
     function cerrarSesion() {
-      if (window.tiempoIntervalo) {
-        clearInterval(window.tiempoIntervalo);
-        window.tiempoIntervalo = null;
-      }
+      if (window.tiempoIntervalo) { clearInterval(window.tiempoIntervalo); window.tiempoIntervalo = null; }
+      sessionStorage.removeItem('currentUser'); // Borra al usuario de la sesión
       mostrarInicio();
     }
     
     function actualizarVentas(productoId) {
       const input = document.getElementById(`input-${productoId}`);
       let nuevaCantidad = parseInt(input.value);
-      if (isNaN(nuevaCantidad) || nuevaCantidad < 0) {
-        nuevaCantidad = 0;
-        input.value = 0; // Corrige el valor en el input si es inválido
-      }
-      ventas[productoId] += nuevaCantidad; // Suma la nueva cantidad al total
+      if (isNaN(nuevaCantidad) || nuevaCantidad < 0) { nuevaCantidad = 0; }
+      ventas[productoId] += nuevaCantidad;
       guardarDatos('ventas', ventas);
       document.getElementById(`total-${productoId}`).textContent = ventas[productoId];
-      input.value = 0; // Resetea el input a 0 después de sumar
+      input.value = 0;
     }
     
     // ===================================================================================
     //  5. FUNCIONES AUXILIARES (Helpers)
     // ===================================================================================
-    
     function formatearTiempo(ms) {
+      if (isNaN(ms) || ms < 0) ms = 0;
       const totalSegundos = Math.floor(ms / 1000);
       const horas = String(Math.floor(totalSegundos / 3600)).padStart(2, '0');
       const minutos = String(Math.floor((totalSegundos % 3600) / 60)).padStart(2, '0');
@@ -301,12 +252,45 @@
       return `${horas}:${minutos}:${segundos}`;
     }
 
+    function getWeekNumber(d) {
+        d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+        d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7));
+        var yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
+        return Math.ceil((((d - yearStart) / 86400000) + 1)/7);
+    }
+
+    function gestionarReseteoTiempos(nombre) {
+        const ahora = new Date();
+        const hoyStr = ahora.toISOString().split('T')[0];
+        const semanaNum = getWeekNumber(ahora);
+
+        let datos = fichajes[nombre] || {};
+        
+        // Inicializar si es la primera vez
+        if (!datos.total) datos = { total: 0, hoy: 0, semana: 0, fecha: null, numSemana: null, fichado: false, inicio: null };
+        
+        // Resetear si es un nuevo día
+        if (datos.fecha !== hoyStr) {
+            datos.hoy = 0;
+            datos.fecha = hoyStr;
+        }
+        // Resetear si es una nueva semana
+        if (datos.numSemana !== semanaNum) {
+            datos.semana = 0;
+            datos.numSemana = semanaNum;
+        }
+
+        fichajes[nombre] = datos;
+        guardarDatos('fichajes', fichajes);
+        return datos;
+    }
+    
     function actualizarTiempoDisplay(nombre) {
-      const fichaje = fichajes[nombre];
-      if (fichaje && fichaje.fichado) {
-        const tiempoElemento = document.getElementById('tiempoTrabajado');
+      const datosFichaje = fichajes[nombre];
+      if (datosFichaje && datosFichaje.fichado) {
+        const tiempoElemento = document.getElementById('tiempoHoy');
         if(tiempoElemento) {
-            const tiempoTranscurrido = Date.now() - fichaje.inicio + fichaje.tiempoAcumulado;
+            const tiempoTranscurrido = Date.now() - datosFichaje.inicio + datosFichaje.hoy;
             tiempoElemento.textContent = formatearTiempo(tiempoTranscurrido);
         }
       }
@@ -315,8 +299,14 @@
     // ===================================================================================
     //  INICIALIZACIÓN
     // ===================================================================================
-    document.addEventListener('DOMContentLoaded', mostrarInicio);
-
+    document.addEventListener('DOMContentLoaded', () => {
+        const currentUser = cargarDatos('currentUser', null, sessionStorage);
+        if (currentUser && empleados.includes(currentUser)) {
+            mostrarPanelEmpleados(currentUser);
+        } else {
+            mostrarInicio();
+        }
+    });
   </script>
 </body>
 </html>
