@@ -1,3 +1,8 @@
 [functions]
   directory = "netlify/functions"
-  # timezone = "Europe/Madrid" # Opcional: define la zona horaria si necesitas funciones basadas en tiempo
+  node_bundler = "esbuild" # Usa esbuild para empaquetar funciones, a menudo más robusto
+
+[build]
+  # Este comando instalará las dependencias de tu función antes de desplegar
+  command = "npm install --prefix netlify/functions"
+  publish = "." # Directorio raíz para publicar archivos estáticos
