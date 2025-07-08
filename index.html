@@ -1,376 +1,323 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Moore Club - La Tentación Empieza Aquí</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<style>
-  body {
-    font-family: 'Inter', sans-serif;
-    background: url('mooreclub1.png') center top no-repeat;
-    background-size: cover;
-    background-attachment: fixed;
-    color: #d8b4fe;
-  }
-  .bg-overlay {
-    background-color: rgba(0,0,0,0.85);
-  }
-  .btn {
-    background-color: #6b21a8;
-    color: white;
-    padding: 0.5rem 1rem;
-    border-radius: 0.375rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.3s;
-    margin-right: 0.5rem;
-  }
-  .btn:hover {
-    background-color: #5b189b;
-  }
-  .btn-red {
-    background-color: #dc2626;
-    margin-left: 0.5rem;
-  }
-  .btn-red:hover {
-    background-color: #b91c1c;
-  }
-  #mensaje {
-    margin-top: 1rem;
-    padding: 0.5rem 1rem;
-    background-color: #9f7aea;
-    color: white;
-    border-radius: 0.375rem;
-    font-weight: 600;
-  }
-  .panel {
-    background-color: #6b21a8cc;
-    padding: 1rem;
-    border-radius: 0.5rem;
-    margin-bottom: 1rem;
-  }
-  .panel h2 {
-    font-weight: 700;
-    margin-bottom: 1rem;
-  }
-  .panel-section {
-    margin-top: 1rem;
-  }
-  .cards-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-  }
-  .card {
-    background-color: #7c3aedcc;
-    padding: 1rem;
-    border-radius: 0.5rem;
-    width: 170px;
-    box-shadow: 0 0 10px #a78bfaaa;
-    text-align: center;
-  }
-  .card img {
-    max-width: 100%;
-    border-radius: 0.5rem;
-    margin-bottom: 0.75rem;
-  }
-  .card button {
-    margin-top: 0.5rem;
-    width: 100%;
-  }
-  .flex-center {
-    display: flex;
-    justify-content: center;
-    gap: 1rem;
-  }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Moore Club - La Tentación Empieza Aquí</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: url('mooreclub1.png') center top no-repeat;
+      background-size: cover;
+      background-attachment: fixed;
+    }
+    .bg-overlay {
+      background-color: rgba(0, 0, 0, 0.85);
+    }
+    .btn {
+      background-color: #6b21a8;
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 0.375rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-right: 0.5rem;
+      transition: background-color 0.3s;
+      display: inline-block;
+    }
+    .btn:hover {
+      background-color: #5b189b;
+    }
+    .btn-red {
+      background-color: #dc2626;
+    }
+    .btn-red:hover {
+      background-color: #b91c1c;
+    }
+    .panel {
+      background-color: rgba(107, 33, 168, 0.8);
+      padding: 1rem;
+      border-radius: 0.5rem;
+      color: white;
+      max-width: 900px;
+      margin: 1rem auto;
+    }
+    .producto-card {
+      background-color: rgba(107, 33, 168, 0.9);
+      border-radius: 0.5rem;
+      padding: 1rem;
+      text-align: center;
+      color: white;
+      box-shadow: 0 0 15px rgb(107 33 168 / 0.7);
+    }
+    .producto-card img {
+      max-width: 100px;
+      margin: 0 auto 1rem auto;
+      display: block;
+      border-radius: 0.5rem;
+    }
+  </style>
 </head>
 <body class="text-purple-200">
-<div class="bg-overlay min-h-screen p-6">
+  <div class="bg-overlay min-h-screen">
+    <!-- NAV -->
+    <nav class="bg-purple-900 text-white px-6 py-4 flex justify-between items-center">
+      <h1 class="text-xl font-bold cursor-pointer" onclick="mostrarInicio()">Moore Club</h1>
+      <ul class="flex space-x-6 text-sm">
+        <li><a href="#" onclick="mostrarInicio()" class="hover:underline">Inicio</a></li>
+        <li><a href="#" onclick="mostrarSeccion('empleados')" class="hover:underline">Empleados</a></li>
+        <li><a href="#" onclick="mostrarSeccion('productos')" class="hover:underline">Productos</a></li>
+      </ul>
+    </nav>
 
-  <!-- NAV -->
-  <nav class="bg-purple-900 text-white px-6 py-4 flex justify-between items-center rounded-md mb-6">
-    <h1 class="text-xl font-bold cursor-pointer" onclick="mostrarInicio()">Moore Club</h1>
-    <ul class="flex space-x-6 text-sm">
-      <li><a href="#" onclick="mostrarInicio()" class="hover:underline">Inicio</a></li>
-      <li><a href="#" onclick="mostrarSeccion('empleados')" class="hover:underline">Empleados</a></li>
-      <li><a href="#" onclick="mostrarSeccion('productos')" class="hover:underline">Productos</a></li>
-    </ul>
-  </nav>
-
-  <main id="contenido">
-    <!-- Contenido dinámico aquí -->
-  </main>
-</div>
-
-<script>
-  // Datos iniciales
-  let empleados = JSON.parse(localStorage.getItem('empleados')) || ['tito giovanni', 'marta as'];
-  let ventas = JSON.parse(localStorage.getItem('ventas')) || {
-    'Tito Dios Griego': 0,
-    'La Tita': 0,
-    'Máscara Dominante “Cat Vanilla”': 0,
-    'Pinzas LED “Sweet Pain”': 0,
-    'Preservativos “Espadas del Deseo”': 0,
-    'Dildo Doble “Fusión Morada”': 0,
-    'Banana Pelada': 0,
-    'Magdalenas con Glaseado Rosa': 0,
-    'Berenjena Rellena': 0,
-    'Cóctel Dulce': 0,
-    'Trago Afrutado': 0,
-    'Almejas Picantes': 0
-  };
-  let fichaje = JSON.parse(localStorage.getItem('fichaje')) || {};
-  let fichado = false;
-  let timerInterval = null;
-
-  // Guardar en localstorage
-  function guardarVentas() {
-    localStorage.setItem('ventas', JSON.stringify(ventas));
-  }
-  function guardarEmpleados() {
-    localStorage.setItem('empleados', JSON.stringify(empleados));
-  }
-  function guardarFichaje() {
-    localStorage.setItem('fichaje', JSON.stringify(fichaje));
-  }
-
-  // Mostrar Inicio (portada bienvenida)
-  function mostrarInicio() {
-    const contenido = document.getElementById('contenido');
-    contenido.innerHTML = `
-      <div class="panel max-w-4xl mx-auto text-center">
-        <h2 class="text-3xl font-bold mb-4">Bienvenido a Moore Club</h2>
-        <p class="mb-6">Vive la experiencia única de nuestro club. Explora secciones, productos y gestiona el fichaje de nuestro personal.</p>
-        <div class="flex-center mb-8">
-          <button class="btn" onclick="mostrarSeccion('empleados')">Área Empleados</button>
-          <button class="btn" onclick="mostrarSeccion('productos')">Nuestros Productos</button>
+    <main id="contenido" class="p-8">
+      <!-- Contenido dinámico aquí -->
+      <h2 class="text-2xl font-bold mb-4">Bienvenido a Moore Club</h2>
+      <p>Explora nuestras secciones y vive la experiencia.</p>
+      <div class="max-w-4xl mx-auto mt-8 bg-purple-700 p-6 rounded-lg shadow-lg flex gap-6">
+        <div class="text-center">
+          <img src="Tito.png" alt="Tito Giovanni" class="mx-auto rounded" style="max-width:150px" />
+          <h3 class="font-bold mt-3">Tito Giovanni</h3>
+          <p>Maestro de ceremonias y corazón de Moore. Carisma y elegancia en estado puro.</p>
         </div>
-        <div class="cards-container justify-center">
-          <div class="card">
-            <img src="Tito.png" alt="Tito Giovanni" />
-            <strong>Tito Giovanni</strong>
+        <div class="text-center">
+          <img src="Tita.png" alt="Marta" class="mx-auto rounded" style="max-width:150px" />
+          <h3 class="font-bold mt-3">Marta</h3>
+          <p>La musa del club, sensualidad y actitud que cautiva en cada show.</p>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    let empleados = JSON.parse(localStorage.getItem('empleados')) || ['tito giovanni', 'marta as'];
+
+    function guardarEmpleados() {
+      localStorage.setItem('empleados', JSON.stringify(empleados));
+    }
+
+    // Mostrar sección según botón menú
+    function mostrarSeccion(seccion) {
+      if (seccion === 'empleados') {
+        mostrarLogin();
+      } else if (seccion === 'productos') {
+        mostrarProductos();
+      } else {
+        mostrarInicio();
+      }
+    }
+
+    function mostrarInicio() {
+      const contenido = document.getElementById('contenido');
+      contenido.innerHTML = `
+        <h2 class="text-2xl font-bold mb-4">Bienvenido a Moore Club</h2>
+        <p>Explora nuestras secciones y vive la experiencia.</p>
+        <div class="max-w-4xl mx-auto mt-8 bg-purple-700 p-6 rounded-lg shadow-lg flex gap-6">
+          <div class="text-center">
+            <img src="Tito.png" alt="Tito Giovanni" class="mx-auto rounded" style="max-width:150px" />
+            <h3 class="font-bold mt-3">Tito Giovanni</h3>
             <p>Maestro de ceremonias y corazón de Moore. Carisma y elegancia en estado puro.</p>
           </div>
-          <div class="card">
-            <img src="Marta.png" alt="Marta" />
-            <strong>Marta</strong>
+          <div class="text-center">
+            <img src="Tita.png" alt="Marta" class="mx-auto rounded" style="max-width:150px" />
+            <h3 class="font-bold mt-3">Marta</h3>
             <p>La musa del club, sensualidad y actitud que cautiva en cada show.</p>
           </div>
-        </div>
-      </div>
-    `;
-  }
-
-  // Mostrar sección Empleados
-  function mostrarSeccion(seccion) {
-    if (seccion === 'empleados') {
-      mostrarLogin();
-    } else if (seccion === 'productos') {
-      mostrarProductos();
+        </div>`;
     }
-  }
 
-  // Login sencillo para empleados
-  function mostrarLogin() {
-    const contenido = document.getElementById('contenido');
-    contenido.innerHTML = `
-      <div class="panel max-w-xl mx-auto">
-        <h2 class="text-2xl font-bold mb-4">Acceso Empleados</h2>
-        <input id="nombreEmpleado" type="text" class="w-full p-2 mb-4 text-black rounded" placeholder="Introduce tu nombre y apellido en minúsculas" />
-        <button class="btn" onclick="loginEmpleado()">Entrar</button>
-        <button class="btn btn-red" onclick="mostrarInicio()">Cancelar</button>
-        <div id="mensaje" style="display:none;"></div>
-      </div>
-    `;
-  }
-
-  // Login empleado
-  function loginEmpleado() {
-    const nombre = document.getElementById('nombreEmpleado').value.trim().toLowerCase();
-    if (empleados.includes(nombre)) {
-      mostrarPanelEmpleado(nombre);
-    } else {
-      mostrarMensaje('Acceso denegado, no estás registrado como empleado');
+    // Mostrar login para empleados
+    function mostrarLogin() {
+      const contenido = document.getElementById('contenido');
+      contenido.innerHTML = `
+        <div class="panel max-w-xl mx-auto">
+          <h2 class="text-2xl font-bold mb-4">Acceso Empleados</h2>
+          <input id="nombreEmpleado" type="text" class="w-full p-2 mb-4 text-black rounded" placeholder="Introduce tu nombre y apellido en minúsculas" />
+          <button class="btn" onclick="loginEmpleado()">Entrar</button>
+          <button class="btn btn-red" onclick="mostrarInicio()">Cancelar</button>
+          <div id="mensaje" style="display:none;"></div>
+        </div>`;
     }
-  }
-  function mostrarMensaje(texto) {
-    const mensaje = document.getElementById('mensaje');
-    if (!mensaje) return;
-    mensaje.style.display = 'block';
-    mensaje.textContent = texto;
-  }
 
-  // Mostrar panel empleado fichaje + ventas
-  function mostrarPanelEmpleado(nombre) {
-    const contenido = document.getElementById('contenido');
-    contenido.innerHTML = `
-      <div class="panel max-w-4xl mx-auto">
-        <h2 class="text-xl font-semibold mb-4">Panel de Fichaje - ${nombre}</h2>
-        <div class="mb-4">
-          <button class="btn" onclick="fichar('${nombre}')">Fichar Entrada</button>
-          <button class="btn" onclick="desfichar('${nombre}')">Fichar Salida</button>
+    // Login empleado y mostrar panel
+    function loginEmpleado() {
+      const nombre = document.getElementById('nombreEmpleado').value.trim().toLowerCase();
+      if (empleados.includes(nombre)) {
+        mostrarPanelEmpleado(nombre);
+      } else {
+        mostrarMensaje('Acceso denegado, no estás registrado como empleado');
+      }
+    }
+
+    function mostrarMensaje(texto) {
+      const mensaje = document.getElementById('mensaje');
+      if (!mensaje) return;
+      mensaje.style.display = 'block';
+      mensaje.textContent = texto;
+    }
+
+    // Variables para temporizador
+    let intervalId;
+    let tiempoInicio = null;
+    let tiempoAcumulado = 0;
+
+    // Mostrar panel principal del empleado con fichaje y ventas
+    function mostrarPanelEmpleado(nombre) {
+      clearInterval(intervalId);
+      tiempoInicio = null;
+      tiempoAcumulado = 0;
+      const contenido = document.getElementById('contenido');
+      contenido.innerHTML = `
+        <div class="panel">
+          <h2 class="text-xl font-semibold mb-4">Panel de Fichaje - ${nombre}</h2>
+          <button class="btn" onclick="ficharEntrada()">Fichar Entrada</button>
+          <button class="btn" onclick="ficharSalida()">Fichar Salida</button>
           <button class="btn btn-red" onclick="cerrarSesion()">Cerrar Sesión</button>
+          <div id="tiempoTrabajado" class="mt-4">
+            Tiempo trabajado hoy: 00:00:00<br>
+            Horas trabajadas esta semana: 00:00:00<br>
+            Horas totales acumuladas: 00:00:00
+          </div>
+
+          <h3 class="mt-6 font-semibold">Ventas registradas</h3>
+          <p>Registrar ventas de productos</p>
+          <div class="grid grid-cols-4 gap-4 mt-2" id="productosVenta"></div>
         </div>
-        <div>
-          <p>Tiempo trabajado hoy: <span id="tiempoHoy">00:00:00</span></p>
-          <p>Horas trabajadas esta semana: <span id="tiempoSemana">00:00:00</span></p>
-          <p>Horas totales acumuladas: <span id="tiempoTotal">00:00:00</span></p>
-        </div>
-        <hr class="my-6 border-purple-700" />
-        <h3 class="font-semibold mb-3">Ventas registradas</h3>
-        <p>Registrar ventas de productos</p>
-        <div class="cards-container justify-start" id="productosVentas"></div>
-      </div>
-    `;
-    actualizarTemporizador(nombre);
-    mostrarProductosVentas();
-  }
-
-  // Funciones fichaje y temporizador
-  function fichar(nombre) {
-    if (!fichaje[nombre]) {
-      fichaje[nombre] = { fichado: false, inicio: null, tiempoAcumulado: 0, tiempoHoy: 0, tiempoSemana: 0 };
-    }
-    if (!fichaje[nombre].fichado) {
-      fichaje[nombre].fichado = true;
-      fichaje[nombre].inicio = Date.now();
-      guardarFichaje();
-      iniciarContador(nombre);
-    }
-  }
-  function desfichar(nombre) {
-    if (!fichaje[nombre] || !fichaje[nombre].fichado) return;
-    const fin = Date.now();
-    const tiempoActual = fin - fichaje[nombre].inicio;
-    fichaje[nombre].tiempoAcumulado += tiempoActual;
-    // Actualizar tiempo hoy y semana (simplificado)
-    fichaje[nombre].tiempoHoy += tiempoActual;
-    fichaje[nombre].tiempoSemana += tiempoActual;
-    fichaje[nombre].fichado = false;
-    fichaje[nombre].inicio = null;
-    guardarFichaje();
-    detenerContador();
-    actualizarTemporizador(nombre);
-  }
-  let timerInterval = null;
-  function iniciarContador(nombre) {
-    if (timerInterval) clearInterval(timerInterval);
-    timerInterval = setInterval(() => actualizarTemporizador(nombre), 1000);
-  }
-  function detenerContador() {
-    if (timerInterval) {
-      clearInterval(timerInterval);
-      timerInterval = null;
-    }
-  }
-  function actualizarTemporizador(nombre) {
-    if (!fichaje[nombre]) return;
-    let total = fichaje[nombre].tiempoAcumulado;
-    if (fichaje[nombre].fichado && fichaje[nombre].inicio) {
-      total += Date.now() - fichaje[nombre].inicio;
-    }
-    document.getElementById('tiempoTotal').textContent = formatearTiempo(total);
-    document.getElementById('tiempoHoy').textContent = formatearTiempo(fichaje[nombre].tiempoHoy);
-    document.getElementById('tiempoSemana').textContent = formatearTiempo(fichaje[nombre].tiempoSemana);
-  }
-  function formatearTiempo(ms) {
-    const totalSegundos = Math.floor(ms / 1000);
-    const horas = Math.floor(totalSegundos / 3600);
-    const minutos = Math.floor((totalSegundos % 3600) / 60);
-    const segundos = totalSegundos % 60;
-    return `${String(horas).padStart(2,'0')}:${String(minutos).padStart(2,'0')}:${String(segundos).padStart(2,'0')}`;
-  }
-
-  // Mostrar productos para ventas
-  function mostrarProductos() {
-    const contenido = document.getElementById('contenido');
-    contenido.innerHTML = `
-      <div class="panel max-w-6xl mx-auto">
-        <h2 class="text-2xl font-bold mb-6">Nuestros Productos</h2>
-        <div class="cards-container justify-start">
-          ${Object.keys(ventas).map(nombre => {
-            return `
-              <div class="card">
-                <img src="${mapearImagen(nombre)}" alt="${nombre}" />
-                <strong>${nombre}</strong>
-                <p>${descripcionesProductos(nombre)}</p>
-              </div>
-            `;
-          }).join('')}
-        </div>
-      </div>
-    `;
-  }
-  // Imagenes y descripciones para productos (usa el nombre exacto que tienes en ventas)
-  function mapearImagen(nombre) {
-    const mapa = {
-      'Tito Dios Griego': 'Tito.png',
-      'La Tita': 'Tita.png',
-      'Máscara Dominante “Cat Vanilla”': 'Mascara.png',
-      'Pinzas LED “Sweet Pain”': 'Pinzas.png',
-      'Preservativos “Espadas del Deseo”': 'Coctel.png',
-      'Dildo Doble “Fusión Morada”': 'Dildo.webp',
-      'Banana Pelada': 'banana.png',
-      'Magdalenas con Glaseado Rosa': 'magdalenas.png',
-      'Berenjena Rellena': 'berenjena.png',
-      'Cóctel Dulce': 'coctel.png',
-      'Trago Afrutado': 'trago afrutado.png',
-      'Almejas Picantes': 'almejas.png',
-    };
-    return mapa[nombre] || '';
-  }
-  function descripcionesProductos(nombre) {
-    const descripciones = {
-      'Tito Dios Griego': 'Figura decorativa de Tito en forma divina, musculoso, sin camiseta y con toga morada.',
-      'La Tita': 'Muñeca provocadora con vestido griego y actitud descarada. El alma coqueta del Vanilla.',
-      'Máscara Dominante “Cat Vanilla”': 'Máscara de cuero morado con orejas felinas. Perfecta para rol de poder y seducción.',
-      'Pinzas LED “Sweet Pain”': 'Pinzas ajustables con corazones LED que brillan al ritmo del deseo. Dolor y placer con estilo.',
-      'Preservativos “Espadas del Deseo”': 'Preservativos rojo y azul en envase negro brillante. Un dúo elegante para encuentros con chispa.',
-      'Dildo Doble “Fusión Morada”': 'Juguete translúcido de doble entrada. Flexible, intenso y listo para retos más atrevidos.',
-      'Banana Pelada': 'Banana pelada con glaseado y cerezas. Provocadora y dulce hasta el final.',
-      'Magdalenas con Glaseado Rosa': 'Magdalenas con glaseado rosa y toques sugerentes. Dos razones para pecar.',
-      'Berenjena Rellena': 'Berenjena rellena, caliente y jugosa. Te va a dejar sudando.',
-      'Cóctel Dulce': 'Cóctel dulce con cereza y fresa. Tierno al principio, travieso al final.',
-      'Trago Afrutado': 'Trago afrutado y ácido. Refresca... y se te queda pegado.',
-      'Almejas Picantes': 'Almejas picantes con limón. Suave por fuera, fuego por dentro.'
-    };
-    return descripciones[nombre] || '';
-  }
-
-  // Ventas (incrementar)
-  function incrementarVenta(nombre) {
-    ventas[nombre]++;
-    guardarVentas();
-    mostrarPanelEmpleado(document.getElementById('panelNombre')?.textContent.toLowerCase() || empleados[0]);
-  }
-
-  // Mostrar productos para venta en panel empleado
-  function mostrarProductosVentas() {
-    const contenedor = document.getElementById('productosVentas');
-    if (!contenedor) return;
-    contenedor.innerHTML = '';
-    Object.keys(ventas).forEach(nombre => {
-      const card = document.createElement('div');
-      card.className = 'card';
-      card.innerHTML = `
-        <strong>${nombre}</strong>
-        <button class="btn" onclick="incrementarVenta('${nombre}')">+1 Venta</button>
-        <p>Total: ${ventas[nombre]}</p>
       `;
-      contenedor.appendChild(card);
+      inicializarVentas();
+      actualizarVentasUI();
+      actualizarTemporizadorUI(0,0,0);
+    }
+
+    // Funciones temporizador
+    function segundosATiempo(segundos) {
+      const h = Math.floor(segundos / 3600);
+      const m = Math.floor((segundos % 3600) / 60);
+      const s = segundos % 60;
+      return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+    }
+
+    function actualizarTemporizadorUI(hoy, semana, total) {
+      const div = document.getElementById('tiempoTrabajado');
+      if (!div) return;
+      div.innerHTML = `
+        Tiempo trabajado hoy: ${segundosATiempo(hoy)}<br>
+        Horas trabajadas esta semana: ${segundosATiempo(semana)}<br>
+        Horas totales acumuladas: ${segundosATiempo(total)}
+      `;
+    }
+
+    // Simulamos datos guardados (debería guardarse en localStorage o backend)
+    let tiempoTrabajado = {
+      hoy: 0,
+      semana: 0,
+      total: 0
+    };
+
+    function ficharEntrada() {
+      if (tiempoInicio !== null) return; // Ya fichado
+      tiempoInicio = Date.now();
+      intervalId = setInterval(() => {
+        const ahora = Date.now();
+        const segTrabajados = Math.floor((ahora - tiempoInicio) / 1000) + tiempoAcumulado;
+        // Aquí deberías calcular hoy, semana y total con lógica real
+        actualizarTemporizadorUI(segTrabajados, segTrabajados, segTrabajados);
+      }, 1000);
+    }
+
+    function ficharSalida() {
+      if (tiempoInicio === null) return; // No fichado
+      const tiempoAhora = Date.now();
+      const segundosTrabajados = Math.floor((tiempoAhora - tiempoInicio) / 1000);
+      tiempoAcumulado += segundosTrabajados;
+      clearInterval(intervalId);
+      tiempoInicio = null;
+      // Aquí actualizarías el tiempo guardado real para hoy, semana, total
+      actualizarTemporizadorUI(tiempoAcumulado, tiempoAcumulado, tiempoAcumulado);
+    }
+
+    function cerrarSesion() {
+      clearInterval(intervalId);
+      tiempoInicio = null;
+      tiempoAcumulado = 0;
+      mostrarInicio();
+    }
+
+    // Productos y ventas
+
+    const productos = [
+      { id: 'tito', nombre: 'Tito Dios Griego', img:'Tito.png', descripcion: 'Figura decorativa de Tito en forma divina, musculoso, sin camiseta y con toga morada.' },
+      { id: 'tita', nombre: 'La Tita', img:'Tita.png', descripcion: 'Muñeca provocadora con vestido griego y actitud descarada. El alma coqueta del Vanilla.' },
+      { id: 'mascara', nombre: 'Máscara Dominante “Cat Vanilla”', img:'Mascara.png', descripcion: 'Máscara de cuero morado con orejas felinas. Perfecta para rol de poder y seducción.' },
+      { id: 'pinzas', nombre: 'Pinzas LED “Sweet Pain”', img:'Pinzas.png', descripcion: 'Pinzas ajustables con corazones LED que brillan al ritmo del deseo.' },
+      { id: 'condones', nombre: 'Preservativos “Espadas del Deseo”', img:'Coctel.png', descripcion: 'Preservativos rojo y azul en envase negro brillante. Un dúo elegante para encuentros con chispa.' },
+      { id: 'dildo', nombre: 'Dildo Doble “Fusión Morada”', img:'Dildo.webp', descripcion: 'Juguete translúcido de doble entrada. Flexible, intenso y listo para retos más atrevidos.' },
+      { id: 'banana', nombre: 'Banana Pelada', img:'banana.png', descripcion: 'Banana pelada con glaseado y cerezas. Provocadora y dulce hasta el final.' },
+      { id: 'magdalenas', nombre: 'Magdalenas con Glaseado Rosa', img:'magdalenas.png', descripcion: 'Magdalenas con glaseado rosa y toques sugerentes. Dos razones para pecar.' },
+      { id: 'berenjena', nombre: 'Berenjena Rellena', img:'berenjena.png', descripcion: 'Berenjena rellena, caliente y jugosa. Te va a dejar sudando.' },
+      { id: 'coctel', nombre: 'Cóctel Dulce', img:'Coctel.png', descripcion: 'Cóctel dulce con cereza y fresa. Tierno al principio, travieso al final.' },
+      { id: 'trago', nombre: 'Trago Afrutado', img:'trago afrutado.png', descripcion: 'Trago afrutado y ácido. Refresca… y se te queda pegado.' },
+      { id: 'almejas', nombre: 'Almejas Picantes', img:'almejas.png', descripcion: 'Almejas picantes con limón. Suave por fuera, fuego por dentro.' }
+    ];
+
+    // Inicializar ventas si no existe
+    let ventasRegistradas = JSON.parse(localStorage.getItem('ventasRegistradas')) || {};
+    productos.forEach(p => {
+      if (!ventasRegistradas[p.id]) ventasRegistradas[p.id] = 0;
     });
-  }
 
-  // Cerrar sesión
-  function cerrarSesion() {
-    detenerContador();
-    mostrarInicio();
-  }
+    function inicializarVentas() {
+      const div = document.getElementById('productosVenta');
+      if (!div) return;
+      div.innerHTML = '';
+      productos.forEach(prod => {
+        const card = document.createElement('div');
+        card.className = 'producto-card';
+        card.innerHTML = `
+          <img src="${prod.img}" alt="${prod.nombre}" />
+          <h4 class="font-semibold">${prod.nombre}</h4>
+          <p>${prod.descripcion}</p>
+          <button class="btn mt-2" onclick="registrarVenta('${prod.id}')">+1 Venta</button>
+          <div>Total: <span id="total-${prod.id}">0</span></div>
+        `;
+        div.appendChild(card);
+      });
+    }
 
-  // Mostrar inicio al cargar
-  window.onload = mostrarInicio;
-</script>
+    function registrarVenta(id) {
+      ventasRegistradas[id] = (ventasRegistradas[id] || 0) + 1;
+      localStorage.setItem('ventasRegistradas', JSON.stringify(ventasRegistradas));
+      actualizarVentasUI();
+    }
+
+    function actualizarVentasUI() {
+      productos.forEach(p => {
+        const el = document.getElementById('total-' + p.id);
+        if (el) {
+          el.textContent = ventasRegistradas[p.id];
+        }
+      });
+    }
+
+    function mostrarProductos() {
+      const contenido = document.getElementById('contenido');
+      let html = `
+        <h2 class="text-2xl font-bold mb-4">Nuestros Productos</h2>
+        <div class="grid grid-cols-3 gap-6 max-w-5xl mx-auto">`;
+      productos.forEach(p => {
+        html += `
+          <div class="producto-card">
+            <img src="${p.img}" alt="${p.nombre}" />
+            <h3 class="font-semibold mb-2">${p.nombre}</h3>
+            <p>${p.descripcion}</p>
+          </div>
+        `;
+      });
+      html += '</div>';
+      contenido.innerHTML = html;
+    }
+
+  </script>
 </body>
 </html>
