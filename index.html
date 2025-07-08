@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Moore Club - Panel Empleados con Login</title>
+<title>Moore Club - La Tentación Empieza Aquí</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
   body {
@@ -46,22 +46,23 @@
 </head>
 <body class="text-purple-200">
 <div class="bg-overlay min-h-screen">
-  <nav class="bg-purple-900 text-white px-6 py-4 flex justify-between items-center">
-    <h1 class="text-xl font-bold cursor-pointer" onclick="mostrarInicio()">Moore Club</h1>
-    <ul class="flex space-x-6 text-sm">
-      <li><a href="#" onclick="mostrarInicio()" class="hover:underline">Inicio</a></li>
-      <li><a href="#" onclick="abrirEmpleados()" class="hover:underline">Empleados</a></li>
-    </ul>
-  </nav>
 
-  <main id="contenido" class="p-8">
-    <h2 class="text-2xl font-bold mb-4">Bienvenido a Moore Club</h2>
-    <p>Explora nuestras secciones y vive la experiencia.</p>
-  </main>
+<nav class="bg-purple-900 text-white px-6 py-4 flex justify-between items-center">
+  <h1 class="text-xl font-bold cursor-pointer" onclick="mostrarInicio()">Moore Club</h1>
+  <ul class="flex space-x-6 text-sm">
+    <li><a href="#" onclick="mostrarInicio()" class="hover:underline">Inicio</a></li>
+    <li><a href="#" onclick="abrirEmpleados()" class="hover:underline">Empleados</a></li>
+  </ul>
+</nav>
+
+<main id="contenido" class="p-8 min-h-[80vh]">
+  <!-- Contenido dinámico aquí -->
+</main>
+
 </div>
 
 <script>
-  // Empleados autorizados
+  // Empleados válidos
   const empleadosValidos = ['tito giovanni', 'marta as']
 
   // Estados fichaje
@@ -99,6 +100,7 @@
   }
 
   let empleadoActual = sessionStorage.getItem('empleadoActual') || null
+  let intervaloContador = null
 
   function guardarEstadosTrabajo() {
     localStorage.setItem('estadosTrabajo', JSON.stringify(estadosTrabajo))
@@ -118,16 +120,37 @@
     setTimeout(() => mensaje.classList.remove('visible'), 3000)
   }
 
-  // Mostrar inicio
+  // Página bienvenida con paneles elegantes
   function mostrarInicio() {
     empleadoActual = null
     sessionStorage.removeItem('empleadoActual')
     document.getElementById('contenido').innerHTML = `
-      <h2 class="text-2xl font-bold mb-4">Bienvenido a Moore Club</h2>
-      <p>Explora nuestras secciones y vive la experiencia.</p>`
+      <main class="min-h-screen flex flex-col justify-center items-center px-6 py-12 bg-gradient-to-b from-black via-purple-900 to-black bg-opacity-90 text-purple-200">
+        <h1 class="text-5xl font-extrabold mb-12 drop-shadow-lg">Bienvenido a <span class="text-purple-400">Moore Club</span></h1>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 max-w-6xl w-full">
+          <div class="bg-purple-900 bg-opacity-70 rounded-lg p-6 shadow-lg hover:shadow-xl transition-shadow cursor-pointer">
+            <h2 class="text-2xl font-bold mb-3">Nuestra Historia</h2>
+            <p class="text-purple-300 leading-relaxed">Un lugar de lujo y misterio donde cada noche es única</p>
+          </div>
+          <div class="bg-purple-900 bg-opacity-70 rounded-lg p-6 shadow-lg hover:shadow-xl transition-shadow cursor-pointer">
+            <h2 class="text-2xl font-bold mb-3">Eventos Exclusivos</h2>
+            <p class="text-purple-300 leading-relaxed">Fiestas, shows y experiencias que solo Moore Club ofrece</p>
+          </div>
+          <div class="bg-purple-900 bg-opacity-70 rounded-lg p-6 shadow-lg hover:shadow-xl transition-shadow cursor-pointer">
+            <h2 class="text-2xl font-bold mb-3">Reservas VIP</h2>
+            <p class="text-purple-300 leading-relaxed">Reserva tu mesa o zona privada con atención personalizada</p>
+          </div>
+          <div class="bg-purple-900 bg-opacity-70 rounded-lg p-6 shadow-lg hover:shadow-xl transition-shadow cursor-pointer">
+            <h2 class="text-2xl font-bold mb-3">Contacto & Redes</h2>
+            <p class="text-purple-300 leading-relaxed">Síguenos y mantente al día con nuestras novedades</p>
+          </div>
+        </div>
+        <button onclick="abrirEmpleados()" class="mt-16 px-12 py-4 bg-purple-700 hover:bg-purple-800 rounded-full text-white text-xl font-semibold shadow-lg transition duration-300">Acceso Empleados</button>
+      </main>
+    `
   }
 
-  // Al pulsar "Empleados"
+  // Abrir panel empleados o login
   function abrirEmpleados() {
     empleadoActual = sessionStorage.getItem('empleadoActual')
     if (!empleadoActual) {
@@ -137,7 +160,7 @@
     }
   }
 
-  // Login fichaje
+  // Login empleado
   function mostrarLoginFichaje() {
     document.getElementById('contenido').innerHTML = `
       <h2 class="text-2xl font-bold mb-4">Acceso Empleado</h2>
@@ -168,6 +191,7 @@
   function cerrarSesion() {
     empleadoActual = null
     sessionStorage.removeItem('empleadoActual')
+    pararContador()
     mostrarInicio()
   }
 
@@ -195,9 +219,12 @@
     subcontenido.innerHTML = `
       <button class="btn mr-2" onclick="ficharEntrada()">Fichar Entrada</button>
       <button class="btn mr-2" onclick="ficharSalida()">Fichar Salida</button>
+      <div id="contador" class="mt-2 font-mono text-lg"></div>
       <div class="mt-4" id="estadoGeneral"></div>
     `
     actualizarEstadoGeneral()
+    if (estado?.fichado) iniciarContador()
+    else pararContador()
   }
 
   function ficharEntrada() {
@@ -211,6 +238,7 @@
     guardarEstadosTrabajo()
     actualizarEstadoGeneral()
     mostrarMensaje('Fichado correctamente')
+    iniciarContador()
   }
 
   function ficharSalida() {
@@ -225,8 +253,44 @@
     guardarEstadosTrabajo()
     actualizarEstadoGeneral()
     mostrarMensaje('Salida registrada')
+    pararContador()
   }
 
+  // Contador tiempo fichado
+  function iniciarContador() {
+    const contador = document.getElementById('contador')
+    if (!contador) return
+    function actualizar() {
+      const estado = estadosTrabajo[empleadoActual]
+      if (!estado.fichado || !estado.inicio) {
+        contador.textContent = '00:00:00'
+        return
+      }
+      const tiempo = Date.now() - estado.inicio + estado.tiempoAcumulado
+      contador.textContent = formatearTiempo(tiempo)
+    }
+    actualizar()
+    intervaloContador = setInterval(actualizar, 1000)
+  }
+
+  function pararContador() {
+    if (intervaloContador) {
+      clearInterval(intervaloContador)
+      intervaloContador = null
+    }
+    const contador = document.getElementById('contador')
+    if (contador) contador.textContent = '00:00:00'
+  }
+
+  function formatearTiempo(ms) {
+    let totalSeg = Math.floor(ms / 1000)
+    let horas = Math.floor(totalSeg / 3600)
+    let minutos = Math.floor((totalSeg % 3600) / 60)
+    let segundos = totalSeg % 60
+    return `${horas.toString().padStart(2,'0')}:${minutos.toString().padStart(2,'0')}:${segundos.toString().padStart(2,'0')}`
+  }
+
+  // Mostrar estado general fichaje
   function actualizarEstadoGeneral() {
     const cont = document.getElementById('estadoGeneral')
     const hoy = new Date()
@@ -342,7 +406,7 @@
     input.value = ''
   }
 
-  // Al cargar página, si hay sesión activa, mostrar panel empleados, sino inicio
+  // Al cargar la página
   window.onload = () => {
     if (sessionStorage.getItem('empleadoActual')) {
       empleadoActual = sessionStorage.getItem('empleadoActual')
@@ -352,6 +416,5 @@
     }
   }
 </script>
-
 </body>
 </html>
