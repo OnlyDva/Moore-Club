@@ -51,7 +51,7 @@
     let masterInterval = null;
 
     // ===================================================================================
-    //  2. LÓGICA DEL RELOJ (NUEVA VERSIÓN SIMPLIFICADA)
+    //  2. LÓGICA DEL RELOJ
     // ===================================================================================
     function iniciarReloj(horaInicio, tiempoYaAcumulado) {
       detenerReloj(); 
@@ -131,7 +131,7 @@
         datosFichaje.inicio = Date.now();
         fichajes[nombre] = datosFichaje;
         guardarDatos('fichajes', fichajes);
-        mostrarPanelEmpleados(nombre);
+        // No se redibuja el panel, solo se arranca el reloj
         iniciarReloj(datosFichaje.inicio, datosFichaje.hoy);
       }
     }
@@ -141,13 +141,16 @@
       let datosFichaje = gestionarReseteoTiempos(nombre);
       if (datosFichaje.fichado) {
         const tiempoTrabajado = Date.now() - datosFichaje.inicio;
+        // Se actualizan los acumulados
         datosFichaje.hoy += tiempoTrabajado;
         datosFichaje.semana += tiempoTrabajado;
         datosFichaje.total += tiempoTrabajado;
+        // Se resetea el estado de la sesión
         datosFichaje.fichado = false;
         datosFichaje.inicio = null;
         fichajes[nombre] = datosFichaje;
         guardarDatos('fichajes', fichajes);
+        // Se redibuja el panel para mostrar los totales actualizados y la sesión a 0
         mostrarPanelEmpleados(nombre);
       }
     }
@@ -208,12 +211,26 @@
 
     function gestionarReseteoTiempos(nombre) {
         const ahora = new Date();
-        const hoyStr = ahora.toISOString().split('T')[0];
+        // Se usa el formato local para evitar problemas con UTC
+        const anio = ahora.getFullYear();
+        const mes = String(ahora.getMonth() + 1).padStart(2, '0');
+        const dia = String(ahora.getDate()).padStart(2, '0');
+        const hoyStr = `${anio}-${mes}-${dia}`;
+
         const semanaNum = getWeekNumber(ahora);
         let datos = fichajes[nombre] || {};
-        if (!datos.total) datos = { total: 0, hoy: 0, semana: 0, fecha: null, numSemana: null, fichado: false, inicio: null };
-        if (datos.fecha !== hoyStr) { datos.hoy = 0; datos.fecha = hoyStr; }
-        if (datos.numSemana !== semanaNum) { datos.semana = 0; datos.numSemana = semanaNum; }
+
+        if (!datos.total) {
+            datos = { total: 0, hoy: 0, semana: 0, fecha: hoyStr, numSemana: semanaNum, fichado: false, inicio: null };
+        }
+        if (datos.fecha !== hoyStr) {
+            datos.hoy = 0;
+            datos.fecha = hoyStr;
+        }
+        if (datos.numSemana !== semanaNum) {
+            datos.semana = 0;
+            datos.numSemana = semanaNum;
+        }
         fichajes[nombre] = datos;
         guardarDatos('fichajes', fichajes);
         return datos;
