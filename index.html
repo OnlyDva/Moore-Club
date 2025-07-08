@@ -51,14 +51,13 @@
     let masterInterval = null;
 
     // ===================================================================================
-    //  2. LÓGICA DEL RELOJ (RECONSTRUIDA)
+    //  2. LÓGICA DEL RELOJ
     // ===================================================================================
     function iniciarReloj(horaInicio, baseHoy, baseSemana, baseTotal) {
       detenerReloj();
       
       masterInterval = setInterval(() => {
         const tiempoSesion = Date.now() - horaInicio;
-        
         document.getElementById('tiempoHoy').textContent = formatearTiempo(baseHoy + tiempoSesion);
         document.getElementById('tiempoSemana').textContent = formatearTiempo(baseSemana + tiempoSesion);
         document.getElementById('tiempoTotal').textContent = formatearTiempo(baseTotal + tiempoSesion);
@@ -84,21 +83,13 @@
 
     function mostrarPanelEmpleados(nombre) {
         const datosFichaje = gestionarReseteoTiempos(nombre);
-        
-        let tiempoHoy = datosFichaje.hoy;
-        let tiempoSemana = datosFichaje.semana;
-        let tiempoTotal = datosFichaje.total;
-
+        let tiempoHoy = datosFichaje.hoy; let tiempoSemana = datosFichaje.semana; let tiempoTotal = datosFichaje.total;
         if (datosFichaje.fichado) {
             const tiempoDesdeFichaje = Date.now() - datosFichaje.inicio;
-            tiempoHoy += tiempoDesdeFichaje;
-            tiempoSemana += tiempoDesdeFichaje;
-            tiempoTotal += tiempoDesdeFichaje;
+            tiempoHoy += tiempoDesdeFichaje; tiempoSemana += tiempoDesdeFichaje; tiempoTotal += tiempoDesdeFichaje;
         }
-        
         const productosVentaHTML = productos.map(p => crearTarjetaProducto(p, true)).join('');
         const contenido = document.getElementById('contenido');
-        
         contenido.innerHTML = `<div class="p-6 bg-purple-900 bg-opacity-90 rounded-lg max-w-6xl mx-auto shadow-lg"><div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-bold">Panel de Fichaje: <span class="text-purple-300">${nombre}</span></h2><button class="btn" style="background-color: #d63636;" onclick="cerrarSesion()">Cerrar Sesión</button></div><div class="bg-purple-800 p-4 rounded-lg mb-6 grid grid-cols-1 md:grid-cols-4 gap-4 text-center items-center"><div><p class="text-sm text-purple-300">TIEMPO HOY</p><p id="tiempoHoy" class="font-mono text-xl">${formatearTiempo(tiempoHoy)}</p></div><div><p class="text-sm text-purple-300">TIEMPO SEMANA</p><p id="tiempoSemana" class="font-mono text-xl">${formatearTiempo(tiempoSemana)}</p></div><div><p class="text-sm text-purple-300">TIEMPO TOTAL</p><p id="tiempoTotal" class="font-mono text-xl">${formatearTiempo(tiempoTotal)}</p></div><div class="bg-purple-700 p-2 rounded-lg"><p class="text-sm text-purple-200">SESIÓN ACTUAL</p><p id="tiempoSesion" class="font-mono text-xl font-bold text-white">00:00:00</p></div></div><div class="text-center mb-8"><button class="btn text-lg px-6 py-3" onclick="fichar('${nombre}')">Fichar Entrada</button><button class="btn text-lg px-6 py-3" onclick="desfichar('${nombre}')">Fichar Salida</button></div><h3 class="text-xl font-semibold mb-4 border-t border-purple-700 pt-6">Registrar Ventas</h3><div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4" id="productosVenta">${productosVentaHTML}</div></div>`;
     }
 
@@ -144,6 +135,7 @@
       let datosFichaje = gestionarReseteoTiempos(nombre);
       if (datosFichaje.fichado) {
         const tiempoTrabajado = Date.now() - datosFichaje.inicio;
+        console.log(`DIAGNÓSTICO: Tiempo trabajado en esta sesión: ${tiempoTrabajado} ms`);
         datosFichaje.hoy += tiempoTrabajado;
         datosFichaje.semana += tiempoTrabajado;
         datosFichaje.total += tiempoTrabajado;
@@ -164,18 +156,29 @@
     // ===================================================================================
     //  5. FUNCIONES AUXILIARES
     // ===================================================================================
-    function cargarDatos(clave, valorPorDefecto, storage = localStorage) { const datosGuardados = storage.getItem(clave); return datosGuardados ? JSON.parse(datosGuardados) : valorPorDefecto; }
-    function guardarDatos(clave, datos, storage = localStorage) { storage.setItem(clave, JSON.stringify(datos)); }
+    function cargarDatos(clave, valorPorDefecto, storage = localStorage) {
+      const datosGuardados = storage.getItem(clave);
+      console.log(`DIAGNÓSTICO: Cargando '${clave}'. Datos:`, datosGuardados);
+      return datosGuardados ? JSON.parse(datosGuardados) : valorPorDefecto;
+    }
+    
+    function guardarDatos(clave, datos, storage = localStorage) {
+      const datosAguardar = JSON.stringify(datos);
+      console.log(`DIAGNÓSTICO: Guardando '${clave}'. Datos:`, datosAguardar);
+      storage.setItem(clave, datosAguardar);
+    }
+
     function crearTarjetaProducto(producto, esPanelVenta = false) { const totalVentas = ventas[producto.id] || 0; const inputVentasHTML = esPanelVenta ? `<input type="number" min="0" value="0" id="input-${producto.id}" class="w-20 px-2 py-1 mt-2 text-black rounded" onchange="actualizarVentas('${producto.id}')" /><p class="mt-2 text-sm">Total: <span id="total-${producto.id}">${totalVentas}</span></p>` : `<p class="text-purple-300 text-sm mt-2">${producto.descripcion}</p>`; return `<div class="producto-card bg-purple-800 rounded-lg p-4 text-center shadow-md flex flex-col justify-between"><div><img src="${producto.imagen}" alt="${producto.nombre}" class="mx-auto mb-3" /><h3 class="text-white font-semibold">${producto.nombre}</h3></div><div>${inputVentasHTML}</div></div>`; }
     function actualizarVentas(productoId) { const input = document.getElementById(`input-${productoId}`); let nuevaCantidad = parseInt(input.value); if (isNaN(nuevaCantidad) || nuevaCantidad < 0) { nuevaCantidad = 0; } ventas[productoId] = (ventas[productoId] || 0) + nuevaCantidad; guardarDatos('ventas', ventas); document.getElementById(`total-${productoId}`).textContent = ventas[productoId]; input.value = 0; }
     function formatearTiempo(ms) { if (isNaN(ms) || ms < 0) ms = 0; const totalSegundos = Math.floor(ms / 1000); const horas = String(Math.floor(totalSegundos / 3600)).padStart(2, '0'); const minutos = String(Math.floor((totalSegundos % 3600) / 60)).padStart(2, '0'); const segundos = String(totalSegundos % 60).padStart(2, '0'); return `${horas}:${minutos}:${segundos}`; }
     function getWeekNumber(d) { d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())); d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7)); var yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1)); return Math.ceil((((d - yearStart) / 86400000) + 1)/7); }
-    function gestionarReseteoTiempos(nombre) { const ahora = new Date(); const anio = ahora.getFullYear(); const mes = String(ahora.getMonth() + 1).padStart(2, '0'); const dia = String(ahora.getDate()).padStart(2, '0'); const hoyStr = `${anio}-${mes}-${dia}`; const semanaNum = getWeekNumber(ahora); let datos = fichajes[nombre] || {}; if (!datos.total) { datos = { total: 0, hoy: 0, semana: 0, fecha: hoyStr, numSemana: semanaNum, fichado: false, inicio: null }; } if (datos.fecha !== hoyStr) { datos.hoy = 0; datos.fecha = hoyStr; } if (datos.numSemana !== semanaNum) { datos.semana = 0; datos.numSemana = semanaNum; } fichajes[nombre] = datos; guardarDatos('fichajes', fichajes); return datos; }
+    function gestionarReseteoTiempos(nombre) { const ahora = new Date(); const anio = ahora.getFullYear(); const mes = String(ahora.getMonth() + 1).padStart(2, '0'); const dia = String(ahora.getDate()).padStart(2, '0'); const hoyStr = `${anio}-${mes}-${dia}`; const semanaNum = getWeekNumber(ahora); let datos = fichajes[nombre] || {}; if (!datos.total) { datos = { total: 0, hoy: 0, semana: 0, fecha: hoyStr, numSemana: semanaNum, fichado: false, inicio: null }; } if (datos.fecha !== hoyStr) { datos.hoy = 0; datos.fecha = hoyStr; } if (datos.numSemana !== semanaNum) { datos.semana = 0; datos.numSemana = semanaNum; } fichajes[nombre] = datos; return datos; }
 
     // ===================================================================================
     //  INICIALIZACIÓN
     // ===================================================================================
     document.addEventListener('DOMContentLoaded', () => {
+        console.log("DIAGNÓSTICO: Página cargada. Inicializando...");
         const ventasGuardadas = cargarDatos('ventas', {});
         productos.forEach(p => { if (ventasGuardadas[p.id] === undefined) { ventasGuardadas[p.id] = 0; }});
         ventas = ventasGuardadas;
