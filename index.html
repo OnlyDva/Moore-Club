@@ -75,34 +75,34 @@
     }
 
     function iniciarRelojHabitaciones() {
-      detenerRelojHabitaciones();
-      habitacionesInterval = setInterval(() => {
-        habitaciones.forEach(hab => {
-          if (hab.estado === 'ocupada') {
-            const tiempoRestanteElem = document.getElementById(`timer-hab-${hab.id}`);
-            if (tiempoRestanteElem) {
-              const restante = hab.tiempoFin - Date.now();
-              if (restante > 0) {
-                tiempoRestanteElem.textContent = formatearTiempo(restante);
-              } else {
-                tiempoRestanteElem.textContent = "¡TIEMPO AGOTADO!";
-                tiempoRestanteElem.classList.add('text-red-500');
-              }
-            }
-          }
-        });
-      }, 1000);
+        detenerRelojHabitaciones();
+        habitacionesInterval = setInterval(() => {
+            habitaciones.forEach(hab => {
+                if (hab.estado === 'ocupada') {
+                    const tiempoRestanteElem = document.getElementById(`timer-hab-${hab.id}`);
+                    if (tiempoRestanteElem) {
+                        const restante = hab.tiempoFin - Date.now();
+                        if (restante > 0) {
+                            tiempoRestanteElem.textContent = formatearTiempo(restante);
+                        } else {
+                            tiempoRestanteElem.textContent = "¡TIEMPO AGOTADO!";
+                            tiempoRestanteElem.classList.add('text-red-500');
+                        }
+                    }
+                }
+            });
+        }, 1000);
     }
 
     function detenerRelojHabitaciones() {
-      if (habitacionesInterval) {
-        clearInterval(habitacionesInterval);
-        habitacionesInterval = null;
-      }
+        if(habitacionesInterval) {
+          clearInterval(habitacionesInterval);
+          habitacionesInterval = null;
+        }
     }
     
     // ===================================================================================
-    //  3. LÓGICA DE VISTAS
+    //  3. LÓGICA DE VISTAS (DIBUJADO)
     // ===================================================================================
     function mostrarInicio() {
       detenerRelojFichaje();
@@ -111,64 +111,91 @@
     }
 
     function mostrarPanelEmpleados(nombre) {
-      const datosFichaje = gestionarReseteoDatos(nombre);
-      let tiempoHoy = datosFichaje.hoy;
-      let tiempoSemana = datosFichaje.semana;
-      let tiempoTotal = datosFichaje.total;
-      if (datosFichaje.fichado) {
-        const tiempoDesdeFichaje = Date.now() - datosFichaje.inicio;
-        tiempoHoy += tiempoDesdeFichaje;
-        tiempoSemana += tiempoDesdeFichaje;
-        tiempoTotal += tiempoDesdeFichaje;
-      }
-      const productosVentaHTML = productos.map(p => crearTarjetaProducto(p, true, nombre)).join('');
-
-      let habitacionesHTML = '';
-      habitaciones.forEach(hab => {
-        let controles = '';
-        if (hab.estado === 'disponible') {
-          controles = `<button class="btn text-sm py-1" onclick="darLlave(${hab.id}, '${nombre}')">Llave Dada</button>`;
-        } else {
-          controles = `<div class="font-mono text-lg" id="timer-hab-${hab.id}">--:--:--</div>
+        const datosFichaje = gestionarReseteoDatos(nombre);
+        let tiempoHoy = datosFichaje.hoy;
+        let tiempoSemana = datosFichaje.semana;
+        let tiempoTotal = datosFichaje.total;
+        if (datosFichaje.fichado) {
+            const tiempoDesdeFichaje = Date.now() - datosFichaje.inicio;
+            tiempoHoy += tiempoDesdeFichaje;
+            tiempoSemana += tiempoDesdeFichaje;
+            tiempoTotal += tiempoDesdeFichaje;
+        }
+        const productosVentaHTML = productos.map(p => crearTarjetaProducto(p, true, nombre)).join('');
+        
+        let habitacionesHTML = '';
+        habitaciones.forEach(hab => {
+            let controles = '';
+            if (getEstadoHabitacion(hab).estado === 'disponible') {
+                controles = `<button class="btn text-sm py-1" onclick="darLlave(${hab.id}, '${nombre}')">Llave Dada</button>`;
+            } else {
+                controles = `<div class="font-mono text-lg" id="timer-hab-${hab.id}">--:--:--</div>
                              <button class="btn text-xs py-1" onclick="anadirTiempoHabitacion(${hab.id}, '${nombre}')">+30 min</button>
                              <button class="btn text-xs py-1" style="background-color:#c44" onclick="liberarHabitacion(${hab.id}, '${nombre}')">Liberar</button>`;
-        }
-        habitacionesHTML += `<div class="bg-purple-800 p-3 rounded-lg text-center"><p class="font-bold">${hab.nombre}</p>${controles}</div>`;
-      });
+            }
+            habitacionesHTML += `<div class="bg-purple-800 p-3 rounded-lg text-center"><p class="font-bold">${hab.nombre}</p>${controles}</div>`;
+        });
 
-      document.getElementById('contenido').innerHTML = `<div class="p-6 bg-purple-900 bg-opacity-90 rounded-lg max-w-6xl mx-auto shadow-lg">
+        document.getElementById('contenido').innerHTML = `<div class="p-6 bg-purple-900 bg-opacity-90 rounded-lg max-w-6xl mx-auto shadow-lg">
             <div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-bold">Panel de Fichaje: <span class="text-purple-300 capitalize">${nombre}</span></h2><button class="btn" style="background-color: #d63636;" onclick="cerrarSesion()">Cerrar Sesión</button></div>
             <div class="bg-purple-800 p-4 rounded-lg mb-6 grid grid-cols-1 md:grid-cols-4 gap-4 text-center items-center"><div><p class="text-sm text-purple-300">TIEMPO HOY</p><p id="tiempoHoy" class="font-mono text-xl">${formatearTiempo(tiempoHoy)}</p></div><div><p class="text-sm text-purple-300">TIEMPO SEMANA</p><p id="tiempoSemana" class="font-mono text-xl">${formatearTiempo(tiempoSemana)}</p></div><div><p class="text-sm text-purple-300">TIEMPO TOTAL</p><p id="tiempoTotal" class="font-mono text-xl">${formatearTiempo(tiempoTotal)}</p></div><div class="bg-purple-700 p-2 rounded-lg"><p class="text-sm text-purple-200">SESIÓN ACTUAL</p><p id="tiempoSesion" class="font-mono text-xl font-bold text-white">00:00:00</p></div></div>
             <div class="text-center mb-8"><button class="btn text-lg px-6 py-3" onclick="fichar('${nombre}')">Fichar Entrada</button><button class="btn text-lg px-6 py-3" onclick="desfichar('${nombre}')">Fichar Salida</button></div>
             <h3 class="text-xl font-semibold mb-4 border-t border-purple-700 pt-6">Gestión de Habitaciones</h3><div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">${habitacionesHTML}</div>
             <h3 class="text-xl font-semibold mb-4 border-t border-purple-700 pt-6">Registrar Ventas</h3><div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4" id="productosVenta">${productosVentaHTML}</div>
         </div>`;
-      iniciarRelojHabitaciones();
+        iniciarRelojHabitaciones();
     }
 
     function mostrarPanelProductos() {
       detenerRelojFichaje();
       detenerRelojHabitaciones();
-      document.getElementById('contenido').innerHTML = `<h2 class="text-2xl font-bold mb-6 text-center">Productos Moore Club</h2><div class="grid grid-cols-2 md:grid-cols-4 gap-6">${productos.map(p => crearTarjetaProducto(p, false)).join('')}</div><div class="text-center"><button onclick="mostrarInicio()" class="btn mt-8">Volver</button></div>`;
+      const contenido = document.getElementById('contenido');
+      const productosHTML = productos.map(p => crearTarjetaProducto(p, false)).join('');
+      contenido.innerHTML = `<h2 class="text-2xl font-bold mb-6 text-center">Productos Moore Club</h2><div class="grid grid-cols-2 md:grid-cols-4 gap-6">${productosHTML}</div><div class="text-center"><button onclick="mostrarInicio()" class="btn mt-8">Volver</button></div>`;
     }
 
     function mostrarPanelHabitaciones() {
-      detenerRelojFichaje();
-      detenerRelojHabitaciones();
-      let html = `<div class="max-w-7xl mx-auto text-center"><h1 class="text-4xl font-bold mb-8">Nuestras Habitaciones</h1><div class="grid grid-cols-2 md:grid-cols-5 gap-6">`;
-      habitaciones.forEach(hab => {
-        const estadoClass = hab.estado === 'disponible' ? 'border-green-500' : 'border-red-500 opacity-60';
-        const estadoTexto = hab.estado.charAt(0).toUpperCase() + hab.estado.slice(1);
-        html += `<div class="border-2 ${estadoClass} rounded-lg p-6 flex flex-col items-center justify-center bg-purple-900 bg-opacity-50">
-                        <h2 class="text-2xl font-bold">${hab.nombre}</h2>
-                        <p class="text-lg mt-2">${estadoTexto}</p>
-                        ${hab.estado === 'disponible' ? '<button class="btn mt-4" onclick="alert(\'Contacta con nuestro personal para reservar esta habitación.\')">Reservar</button>' : ''}
-                     </div>`;
-      });
-      html += `</div></div>`;
-      document.getElementById('contenido').innerHTML = html;
+        detenerRelojFichaje();
+        detenerRelojHabitaciones();
+        let html = `<div class="max-w-7xl mx-auto text-center"><h1 class="text-4xl font-bold mb-8">Nuestras Habitaciones</h1><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">`;
+        habitaciones.forEach(hab => {
+            const estadoActual = getEstadoHabitacion(hab);
+            html += `<div class="border-2 ${estadoActual.estado === 'disponible' ? 'border-purple-600' : 'border-gray-600'} p-4 rounded-lg bg-purple-900 bg-opacity-50">
+                <h2 class="text-2xl font-bold">${hab.nombre}</h2>
+                <p class="text-lg mt-2 ${estadoActual.estado === 'disponible' ? 'text-green-400' : 'text-red-400'}">${estadoActual.texto}</p>
+                <div class="mt-4 text-left text-sm">
+                    <p class="font-bold mb-2">Horas ya reservadas para hoy:</p>
+                    <ul class="list-disc list-inside space-y-1">
+                        ${hab.reservas.filter(r => new Date(r.inicio).toDateString() === new Date().toDateString()).map(r => `<li>${new Date(r.inicio).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})} - ${new Date(r.fin).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</li>`).join('') || '<li>Ninguna reserva hoy.</li>'}
+                    </ul>
+                </div>
+                <div id="form-hab-${hab.id}" class="mt-4 text-left">
+                    <h4 class="font-bold mb-2">Hacer una nueva reserva:</h4>
+                    <input type="text" id="cliente-hab-${hab.id}" placeholder="Tu nombre" class="w-full p-2 rounded bg-gray-800 text-white mb-2">
+                    <input type="date" id="fecha-hab-${hab.id}" class="w-full p-2 rounded bg-gray-800 text-white mb-2">
+                    <input type="time" id="hora-hab-${hab.id}" step="1800" class="w-full p-2 rounded bg-gray-800 text-white mb-2">
+                    <select id="duracion-hab-${hab.id}" class="w-full p-2 rounded bg-gray-800 text-white mb-2">
+                        <option value="1">1 Hora</option><option value="2">2 Horas</option><option value="3">3 Horas</option>
+                    </select>
+                    <button class="btn w-full mt-2" onclick="reservarHabitacion(${hab.id})">Confirmar Reserva</button>
+                </div>
+            </div>`;
+        });
+        html += `</div></div>`;
+        document.getElementById('contenido').innerHTML = html;
+        
+        const hoy = new Date();
+        const unaSemana = new Date(hoy);
+        unaSemana.setDate(hoy.getDate() + 7);
+        const minDate = hoy.toISOString().split('T')[0];
+        const maxDate = unaSemana.toISOString().split('T')[0];
+        document.querySelectorAll('input[type="date"]').forEach(input => {
+            input.min = minDate;
+            input.max = maxDate;
+            input.value = minDate;
+        });
     }
-
+    
     function mostrarLoginVIP() {
       detenerRelojFichaje();
       detenerRelojHabitaciones();
@@ -210,21 +237,20 @@
 
       const gestionHTML = `<div class="mb-8 p-6 bg-purple-900 bg-opacity-50 rounded-lg"><h2 class="text-2xl font-bold mb-4">Gestionar Empleados</h2><div class="flex gap-4"><input type="text" id="newEmployeeName" class="flex-grow px-3 py-2 text-black rounded" placeholder="Nombre y apellido del nuevo empleado..."><button onclick="anadirEmpleado()" class="btn">Añadir Empleado</button></div></div>`;
 
-      const tablaHTML = `<div class="overflow-x-auto bg-purple-900 bg-opacity-80 rounded-lg shadow-xl"><table class="w-full text-left">
-                  <thead class="bg-purple-800 text-purple-200 uppercase text-sm">
-                      <tr>
-                          <th class="p-3">Empleado</th>
-                          <th class="p-3">Horas Hoy</th>
-                          <th class="p-3">Horas Semana</th>
-                          <th class="p-3">Horas Total</th>
-                          <th class="p-3 text-center">Ventas Hoy (uds.)</th>
-                          <th class="p-3 text-center">Ventas Total (uds.)</th>
-                          <th class="p-3 text-center">Acciones</th>
-                      </tr>
-                  </thead>
-                  <tbody>${tableRowsHTML}</tbody>
-              </table>
-          </div>`;
+      const tablaHTML = `<div class="overflow-x-auto bg-purple-900 bg-opacity-80 rounded-lg shadow-xl"><table class="w-full text-left"><thead class="bg-purple-800 text-purple-200 uppercase text-sm">
+                  <tr>
+                      <th class="p-3">Empleado</th>
+                      <th class="p-3">Horas Hoy</th>
+                      <th class="p-3">Horas Semana</th>
+                      <th class="p-3">Horas Total</th>
+                      <th class="p-3 text-center">Ventas Hoy (uds.)</th>
+                      <th class="p-3 text-center">Ventas Total (uds.)</th>
+                      <th class="p-3 text-center">Acciones</th>
+                  </tr>
+              </thead>
+              <tbody>${tableRowsHTML}</tbody>
+          </table>
+      </div>`;
 
       document.getElementById('contenido').innerHTML = `<div class="max-w-7xl mx-auto"><h1 class="text-4xl font-bold text-center mb-8">Panel de Administración</h1>${gestionHTML}${tablaHTML}<div class="text-center mt-8"><button onclick="mostrarInicio()" class="btn">Volver a Inicio</button></div></div>`;
     }
@@ -317,34 +343,59 @@
       mostrarInicio();
     }
 
-    function darLlave(id, nombreEmpleado) {
-      const hab = habitaciones.find(h => h.id === id);
-      if (hab && hab.estado === 'disponible') {
-        hab.estado = 'ocupada';
-        hab.tiempoFin = Date.now() + 30 * 60 * 1000;
+    function reservarHabitacion(id) {
+        const hab = habitaciones.find(h => h.id === id);
+        if (!hab) return;
+
+        const cliente = document.getElementById(`cliente-hab-${id}`).value.trim();
+        const fecha = document.getElementById(`fecha-hab-${id}`).value;
+        const hora = document.getElementById(`hora-hab-${id}`).value;
+        const duracion = parseInt(document.getElementById(`duracion-hab-${id}`).value);
+
+        if (!cliente || !fecha || !hora) {
+            alert("Por favor, rellena todos los campos.");
+            return;
+        }
+
+        const [h, m] = hora.split(':');
+        const inicioReserva = new Date(fecha);
+        inicioReserva.setHours(h, m, 0, 0);
+
+        const finReserva = new Date(inicioReserva.getTime() + duracion * 60 * 60 * 1000);
+
+        const hayConflicto = hab.reservas.some(r => 
+            (inicioReserva.getTime() < r.fin) && (finReserva.getTime() > r.inicio)
+        );
+
+        if (hayConflicto) {
+            alert("Conflicto de horario. La habitación ya está reservada en ese tramo. Por favor, elige otra hora.");
+            return;
+        }
+
+        hab.reservas.push({
+            id: Date.now(),
+            cliente: cliente,
+            inicio: inicioReserva.getTime(),
+            fin: finReserva.getTime()
+        });
+
         guardarDatos('habitaciones', habitaciones);
-        mostrarPanelEmpleados(nombreEmpleado);
-      }
+        alert(`¡Reserva confirmada para ${cliente}!`);
+        mostrarPanelHabitaciones();
     }
 
-    function anadirTiempoHabitacion(id, nombreEmpleado) {
-      const hab = habitaciones.find(h => h.id === id);
-      if (hab && hab.estado === 'ocupada') {
-        const baseTiempo = hab.tiempoFin < Date.now() ? Date.now() : hab.tiempoFin;
-        hab.tiempoFin = baseTiempo + 30 * 60 * 1000;
-        guardarDatos('habitaciones', habitaciones);
-        mostrarPanelEmpleados(nombreEmpleado);
-      }
-    }
+    function cancelarReserva(habId, reservaId, nombreEmpleado) {
+        const hab = habitaciones.find(h => h.id === habId);
+        if (!hab) return;
 
-    function liberarHabitacion(id, nombreEmpleado) {
-      const hab = habitaciones.find(h => h.id === id);
-      if (hab) {
-        hab.estado = 'disponible';
-        hab.tiempoFin = 0;
-        guardarDatos('habitaciones', habitaciones);
-        mostrarPanelEmpleados(nombreEmpleado);
-      }
+        const reservaIndex = hab.reservas.findIndex(r => r.id === reservaId);
+        if (reservaIndex > -1) {
+            if (confirm(`¿Seguro que quieres cancelar la reserva de '${hab.reservas[reservaIndex].cliente}'?`)) {
+                hab.reservas.splice(reservaIndex, 1);
+                guardarDatos('habitaciones', habitaciones);
+                mostrarPanelEmpleados(nombreEmpleado);
+            }
+        }
     }
 
     // ===================================================================================
@@ -409,6 +460,15 @@
       return `${horas}:${minutos}:${segundos}`;
     }
 
+    function getEstadoHabitacion(hab) {
+      const ahora = Date.now();
+      const reservaActual = hab.reservas.find(r => ahora >= r.inicio && ahora < r.fin);
+      if (reservaActual) {
+        return { estado: 'ocupada', texto: `Ocupada por ${reservaActual.cliente}` };
+      }
+      return { estado: 'disponible', texto: 'Disponible' };
+    }
+
     function getWeekNumber(d) {
         d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
         d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7));
@@ -461,15 +521,14 @@
         empleados = cargarDatos('empleados', ['tito giovanni', 'marta']);
         fichajes = cargarDatos('fichajes', {});
         ventas = cargarDatos('ventas', {});
+        habitaciones = cargarDatos('habitaciones', []);
         
-        let habsGuardadas = cargarDatos('habitaciones', []);
-        if (!Array.isArray(habsGuardadas) || habsGuardadas.length < 10) {
-            habsGuardadas = [];
+        if (!Array.isArray(habitaciones) || habitaciones.length < 10) {
+            habitaciones = [];
             for (let i = 1; i <= 10; i++) {
-                habsGuardadas.push({ id: i, nombre: `Habitación ${i}`, estado: 'disponible', tiempoFin: 0 });
+                habitaciones.push({ id: i, nombre: `Habitación ${i}`, reservas: [] });
             }
         }
-        habitaciones = habsGuardadas;
 
         const currentUser = cargarDatos('currentUser', null, sessionStorage);
         if (currentUser && empleados.includes(currentUser)) {
