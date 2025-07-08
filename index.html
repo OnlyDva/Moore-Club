@@ -1,458 +1,471 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Moore Club - La Tentación Empieza Aquí</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<style>
-  body {
-    font-family: 'Inter', sans-serif;
-    background: url('mooreclub1.png') center top no-repeat;
-    background-size: cover;
-    background-attachment: fixed;
-  }
-  .bg-overlay {
-    background-color: rgba(0,0,0,0.85);
-  }
-  .btn {
-    background-color: #6b21a8;
-    color: white;
-    padding: 0.5rem 1rem;
-    border-radius: 0.375rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.3s;
-    margin-right: 0.5rem;
-  }
-  .btn:hover {
-    background-color: #5b189b;
-  }
-  #mensaje {
-    margin-top: 1rem;
-    padding: 0.5rem 1rem;
-    background-color: #9f7aea;
-    color: white;
-    border-radius: 0.375rem;
-    font-weight: 600;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    max-width: 300px;
-  }
-  #mensaje.visible {
-    opacity: 1;
-  }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Moore Club - La Tentación Empieza Aquí</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #1e1b29;
+      color: #d3c0f9;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    nav {
+      background-color: #6b21a8;
+      color: white;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    nav h1 {
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 1.5rem;
+    }
+    nav ul {
+      display: flex;
+      gap: 1.5rem;
+    }
+    nav ul li a {
+      color: white;
+      cursor: pointer;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    nav ul li a:hover {
+      text-decoration: underline;
+    }
+    main {
+      flex: 1;
+      padding: 2rem;
+      background: linear-gradient(180deg, rgba(30,27,41,1) 0%, rgba(24,20,34,1) 100%);
+    }
+    .panel {
+      background: rgba(107,33,168,0.85);
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 0 20px rgba(107,33,168,0.7);
+      color: #e9d9ff;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .btn {
+      background-color: #6b21a8;
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 0.375rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      margin-right: 1rem;
+      border: none;
+    }
+    .btn:hover {
+      background-color: #5b189b;
+    }
+    .btn-red {
+      background-color: #d32f2f;
+    }
+    .btn-red:hover {
+      background-color: #b02727;
+    }
+    .producto {
+      background: rgba(107, 33, 168, 0.85);
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(107, 33, 168, 0.7);
+      width: 220px;
+      padding: 1rem;
+      text-align: center;
+      transition: transform 0.3s ease;
+      cursor: default;
+      margin: 1rem;
+      color: #e9d9ff;
+    }
+    .producto:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 30px rgba(107, 33, 168, 1);
+    }
+    .producto img {
+      width: 140px;
+      height: auto;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+    }
+    .producto p {
+      font-size: 0.9rem;
+      font-weight: 500;
+      line-height: 1.3;
+      margin: 0 auto;
+    }
+    .flex-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1rem;
+    }
+    .hidden {
+      display: none;
+    }
+    input[type="text"], textarea {
+      width: 100%;
+      padding: 0.5rem;
+      border-radius: 0.375rem;
+      border: none;
+      margin-bottom: 1rem;
+      font-size: 1rem;
+      color: black;
+    }
+    textarea {
+      resize: vertical;
+      height: 100px;
+    }
+    label {
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+      display: block;
+    }
+  </style>
 </head>
-<body class="text-purple-200">
-<div class="bg-overlay min-h-screen">
+<body>
 
-<nav class="bg-purple-900 text-white px-6 py-4 flex justify-between items-center">
-  <h1 class="text-xl font-bold cursor-pointer" onclick="mostrarInicio()">Moore Club</h1>
-  <ul class="flex space-x-6 text-sm">
-    <li><a href="#" onclick="mostrarInicio()" class="hover:underline">Inicio</a></li>
-    <li><a href="#" onclick="abrirEmpleados()" class="hover:underline">Empleados</a></li>
-  </ul>
-</nav>
+  <nav>
+    <h1 onclick="mostrarInicio()">Moore Club</h1>
+    <ul>
+      <li><a onclick="mostrarInicio()">Inicio</a></li>
+      <li><a onclick="mostrarLoginVIP()">Empleados</a></li>
+      <li><a onclick="mostrarProductos()">Productos</a></li>
+    </ul>
+  </nav>
 
-<main id="contenido" class="p-8 min-h-[80vh]">
-  <!-- Contenido dinámico aquí -->
-</main>
+  <main id="contenido">
+    <!-- Aquí carga el contenido dinámico -->
+  </main>
 
-</div>
+  <script>
+    // Datos de empleados y ventas en localStorage
+    let empleados = JSON.parse(localStorage.getItem('empleados')) || ['tito giovanni', 'marta as'];
+    let fichajes = JSON.parse(localStorage.getItem('fichajes')) || {};
+    let ventas = JSON.parse(localStorage.getItem('ventas')) || {
+      "tito dios griego": 0,
+      "la tita": 0,
+      "mascara dominante": 0,
+      "pinzas led sweet pain": 0,
+      "condones espadas del deseo": 0,
+      "dildo doble fusion morada": 0,
+      "banana pelada": 0,
+      "magdalenas con glaseado rosa": 0,
+      "berenjena rellena": 0,
+      "coctel dulce": 0,
+      "trago afrutado": 0,
+      "almejas picantes": 0
+    };
 
-<script>
-  // Empleados válidos
-  const empleadosValidos = ['tito giovanni', 'marta as']
+    function guardarEmpleados() {
+      localStorage.setItem('empleados', JSON.stringify(empleados));
+    }
+    function guardarFichajes() {
+      localStorage.setItem('fichajes', JSON.stringify(fichajes));
+    }
+    function guardarVentas() {
+      localStorage.setItem('ventas', JSON.stringify(ventas));
+    }
 
-  // Estados fichaje
-  let estadosTrabajo = JSON.parse(localStorage.getItem('estadosTrabajo')) || {
-    'tito giovanni': { fichado: false, inicio: null, tiempoAcumulado: 0 },
-    'marta as': { fichado: false, inicio: null, tiempoAcumulado: 0 }
-  }
-
-  // Productos peluches y ventas
-  const productosPeluches = [
-    { id: 'tito', nombre: 'Tito Dios Griego', img: 'tito.png' },
-    { id: 'tita', nombre: 'La Tita', img: 'tita.png' },
-    { id: 'mascara', nombre: 'Máscara Dominante “Cat Vanilla”', img: 'mascara.png' },
-    { id: 'pinzas', nombre: 'Pinzas LED “Sweet Pain”', img: 'pinzas.png' },
-    { id: 'condones', nombre: 'Condones “Espadas del Deseo”', img: 'condones.png' },
-    { id: 'dildo', nombre: 'Dildo Doble “Fusión Morada”', img: 'dildo.png' }
-  ]
-
-  let ventasPeluches = JSON.parse(localStorage.getItem('ventasPeluches')) || {
-    tito: 0, tita: 0, mascara: 0, pinzas: 0, condones: 0, dildo: 0
-  }
-
-  // Productos comida y bebida y ventas
-  const productosComida = [
-    { id: 'banana', nombre: 'Banana pelada con glaseado y cerezas', img: 'banana.png', descripcion: 'Provocadora y dulce hasta el final.' },
-    { id: 'magdalenas', nombre: 'Magdalenas con glaseado rosa', img: 'magdalenas.png', descripcion: 'Dos razones para pecar.' },
-    { id: 'berenjena', nombre: 'Berenjena rellena', img: 'berenjena.png', descripcion: 'Caliente y jugosa, te va a dejar sudando.' },
-    { id: 'coctel', nombre: 'Cóctel dulce con cereza y fresa', img: 'coctel.png', descripcion: 'Tierno al principio, travieso al final.' },
-    { id: 'trago', nombre: 'Trago afrutado y ácido', img: 'trago.png', descripcion: 'Refresca y se te queda pegado.' },
-    { id: 'almejas', nombre: 'Almejas picantes con limón', img: 'almejas.png', descripcion: 'Suave por fuera, fuego por dentro.' }
-  ]
-
-  let ventasComida = JSON.parse(localStorage.getItem('ventasComida')) || {
-    banana: 0, magdalenas: 0, berenjena: 0, coctel: 0, trago: 0, almejas: 0
-  }
-
-  let empleadoActual = sessionStorage.getItem('empleadoActual') || null
-  let intervaloContador = null
-
-  function guardarEstadosTrabajo() {
-    localStorage.setItem('estadosTrabajo', JSON.stringify(estadosTrabajo))
-  }
-  function guardarVentasPeluches() {
-    localStorage.setItem('ventasPeluches', JSON.stringify(ventasPeluches))
-  }
-  function guardarVentasComida() {
-    localStorage.setItem('ventasComida', JSON.stringify(ventasComida))
-  }
-
-  function mostrarMensaje(texto) {
-    const mensaje = document.getElementById('mensaje')
-    if (!mensaje) return
-    mensaje.textContent = texto
-    mensaje.classList.add('visible')
-    setTimeout(() => mensaje.classList.remove('visible'), 3000)
-  }
-
-  // Página bienvenida con paneles elegantes
-  function mostrarInicio() {
-    empleadoActual = null
-    sessionStorage.removeItem('empleadoActual')
-    document.getElementById('contenido').innerHTML = `
-      <main class="min-h-screen flex flex-col justify-center items-center px-6 py-12 bg-gradient-to-b from-black via-purple-900 to-black bg-opacity-90 text-purple-200">
-        <h1 class="text-6xl font-extrabold mb-12 drop-shadow-lg text-center">Bienvenido a <span class="text-purple-400">Moore Club</span></h1>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 max-w-7xl w-full mb-16">
-          <div class="bg-purple-900 bg-opacity-70 rounded-lg p-6 shadow-lg hover:shadow-xl transition-shadow cursor-pointer">
-            <h2 class="text-2xl font-bold mb-3">Nuestra Historia</h2>
-            <p class="text-purple-300 leading-relaxed">Un lugar de lujo y misterio donde cada noche es única</p>
+    // Mostrar Inicio
+    function mostrarInicio() {
+      const contenido = document.getElementById('contenido');
+      contenido.innerHTML = `
+        <div class="panel">
+          <h2 style="font-size:2rem; margin-bottom:1rem;">Bienvenido a Moore Club</h2>
+          <p>Vive la experiencia única de nuestro club. Explora secciones, productos y gestiona el fichaje de nuestro personal.</p>
+          <div style="margin-top: 1.5rem;">
+            <button class="btn" onclick="mostrarLoginVIP()">Área Empleados</button>
+            <button class="btn" onclick="mostrarProductos()">Nuestros Productos</button>
           </div>
-          <div class="bg-purple-900 bg-opacity-70 rounded-lg p-6 shadow-lg hover:shadow-xl transition-shadow cursor-pointer">
-            <h2 class="text-2xl font-bold mb-3">Eventos Exclusivos</h2>
-            <p class="text-purple-300 leading-relaxed">Fiestas, shows y experiencias que solo Moore Club ofrece</p>
-          </div>
-          <div class="bg-purple-900 bg-opacity-70 rounded-lg p-6 shadow-lg hover:shadow-xl transition-shadow cursor-pointer">
-            <h2 class="text-2xl font-bold mb-3">Reservas VIP</h2>
-            <p class="text-purple-300 leading-relaxed">Reserva tu mesa o zona privada con atención personalizada</p>
-          </div>
-          <div class="bg-purple-900 bg-opacity-70 rounded-lg p-6 shadow-lg hover:shadow-xl transition-shadow cursor-pointer">
-            <h2 class="text-2xl font-bold mb-3">Contacto & Redes</h2>
-            <p class="text-purple-300 leading-relaxed">Síguenos y mantente al día con nuestras novedades</p>
+          <div style="margin-top: 2rem; display:flex; gap:2rem; flex-wrap:wrap; justify-content:center;">
+            <div style="max-width:300px; background:rgba(107,33,168,0.7); border-radius: 12px; padding: 1rem; box-shadow:0 0 15px rgba(107,33,168,0.5); text-align:center;">
+              <img src="Tito.png" alt="Tito Dios Griego" style="width:120px; border-radius:8px; margin-bottom:1rem;" />
+              <p><strong>Tito Giovanni</strong><br>Maestro de ceremonias y corazón de Moore. Carisma y elegancia en estado puro.</p>
+            </div>
+            <div style="max-width:300px; background:rgba(107,33,168,0.7); border-radius: 12px; padding: 1rem; box-shadow:0 0 15px rgba(107,33,168,0.5); text-align:center;">
+              <img src="Tita.png" alt="La Tita" style="width:120px; border-radius:8px; margin-bottom:1rem;" />
+              <p><strong>Marta</strong><br>La musa del club, sensualidad y actitud que cautiva en cada show.</p>
+            </div>
           </div>
         </div>
+      `;
+    }
 
-        <section class="max-w-7xl w-full grid grid-cols-1 md:grid-cols-2 gap-10 mb-16">
-          <div class="bg-purple-900 bg-opacity-70 rounded-lg p-6 flex flex-col items-center text-center shadow-lg">
-            <img src="tito.png" alt="Tito Giovanni" class="w-48 rounded-full mb-4 shadow-xl" />
-            <h3 class="text-3xl font-semibold mb-2">Tito Giovanni</h3>
-            <p class="text-purple-300">Líder carismático y extravagante del Moore Club. Siempre con su traje morado y sombrero de copa, es la esencia del lujo y la diversión.</p>
+    // Mostrar productos
+    function mostrarProductos() {
+      const contenido = document.getElementById('contenido');
+      contenido.innerHTML = `
+        <h2 style="text-align:center; font-size:2rem; margin-bottom:1rem;">Productos Moore Club</h2>
+        <div class="flex-row">
+          <div class="producto">
+            <img src="banana.png" alt="Banana Pelada" />
+            <p><strong>Banana Pelada</strong><br>Banana pelada con glaseado y cerezas. Provocadora y dulce hasta el final.</p>
           </div>
-          <div class="bg-purple-900 bg-opacity-70 rounded-lg p-6 flex flex-col items-center text-center shadow-lg">
-            <img src="marta.png" alt="Marta AS" class="w-48 rounded-full mb-4 shadow-xl" />
-            <h3 class="text-3xl font-semibold mb-2">Marta AS</h3>
-            <p class="text-purple-300">La reina del club, pareja de Tito, con un estilo único y una presencia que domina el ambiente. Su energía hace vibrar cada evento.</p>
+          <div class="producto">
+            <img src="magdalenas.png" alt="Magdalenas" />
+            <p><strong>Magdalenas con glaseado rosa</strong><br>Magdalenas con glaseado rosa y toques sugerentes. Dos razones para pecar.</p>
           </div>
-        </section>
-
-        <section class="max-w-7xl w-full mb-16">
-          <h2 class="text-4xl font-bold mb-8 text-center">Objetos Emblemáticos</h2>
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-10">
-            <div class="bg-purple-900 bg-opacity-70 rounded-lg p-6 text-center shadow-lg hover:shadow-xl transition-shadow cursor-pointer">
-              <img src="tito.png" alt="Peluche Tito Dios Griego" class="mx-auto mb-4 w-36" />
-              <h3 class="text-2xl font-semibold mb-2">Peluche Tito Dios Griego</h3>
-              <p class="text-purple-300">Un símbolo de poder y estilo, fiel a la esencia del Moore Club.</p>
-            </div>
-            <div class="bg-purple-900 bg-opacity-70 rounded-lg p-6 text-center shadow-lg hover:shadow-xl transition-shadow cursor-pointer">
-              <img src="mascara.png" alt="Máscara Dominante Cat Vanilla" class="mx-auto mb-4 w-36" />
-              <h3 class="text-2xl font-semibold mb-2">Máscara Dominante “Cat Vanilla”</h3>
-              <p class="text-purple-300">Un toque misterioso y seductor para las noches más inolvidables.</p>
-            </div>
-            <div class="bg-purple-900 bg-opacity-70 rounded-lg p-6 text-center shadow-lg hover:shadow-xl transition-shadow cursor-pointer">
-              <img src="condones.png" alt="Condones Espadas del Deseo" class="mx-auto mb-4 w-36" />
-              <h3 class="text-2xl font-semibold mb-2">Condones “Espadas del Deseo”</h3>
-              <p class="text-purple-300">Para quienes buscan que la pasión no tenga límites.</p>
-            </div>
+          <div class="producto">
+            <img src="berenjena.png" alt="Berenjena Rellena" />
+            <p><strong>Berenjena Rellena</strong><br>Berenjena rellena, caliente y jugosa. Te va a dejar sudando.</p>
           </div>
-        </section>
-
-        <button onclick="abrirEmpleados()" class="mt-8 px-16 py-4 bg-purple-700 hover:bg-purple-800 rounded-full text-white text-2xl font-semibold shadow-lg transition duration-300">Acceso Empleados</button>
-      </main>
-    `
-  }
-
-  // Abrir panel empleados o login
-  function abrirEmpleados() {
-    empleadoActual = sessionStorage.getItem('empleadoActual')
-    if (!empleadoActual) {
-      mostrarLoginFichaje()
-    } else {
-      mostrarPanelEmpleados()
+          <div class="producto">
+            <img src="coctel.png" alt="Cóctel Dulce" />
+            <p><strong>Cóctel Dulce</strong><br>Cóctel dulce con cereza y fresa. Tierno al principio, travieso al final.</p>
+          </div>
+          <div class="producto">
+            <img src="trago afrutado.png" alt="Trago Afrutado" />
+            <p><strong>Trago Afrutado</strong><br>Trago afrutado y ácido. Refresca... y se te queda pegado.</p>
+          </div>
+          <div class="producto">
+            <img src="almejas.png" alt="Almejas Picantes" />
+            <p><strong>Almejas Picantes</strong><br>Almejas picantes con limón. Suave por fuera, fuego por dentro.</p>
+          </div>
+          <div class="producto">
+            <img src="Tito.png" alt="Tito Dios Griego" />
+            <p><strong>Tito Dios Griego</strong><br>Figura decorativa de Tito en forma divina, musculoso, sin camiseta y con toga morada.<br>"Hecho a imagen de un dios... pero con curvas para el pecado."</p>
+          </div>
+          <div class="producto">
+            <img src="Tita.png" alt="La Tita" />
+            <p><strong>La Tita</strong><br>Muñeca provocadora con vestido griego y actitud descarada. El alma coqueta del Vanilla.<br>"No está hecha para mirar... está hecha para imaginar."</p>
+          </div>
+          <div class="producto">
+            <img src="Mascara.png" alt="Máscara Dominante" />
+            <p><strong>Máscara Dominante “Cat Vanilla”</strong><br>Máscara de cuero morado con orejas felinas. Perfecta para rol de poder y seducción.<br>"Ponte la máscara... y deja que tus instintos tomen el control."</p>
+          </div>
+          <div class="producto">
+            <img src="Pinzas.png" alt="Pinzas LED Sweet Pain" />
+            <p><strong>Pinzas LED “Sweet Pain”</strong><br>Pinzas ajustables con corazones LED que brillan al ritmo del deseo. Dolor y placer, con estilo.<br>"Brillan cuando lo estás disfrutando... y tú, también."</p>
+          </div>
+          <div class="producto">
+            <img src="Coctel.png" alt="Preservativos Espadas del Deseo" />
+            <p><strong>Preservativos “Espadas del Deseo”</strong><br>Preservativos rojo y azul en envase negro brillante. Un dúo elegante para encuentros con chispa.<br>"Elige tu sable... y que la Fuerza te acompañe."</p>
+          </div>
+          <div class="producto">
+            <img src="Dildo.webp" alt="Dildo Doble Fusión Morada" />
+            <p><strong>Dildo Doble “Fusión Morada”</strong><br>Juguete translúcido de doble entrada. Flexible, intenso y listo para retos más atrevidos.<br>"Cuando uno no basta... que el placer sea doble."</p>
+          </div>
+        </div>
+      `;
     }
-  }
 
-  // Login empleado
-  function mostrarLoginFichaje() {
-    document.getElementById('contenido').innerHTML = `
-      <h2 class="text-2xl font-bold mb-4">Acceso Empleado</h2>
-      <div class="max-w-md bg-black bg-opacity-30 p-6 rounded shadow">
-        <label class="block mb-2">Nombre completo (minúsculas)</label>
-        <input id="nombreEmpleado" type="text" class="w-full px-3 py-2 mb-4 text-black" placeholder="Ej: tito giovanni" />
-        <button onclick="loginEmpleado()" class="btn w-full">Entrar</button>
-      </div>
-      <div id="mensaje"></div>
-    `
-  }
-
-  function loginEmpleado() {
-    const nombre = document.getElementById('nombreEmpleado').value.trim().toLowerCase()
-    if (!nombre) {
-      mostrarMensaje('Introduce un nombre válido')
-      return
+    // Mostrar login empleados
+    function mostrarLoginVIP() {
+      const contenido = document.getElementById('contenido');
+      contenido.innerHTML = `
+        <div class="panel">
+          <h2>Acceso Empleados</h2>
+          <label for="nombreInput">Nombre (minúsculas):</label>
+          <input type="text" id="nombreInput" placeholder="ejemplo: tito" />
+          <label for="apellidoInput">Apellido (minúsculas):</label>
+          <input type="text" id="apellidoInput" placeholder="ejemplo: giovanni" />
+          <button class="btn" onclick="verificarAccesoVIP()">Entrar</button>
+          <p id="errorLogin" style="color:#ff5a5a; margin-top:1rem;"></p>
+        </div>
+      `;
     }
-    if (!empleadosValidos.includes(nombre)) {
-      mostrarMensaje('Empleado no registrado')
-      return
-    }
-    empleadoActual = nombre
-    sessionStorage.setItem('empleadoActual', empleadoActual)
-    mostrarPanelEmpleados()
-  }
 
-  function cerrarSesion() {
-    empleadoActual = null
-    sessionStorage.removeItem('empleadoActual')
-    pararContador()
-    mostrarInicio()
-  }
-
-  // Panel empleados con submenú
-  function mostrarPanelEmpleados() {
-    const contenido = document.getElementById('contenido')
-    contenido.innerHTML = `
-      <h2 class="text-2xl font-bold mb-4">Panel Empleados - ${empleadoActual}</h2>
-      <div class="mb-4 space-x-4">
-        <button class="btn" onclick="mostrarFichaje()">Fichaje</button>
-        <button class="btn" onclick="mostrarVentasPeluches()">Ventas Peluches</button>
-        <button class="btn" onclick="mostrarVentasComida()">Ventas Comida</button>
-        <button class="btn bg-red-600 hover:bg-red-700" onclick="cerrarSesion()">Cerrar Sesión</button>
-      </div>
-      <div id="subcontenido"></div>
-      <div id="mensaje"></div>
-    `
-    mostrarFichaje()
-  }
-
-  // Fichaje
-  function mostrarFichaje() {
-    const subcontenido = document.getElementById('subcontenido')
-    const estado = estadosTrabajo[empleadoActual]
-    subcontenido.innerHTML = `
-      <button class="btn mr-2" onclick="ficharEntrada()">Fichar Entrada</button>
-      <button class="btn mr-2" onclick="ficharSalida()">Fichar Salida</button>
-      <div id="contador" class="mt-2 font-mono text-lg"></div>
-      <div class="mt-4" id="estadoGeneral"></div>
-    `
-    actualizarEstadoGeneral()
-    if (estado?.fichado) iniciarContador()
-    else pararContador()
-  }
-
-  function ficharEntrada() {
-    const estado = estadosTrabajo[empleadoActual]
-    if (estado.fichado) {
-      mostrarMensaje('Ya estás fichado')
-      return
-    }
-    estado.fichado = true
-    estado.inicio = Date.now()
-    guardarEstadosTrabajo()
-    actualizarEstadoGeneral()
-    mostrarMensaje('Fichado correctamente')
-    iniciarContador()
-  }
-
-  function ficharSalida() {
-    const estado = estadosTrabajo[empleadoActual]
-    if (!estado.fichado) {
-      mostrarMensaje('No estás fichado')
-      return
-    }
-    estado.fichado = false
-    estado.tiempoAcumulado += Date.now() - estado.inicio
-    estado.inicio = null
-    guardarEstadosTrabajo()
-    actualizarEstadoGeneral()
-    mostrarMensaje('Salida registrada')
-    pararContador()
-  }
-
-  // Contador tiempo fichado (solo cuenta tiempo desde fichar, sin acumular en el display)
-  function iniciarContador() {
-    const contador = document.getElementById('contador')
-    if (!contador) return
-
-    function actualizar() {
-      const estado = estadosTrabajo[empleadoActual]
-      if (!estado.fichado || !estado.inicio) {
-        contador.textContent = '00:00:00'
-        return
+    // Verificar login
+    function verificarAccesoVIP() {
+      const nombre = document.getElementById('nombreInput')?.value.trim().toLowerCase();
+      const apellido = document.getElementById('apellidoInput')?.value.trim().toLowerCase();
+      const completo = nombre + ' ' + apellido;
+      if (empleados.includes(completo)) {
+        mostrarPanelEmpleado(completo);
+      } else {
+        document.getElementById('errorLogin').textContent = 'Acceso denegado. Usuario no registrado.';
       }
-      const tiempoDesdeFichaje = Date.now() - estado.inicio
-      contador.textContent = formatearTiempo(tiempoDesdeFichaje)
     }
 
-    actualizar()
-    intervaloContador = setInterval(actualizar, 1000)
-  }
+    // Mostrar panel empleado con fichaje y ventas
+    let fichandoInterval = null;
+    function mostrarPanelEmpleado(nombreCompleto) {
+      const contenido = document.getElementById('contenido');
+      contenido.innerHTML = `
+        <div class="panel">
+          <h2>Panel de Fichaje - ${nombreCompleto}</h2>
+          <button class="btn" onclick="fichar('${nombreCompleto}')">Fichar Entrada</button>
+          <button class="btn" onclick="desfichar('${nombreCompleto}')">Fichar Salida</button>
+          <button class="btn btn-red" onclick="cerrarSesion()">Cerrar Sesión</button>
+          <h3>Tiempo trabajado hoy: <span id="tiempoTrabajado">00:00:00</span></h3>
+          <h3>Horas trabajadas esta semana: <span id="tiempoSemana">00:00:00</span></h3>
+          <h3>Horas totales acumuladas: <span id="tiempoTotal">00:00:00</span></h3>
+          <h3>Ventas registradas</h3>
+          <div id="ventasRegistradas"></div>
+        </div>
+      `;
 
-  function pararContador() {
-    if (intervaloContador) {
-      clearInterval(intervaloContador)
-      intervaloContador = null
-    }
-    const contador = document.getElementById('contador')
-    if (contador) contador.textContent = '00:00:00'
-  }
+      if(!fichajes[nombreCompleto]) {
+        fichajes[nombreCompleto] = {
+          fichado: false,
+          inicio: null,
+          tiempoAcumuladoDia: 0,
+          tiempoAcumuladoSemana: 0,
+          tiempoAcumuladoTotal: 0,
+          ultimoDiaGuardado: null,
+          ultimoSemanaGuardada: null
+        };
+      }
+      actualizarTemporizadores(nombreCompleto);
+      mostrarVentas();
 
-  function formatearTiempo(ms) {
-    let totalSeg = Math.floor(ms / 1000)
-    let horas = Math.floor(totalSeg / 3600)
-    let minutos = Math.floor((totalSeg % 3600) / 60)
-    let segundos = totalSeg % 60
-    return `${horas.toString().padStart(2,'0')}:${minutos.toString().padStart(2,'0')}:${segundos.toString().padStart(2,'0')}`
-  }
-
-  // Mostrar estado general fichaje
-  function actualizarEstadoGeneral() {
-    const cont = document.getElementById('estadoGeneral')
-    const hoy = new Date()
-    const inicioDia = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate()).getTime()
-    const diaSemana = hoy.getDay()
-    const inicioSemana = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() - ((diaSemana + 6) % 7)).getTime()
-
-    let html = `<table class="min-w-full text-left border-collapse border border-purple-600">
-      <thead>
-        <tr class="bg-purple-800">
-          <th class="border border-purple-700 px-4 py-2">Empleado</th>
-          <th class="border border-purple-700 px-4 py-2">Horas hoy</th>
-          <th class="border border-purple-700 px-4 py-2">Horas esta semana</th>
-          <th class="border border-purple-700 px-4 py-2">Horas totales</th>
-          <th class="border border-purple-700 px-4 py-2">Estado</th>
-        </tr>
-      </thead>
-      <tbody>`
-
-    function msAHoras(ms) {
-      return (ms / 3600000).toFixed(2)
+      // Si está fichado, arrancar contador
+      if (fichajes[nombreCompleto].fichado) {
+        iniciarContador(nombreCompleto);
+      }
     }
 
-    for (const [usuario, datos] of Object.entries(estadosTrabajo)) {
-      let tiempoAcumulado = datos.tiempoAcumulado
-      let tiempoHoy = 0
-      let tiempoSemana = 0
+    function segundosATiempo(segundos) {
+      const h = Math.floor(segundos / 3600).toString().padStart(2, '0');
+      const m = Math.floor((segundos % 3600) / 60).toString().padStart(2, '0');
+      const s = Math.floor(segundos % 60).toString().padStart(2, '0');
+      return `${h}:${m}:${s}`;
+    }
 
-      if (datos.fichado && datos.inicio) {
-        const ahora = Date.now()
-        tiempoAcumulado += (ahora - datos.inicio)
-        if (datos.inicio > inicioDia) {
-          tiempoHoy += ahora - datos.inicio
-        }
-        if (datos.inicio > inicioSemana) {
-          tiempoSemana += ahora - datos.inicio
-        }
+    function actualizarTemporizadores(nombreCompleto) {
+      const ficha = fichajes[nombreCompleto];
+      if (!ficha) return;
+
+      const ahora = Date.now();
+      const fecha = new Date();
+
+      // Reiniciar acumulados si es nuevo día
+      if (ficha.ultimoDiaGuardado !== fecha.toDateString()) {
+        ficha.tiempoAcumuladoDia = 0;
+        ficha.ultimoDiaGuardado = fecha.toDateString();
+      }
+      // Reiniciar acumulados si es nueva semana (usamos número de semana ISO)
+      const semanaActual = getNumeroSemana(fecha);
+      if (ficha.ultimoSemanaGuardada !== semanaActual) {
+        ficha.tiempoAcumuladoSemana = 0;
+        ficha.ultimoSemanaGuardada = semanaActual;
       }
 
-      html += `<tr>
-        <td class="border border-purple-700 px-4 py-2">${usuario}</td>
-        <td class="border border-purple-700 px-4 py-2">${msAHoras(tiempoHoy)}</td>
-        <td class="border border-purple-700 px-4 py-2">${msAHoras(tiempoSemana)}</td>
-        <td class="border border-purple-700 px-4 py-2">${msAHoras(tiempoAcumulado)}</td>
-        <td class="border border-purple-700 px-4 py-2">${datos.fichado ? 'Fichado' : 'No fichado'}</td>
-      </tr>`
+      let tiempoDia = ficha.tiempoAcumuladoDia;
+      let tiempoSemana = ficha.tiempoAcumuladoSemana;
+      let tiempoTotal = ficha.tiempoAcumuladoTotal;
+
+      if (ficha.fichado && ficha.inicio) {
+        const dif = Math.floor((ahora - ficha.inicio) / 1000);
+        tiempoDia += dif;
+        tiempoSemana += dif;
+        tiempoTotal += dif;
+      }
+
+      document.getElementById('tiempoTrabajado').textContent = segundosATiempo(tiempoDia);
+      document.getElementById('tiempoSemana').textContent = segundosATiempo(tiempoSemana);
+      document.getElementById('tiempoTotal').textContent = segundosATiempo(tiempoTotal);
     }
 
-    html += `</tbody></table>`
-    cont.innerHTML = html
-  }
-
-  // Ventas Peluches
-  function mostrarVentasPeluches() {
-    const subcontenido = document.getElementById('subcontenido')
-    let html = `<div class="grid grid-cols-1 md:grid-cols-2 gap-6">`
-    productosPeluches.forEach(p => {
-      html += `
-        <div class="bg-black bg-opacity-30 p-4 rounded">
-          <h3 class="font-semibold mb-2">${p.nombre}</h3>
-          <img src="${p.img}" alt="${p.nombre}" class="w-24 mb-2" />
-          <p>Total vendido: <strong id="total-${p.id}">${ventasPeluches[p.id]}</strong></p>
-          <input type="number" id="input-${p.id}" min="1" placeholder="Cantidad a añadir" class="w-full px-2 py-1 mb-2 text-black" />
-          <button onclick="agregarVenta('${p.id}')" class="btn w-full">Añadir ventas</button>
-        </div>`
-    })
-    html += `</div>`
-    subcontenido.innerHTML = html
-  }
-
-  function agregarVenta(id) {
-    const input = document.getElementById(`input-${id}`)
-    const valor = parseInt(input.value)
-    if (isNaN(valor) || valor <= 0) {
-      mostrarMensaje('Introduce una cantidad válida')
-      return
+    function iniciarContador(nombreCompleto) {
+      if (fichandoInterval) clearInterval(fichandoInterval);
+      fichandoInterval = setInterval(() => {
+        actualizarTemporizadores(nombreCompleto);
+      }, 1000);
     }
-    ventasPeluches[id] += valor
-    guardarVentasPeluches()
-    document.getElementById(`total-${id}`).textContent = ventasPeluches[id]
-    input.value = ''
-  }
 
-  // Ventas Comida y Bebida
-  function mostrarVentasComida() {
-    const subcontenido = document.getElementById('subcontenido')
-    let html = `<div class="grid grid-cols-1 md:grid-cols-2 gap-6">`
-    productosComida.forEach(p => {
-      html += `
-        <div class="bg-black bg-opacity-30 p-4 rounded">
-          <h3 class="font-semibold mb-2">${p.nombre}</h3>
-          <img src="${p.img}" alt="${p.nombre}" class="w-24 mb-2" />
-          <p class="italic mb-2">${p.descripcion}</p>
-          <p>Total vendido: <strong id="total-comida-${p.id}">${ventasComida[p.id]}</strong></p>
-          <input type="number" id="input-comida-${p.id}" min="1" placeholder="Cantidad a añadir" class="w-full px-2 py-1 mb-2 text-black" />
-          <button onclick="agregarVentaComida('${p.id}')" class="btn w-full">Añadir ventas</button>
-        </div>`
-    })
-    html += `</div>`
-    subcontenido.innerHTML = html
-  }
-
-  function agregarVentaComida(id) {
-    const input = document.getElementById(`input-comida-${id}`)
-    const valor = parseInt(input.value)
-    if (isNaN(valor) || valor <= 0) {
-      mostrarMensaje('Introduce una cantidad válida')
-      return
+    function fichar(nombreCompleto) {
+      const ficha = fichajes[nombreCompleto];
+      if (ficha && !ficha.fichado) {
+        ficha.fichado = true;
+        ficha.inicio = Date.now();
+        guardarFichajes();
+        iniciarContador(nombreCompleto);
+      }
     }
-    ventasComida[id] += valor
-    guardarVentasComida()
-    document.getElementById(`total-comida-${id}`).textContent = ventasComida[id]
-    input.value = ''
-  }
 
-  // Al cargar la página
-  window.onload = () => {
-    if (sessionStorage.getItem('empleadoActual')) {
-      empleadoActual = sessionStorage.getItem('empleadoActual')
-      mostrarPanelEmpleados()
-    } else {
-      mostrarInicio()
+    function desfichar(nombreCompleto) {
+      const ficha = fichajes[nombreCompleto];
+      if (ficha && ficha.fichado) {
+        ficha.fichado = false;
+        const ahora = Date.now();
+        const tiempoSegundos = Math.floor((ahora - ficha.inicio) / 1000);
+        ficha.tiempoAcumuladoDia += tiempoSegundos;
+        ficha.tiempoAcumuladoSemana += tiempoSegundos;
+        ficha.tiempoAcumuladoTotal += tiempoSegundos;
+        ficha.inicio = null;
+        guardarFichajes();
+        if (fichandoInterval) {
+          clearInterval(fichandoInterval);
+          fichandoInterval = null;
+        }
+        actualizarTemporizadores(nombreCompleto);
+      }
     }
-  }
-</script>
+
+    function cerrarSesion() {
+      mostrarInicio();
+    }
+
+    // Productos para ventas
+    const productosVentas = {
+      "tito dios griego": "Tito Dios Griego",
+      "la tita": "La Tita",
+      "mascara dominante": "Máscara Dominante “Cat Vanilla”",
+      "pinzas led sweet pain": "Pinzas LED “Sweet Pain”",
+      "condones espadas del deseo": "Preservativos “Espadas del Deseo”",
+      "dildo doble fusion morada": "Dildo Doble “Fusión Morada”",
+      "banana pelada": "Banana Pelada",
+      "magdalenas con glaseado rosa": "Magdalenas con Glaseado Rosa",
+      "berenjena rellena": "Berenjena Rellena",
+      "coctel dulce": "Cóctel Dulce",
+      "trago afrutado": "Trago Afrutado",
+      "almejas picantes": "Almejas Picantes"
+    };
+
+    // Mostrar ventas y registro de ventas
+    function mostrarVentas() {
+      const contenedor = document.getElementById('ventasRegistradas');
+      if (!contenedor) return;
+
+      let html = '<h4>Registrar ventas de productos</h4>';
+      html += '<div style="display:flex; flex-wrap:wrap; gap:1rem; justify-content:center;">';
+
+      for (const key in productosVentas) {
+        html += `
+          <div style="background: rgba(107,33,168,0.7); padding: 0.75rem; border-radius: 10px; min-width: 150px; text-align:center; box-shadow: 0 0 10px rgba(107,33,168,0.5);">
+            <p style="font-weight:600; margin-bottom:0.25rem;">${productosVentas[key]}</p>
+            <button class="btn" onclick="sumarVenta('${key}')">+1 Venta</button>
+            <p style="margin-top:0.5rem;">Total: ${ventas[key] || 0}</p>
+          </div>
+        `;
+      }
+
+      html += '</div>';
+      contenedor.innerHTML = html;
+    }
+
+    function sumarVenta(key) {
+      if (!ventas[key]) ventas[key] = 0;
+      ventas[key]++;
+      guardarVentas();
+      mostrarVentas();
+    }
+
+    // Número de semana ISO
+    function getNumeroSemana(fecha) {
+      const date = new Date(fecha.getTime());
+      date.setHours(0, 0, 0, 0);
+      date.setDate(date.getDate() + 3 - ((date.getDay() + 6) % 7));
+      const week1 = new Date(date.getFullYear(), 0, 4);
+      return 1 + Math.round(((date.getTime() - week1.getTime()) / 86400000 - 3 + ((week1.getDay() + 6) % 7)) / 7);
+    }
+
+    // Al cargar la página
+    window.onload = () => {
+      mostrarInicio();
+    };
+  </script>
+
 </body>
 </html>
