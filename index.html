@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-R" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Moore Club - La Tentación Empieza Aquí</title>
   <script src="https://cdn.tailwindcss.com"></script>
@@ -55,7 +55,6 @@
         { id: 'magdalenas', nombre: 'Magdalenas con Glaseado Rosa', descripcion: 'Dos razones para pecar.', imagen: 'magdalenas.png' },
         { id: 'berenjena', nombre: 'Berenjena Rellena', descripcion: 'Caliente y jugosa. Te va a dejar sudando.', imagen: 'berenjena.png' },
         { id: 'coctel', nombre: 'Cóctel Dulce', descripcion: 'Tierno al principio, travieso al final.', imagen: 'Coctel.png' },
-        // CORREGIDO: Nombre del archivo con espacio
         { id: 'trago_afrutado', nombre: 'Trago Afrutado', descripcion: 'Refresca... y se te queda pegado.', imagen: 'trago afrutado.png' },
         { id: 'almejas', nombre: 'Almejas Picantes', descripcion: 'Suave por fuera, fuego por dentro.', imagen: 'almejas.png' }
     ];
@@ -91,11 +90,11 @@
           </header>
           
           <div class="flex flex-col md:flex-row items-center gap-8">
-            <div class="md:w-1/2">
+            <div class="md:w-5/12">
               <img src="Tito y Marta.png" alt="Tito y Marta" class="rounded-lg shadow-2xl w-full h-auto object-cover" />
             </div>
             
-            <div class="md:w-1/2 space-y-6">
+            <div class="md:w-7/12 space-y-6">
               <div class="bg-purple-800 bg-opacity-50 p-4 rounded-lg">
                 <h2 class="text-2xl font-bold text-white mb-2">Tito Giovanni</h2>
                 <p class="text-purple-200">El carismático maestro de ceremonias y corazón de Moore. Su elegancia y estilo inconfundible, siempre vestido de morado, garantizan una noche inolvidable. Es el anfitrión perfecto, el alma de la fiesta.</p>
@@ -149,7 +148,7 @@
 
         if (datosFichaje.fichado) {
             window.tiempoIntervalo = setInterval(() => actualizarTiempoDisplay(nombre), 1000);
-            window.sesionIntervalo = setInterval(() => actualizarTiempoSesion(datosFichaje.inicio), 1000);
+            window.sesionIntervalo = setInterval(() => actualizarTiempoSesion(nombre), 1000);
         }
     }
 
@@ -285,11 +284,14 @@
       }
     }
     
-    function actualizarTiempoSesion(inicio) {
-        const sesionElemento = document.getElementById('tiempoSesion');
-        if (sesionElemento) {
-            const tiempoSesion = Date.now() - inicio;
-            sesionElemento.textContent = formatearTiempo(tiempoSesion);
+    function actualizarTiempoSesion(nombre) {
+        const datosFichaje = fichajes[nombre];
+        if (datosFichaje && datosFichaje.inicio) {
+            const sesionElemento = document.getElementById('tiempoSesion');
+            if (sesionElemento) {
+                const tiempoSesion = Date.now() - datosFichaje.inicio;
+                sesionElemento.textContent = formatearTiempo(tiempoSesion);
+            }
         }
     }
 
