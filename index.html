@@ -156,9 +156,13 @@
       const datosGuardados = storage.getItem(clave);
       if (!datosGuardados) return valorPorDefecto;
       try {
-        return JSON.parse(datosGuardados);
+        const datosParseados = JSON.parse(datosGuardados);
+        // Comprobación anti-corrupción
+        if (typeof datosParseados !== 'object' || datosParseados === null || Array.isArray(datosParseados)) {
+          return valorPorDefecto;
+        }
+        return datosParseados;
       } catch (e) {
-        console.error("Error al parsear datos de localStorage, clave:", clave, e);
         return valorPorDefecto;
       }
     }
@@ -207,8 +211,9 @@
         const hoyStr = `${anio}-${mes}-${dia}`;
         const semanaNum = getWeekNumber(ahora);
         let datos = fichajes[nombre] || {};
-        if (typeof datos !== 'object' || Array.isArray(datos) || datos === null) { datos = {}; }
-        if (!datos.total) {
+
+        // LA CORRECCIÓN CLAVE ESTÁ AQUÍ
+        if (typeof datos.total !== 'number') {
             datos = { total: 0, hoy: 0, semana: 0, fecha: hoyStr, numSemana: semanaNum, fichado: false, inicio: null };
         }
         if (datos.fecha !== hoyStr) {
