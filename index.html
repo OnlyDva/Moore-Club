@@ -51,37 +51,18 @@
     let masterInterval = null;
 
     // ===================================================================================
-    //  2. LÓGICA DEL RELOJ (CORREGIDA PARA ACTUALIZAR TODO)
+    //  2. LÓGICA DEL RELOJ (RECONSTRUIDA)
     // ===================================================================================
-    function iniciarReloj(nombre) {
-      detenerReloj(); 
+    function iniciarReloj(horaInicio, baseHoy, baseSemana, baseTotal) {
+      detenerReloj();
       
       masterInterval = setInterval(() => {
-        const datosFichaje = fichajes[nombre];
-        if (!datosFichaje || !datosFichaje.fichado) {
-          detenerReloj();
-          return;
-        }
-
-        const tiempoSesion = Date.now() - datosFichaje.inicio;
-
-        // Se calculan los 4 valores en tiempo real
-        const tiempoTotalHoy = datosFichaje.hoy + tiempoSesion;
-        const tiempoTotalSemana = datosFichaje.semana + tiempoSesion;
-        const tiempoTotalAbsoluto = datosFichaje.total + tiempoSesion;
-
-        // Se buscan los 4 elementos en el DOM
-        const tiempoHoyElemento = document.getElementById('tiempoHoy');
-        const tiempoSemanaElemento = document.getElementById('tiempoSemana');
-        const tiempoTotalElemento = document.getElementById('tiempoTotal');
-        const sesionElemento = document.getElementById('tiempoSesion');
-
-        // Se actualizan los 4 contadores
-        if (tiempoHoyElemento) tiempoHoyElemento.textContent = formatearTiempo(tiempoTotalHoy);
-        if (tiempoSemanaElemento) tiempoSemanaElemento.textContent = formatearTiempo(tiempoTotalSemana);
-        if (tiempoTotalElemento) tiempoTotalElemento.textContent = formatearTiempo(tiempoTotalAbsoluto);
-        if (sesionElemento) sesionElemento.textContent = formatearTiempo(tiempoSesion);
+        const tiempoSesion = Date.now() - horaInicio;
         
+        document.getElementById('tiempoHoy').textContent = formatearTiempo(baseHoy + tiempoSesion);
+        document.getElementById('tiempoSemana').textContent = formatearTiempo(baseSemana + tiempoSesion);
+        document.getElementById('tiempoTotal').textContent = formatearTiempo(baseTotal + tiempoSesion);
+        document.getElementById('tiempoSesion').textContent = formatearTiempo(tiempoSesion);
       }, 1000);
     }
 
@@ -103,9 +84,17 @@
 
     function mostrarPanelEmpleados(nombre) {
         const datosFichaje = gestionarReseteoTiempos(nombre);
-        const tiempoHoy = datosFichaje.fichado ? (Date.now() - datosFichaje.inicio + datosFichaje.hoy) : datosFichaje.hoy;
-        const tiempoSemana = datosFichaje.fichado ? (Date.now() - datosFichaje.inicio + datosFichaje.semana) : datosFichaje.semana;
-        const tiempoTotal = datosFichaje.fichado ? (Date.now() - datosFichaje.inicio + datosFichaje.total) : datosFichaje.total;
+        
+        let tiempoHoy = datosFichaje.hoy;
+        let tiempoSemana = datosFichaje.semana;
+        let tiempoTotal = datosFichaje.total;
+
+        if (datosFichaje.fichado) {
+            const tiempoDesdeFichaje = Date.now() - datosFichaje.inicio;
+            tiempoHoy += tiempoDesdeFichaje;
+            tiempoSemana += tiempoDesdeFichaje;
+            tiempoTotal += tiempoDesdeFichaje;
+        }
         
         const productosVentaHTML = productos.map(p => crearTarjetaProducto(p, true)).join('');
         const contenido = document.getElementById('contenido');
@@ -133,7 +122,7 @@
         mostrarPanelEmpleados(nombre);
         const datosFichaje = fichajes[nombre];
         if (datosFichaje && datosFichaje.fichado) {
-          iniciarReloj(nombre);
+          iniciarReloj(datosFichaje.inicio, datosFichaje.hoy, datosFichaje.semana, datosFichaje.total);
         }
       } else { alert('Acceso denegado.'); }
     }
@@ -146,7 +135,7 @@
         fichajes[nombre] = datosFichaje;
         guardarDatos('fichajes', fichajes);
         mostrarPanelEmpleados(nombre);
-        iniciarReloj(nombre);
+        iniciarReloj(datosFichaje.inicio, datosFichaje.hoy, datosFichaje.semana, datosFichaje.total);
       }
     }
 
@@ -196,7 +185,7 @@
             mostrarPanelEmpleados(currentUser);
             const datosFichaje = fichajes[currentUser];
             if (datosFichaje && datosFichaje.fichado) {
-                iniciarReloj(currentUser);
+                iniciarReloj(datosFichaje.inicio, datosFichaje.hoy, datosFichaje.semana, datosFichaje.total);
             }
         } else {
             mostrarInicio();
