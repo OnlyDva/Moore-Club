@@ -69,7 +69,7 @@
     }
     
     // ===================================================================================
-    //  3. LÓGICA DE VISTAS (DIBUJADO)
+    //  3. LÓGICA DE VISTAS
     // ===================================================================================
     function mostrarInicio() {
       detenerReloj();
@@ -102,17 +102,13 @@
       document.getElementById('contenido').innerHTML = `<div class="max-w-md mx-auto bg-black bg-opacity-50 p-8 rounded-lg shadow-lg border-2 border-purple-400"><h2 class="text-3xl font-bold mb-4 text-center text-purple-300">Acceso Privado - Tito Giovanni</h2><label class="block mb-2">Contraseña de Administrador:</label><input id="adminPassInput" type="password" class="w-full px-3 py-2 text-black mb-4 rounded" /><div class="flex justify-between"><button onclick="verificarAccesoAdmin()" class="btn">Entrar</button><button onclick="mostrarInicio()" class="btn" style="background-color:#5b189b;">Volver</button></div></div>`;
     }
 
-    // --- NUEVO PANEL DE ADMINISTRADOR EN TABLA ---
     function mostrarPanelAdmin() {
       detenerReloj();
       let tableRowsHTML = '';
       empleados.forEach(empleado => {
         const datosFichaje = gestionarReseteoDatos(empleado);
         const datosVentas = gestionarReseteoDatos(empleado, true);
-
-        // Calcular ventas totales
-        let ventasHoy = 0;
-        let ventasTotal = 0;
+        let ventasHoy = 0; let ventasTotal = 0;
         if (datosVentas && datosVentas.productos) {
             for (const prodId in datosVentas.productos) {
                 ventasHoy += datosVentas.productos[prodId].hoy;
@@ -127,12 +123,19 @@
             <td class="p-3 font-mono">${formatearTiempo(datosFichaje.total)}</td>
             <td class="p-3 font-mono text-center">${ventasHoy}</td>
             <td class="p-3 font-mono text-center">${ventasTotal}</td>
+            <td class="p-3 text-center"><button onclick="eliminarEmpleado('${empleado}')" class="text-red-500 hover:text-red-400 font-bold text-lg">X</button></td>
         </tr>`;
       });
 
-      const html = `<div class="max-w-7xl mx-auto">
-          <h1 class="text-4xl font-bold text-center mb-8">Panel de Administración</h1>
-          <div class="overflow-x-auto bg-purple-900 bg-opacity-80 rounded-lg shadow-xl">
+      const gestionHTML = `<div class="mb-8 p-6 bg-purple-900 bg-opacity-50 rounded-lg">
+          <h2 class="text-2xl font-bold mb-4">Gestionar Empleados</h2>
+          <div class="flex gap-4">
+              <input type="text" id="newEmployeeName" class="flex-grow px-3 py-2 text-black rounded" placeholder="Nombre y apellido del nuevo empleado...">
+              <button onclick="anadirEmpleado()" class="btn">Añadir Empleado</button>
+          </div>
+      </div>`;
+
+      const tablaHTML = `<div class="overflow-x-auto bg-purple-900 bg-opacity-80 rounded-lg shadow-xl">
               <table class="w-full text-left">
                   <thead class="bg-purple-800 text-purple-200 uppercase text-sm">
                       <tr>
@@ -142,28 +145,22 @@
                           <th class="p-3">Horas Total</th>
                           <th class="p-3 text-center">Ventas Hoy (uds.)</th>
                           <th class="p-3 text-center">Ventas Total (uds.)</th>
+                          <th class="p-3 text-center">Acciones</th>
                       </tr>
                   </thead>
-                  <tbody>
-                      ${tableRowsHTML}
-                  </tbody>
+                  <tbody>${tableRowsHTML}</tbody>
               </table>
-          </div>
-          <div class="text-center mt-8"><button onclick="mostrarInicio()" class="btn">Volver a Inicio</button></div>
-      </div>`;
-      document.getElementById('contenido').innerHTML = html;
+          </div>`;
+
+      document.getElementById('contenido').innerHTML = `<div class="max-w-7xl mx-auto"><h1 class="text-4xl font-bold text-center mb-8">Panel de Administración</h1>${gestionHTML}${tablaHTML}<div class="text-center mt-8"><button onclick="mostrarInicio()" class="btn">Volver a Inicio</button></div></div>`;
     }
 
     // ===================================================================================
     //  4. LÓGICA DE CONTROL
     // ===================================================================================
     function verificarAccesoAdmin() {
-        const pass = document.getElementById('adminPassInput')?.value;
-        if (pass === "D.VaSong11") {
-            mostrarPanelAdmin();
-        } else {
-            alert('Contraseña incorrecta.');
-        }
+        if (document.getElementById('adminPassInput')?.value === "D.VaSong11") mostrarPanelAdmin();
+        else alert('Contraseña incorrecta.');
     }
 
     function verificarAccesoVIP() {
@@ -176,6 +173,36 @@
           iniciarReloj(datosFichaje.inicio, datosFichaje.hoy, datosFichaje.semana, datosFichaje.total);
         }
       } else { alert('Acceso denegado.'); }
+    }
+
+    function anadirEmpleado() {
+        const input = document.getElementById('newEmployeeName');
+        const nombre = input.value.trim().toLowerCase();
+        if (!nombre) {
+            alert('El nombre no puede estar vacío.');
+            return;
+        }
+        if (empleados.includes(nombre)) {
+            alert('Este empleado ya existe.');
+            return;
+        }
+        empleados.push(nombre);
+        guardarDatos('empleados', empleados);
+        mostrarPanelAdmin(); // Refresca el panel para mostrar el nuevo empleado
+    }
+
+    function eliminarEmpleado(nombre) {
+        if (confirm(`¿Estás seguro de que quieres eliminar a ${nombre}?\nEsta acción es permanente y borrará todos sus datos.`)) {
+            empleados = empleados.filter(e => e !== nombre);
+            delete fichajes[nombre];
+            delete ventas[nombre];
+            
+            guardarDatos('empleados', empleados);
+            guardarDatos('fichajes', fichajes);
+            guardarDatos('ventas', ventas);
+            
+            mostrarPanelAdmin(); // Refresca el panel para quitar al empleado
+        }
     }
 
     function fichar(nombre) {
@@ -220,7 +247,7 @@
       if (!datosGuardados) return valorPorDefecto;
       try {
         const datosParseados = JSON.parse(datosGuardados);
-        return (typeof datosParseados === 'object' && datosParseados !== null && !Array.isArray(datosParseados)) ? datosParseados : valorPorDefecto;
+        return (typeof datosParseados === 'object' && datosParseados !== null) ? datosParseados : valorPorDefecto;
       } catch (e) {
         return valorPorDefecto;
       }
@@ -231,8 +258,7 @@
     }
 
     function crearTarjetaProducto(producto, esPanelVenta = false, nombreEmpleado = '') {
-      let totalVentasHoy = 0;
-      let totalVentasHist = 0;
+      let totalVentasHoy = 0; let totalVentasHist = 0;
       if (ventas[nombreEmpleado] && ventas[nombreEmpleado].productos && ventas[nombreEmpleado].productos[producto.id]) {
           totalVentasHoy = ventas[nombreEmpleado].productos[producto.id].hoy;
           totalVentasHist = ventas[nombreEmpleado].productos[producto.id].total;
