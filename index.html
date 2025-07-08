@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Moore Club</title>
+  <title>Moore Club - La Tentación Empieza Aquí</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body {
@@ -11,224 +11,365 @@
       background: url('mooreclub1.png') center top no-repeat;
       background-size: cover;
       background-attachment: fixed;
-      margin: 0;
-      padding: 0;
       color: white;
     }
     .bg-overlay {
       background-color: rgba(0, 0, 0, 0.85);
-      min-height: 100vh;
-      padding: 20px;
     }
-    nav {
-      background-color: #4c1d95;
-      padding: 1rem 2rem;
-      display: flex;
-      justify-content: flex-end;
-      gap: 2rem;
-      font-weight: 600;
-      font-size: 1rem;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-    nav a {
-      color: white;
-      cursor: pointer;
-      text-decoration: none;
-      transition: color 0.3s ease;
-    }
-    nav a:hover {
-      color: #c084fc;
-    }
-    .panel {
+    .btn {
       background-color: #6b21a8;
-      border-radius: 0.75rem;
-      padding: 2rem;
-      max-width: 1100px;
-      margin: 2rem auto;
-      box-shadow: 0 0 20px rgba(107, 33, 168, 0.7);
-    }
-    .flex-center {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 2rem;
-      flex-wrap: wrap;
-    }
-    .profile-card {
-      background-color: #7c3aed;
-      border-radius: 0.5rem;
-      width: 250px;
-      padding: 1rem;
-      text-align: center;
-      box-shadow: 0 0 10px rgba(124, 58, 237, 0.8);
-    }
-    .profile-card img {
-      max-width: 120px;
-      margin: 0 auto 1rem;
-      border-radius: 50%;
-      object-fit: contain;
-      background: #4c1d95;
-      padding: 10px;
-    }
-    .profile-card strong {
-      display: block;
-      margin-bottom: 0.5rem;
-      font-size: 1.1rem;
-    }
-    .profile-card p {
-      font-size: 0.9rem;
-      line-height: 1.3;
-      color: #d8b4fe;
-    }
-    .product-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 1rem;
-      margin-top: 1rem;
-    }
-    .product-card {
-      background-color: #7c3aed;
-      border-radius: 0.5rem;
-      padding: 1rem;
-      text-align: center;
-      box-shadow: 0 0 10px rgba(124, 58, 237, 0.8);
-    }
-    .product-card img {
-      width: 100px;
-      height: 100px;
-      object-fit: contain;
-      margin-bottom: 0.5rem;
-      background: #4c1d95;
-      padding: 8px;
-      border-radius: 0.5rem;
-    }
-    .product-card strong {
-      display: block;
       color: white;
-      font-size: 1rem;
-      margin-top: 0.3rem;
+      padding: 0.5rem 1rem;
+      border-radius: 0.375rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      margin-right: 0.5rem;
     }
-    /* Oculto contenido al inicio */
-    #inicio, #empleados, #productos {
-      display: none;
+    .btn:hover {
+      background-color: #5b189b;
     }
-    #inicio.active, #empleados.active, #productos.active {
-      display: block;
+    .producto-card img {
+      border-radius: 0.5rem;
+    }
+    /* Scroll si se necesita */
+    #contenido {
+      min-height: 60vh;
     }
   </style>
 </head>
-<body>
-  <div class="bg-overlay">
-    <nav>
-      <a onclick="mostrarSeccion('inicio')">Inicio</a>
-      <a onclick="mostrarSeccion('empleados')">Empleados</a>
-      <a onclick="mostrarSeccion('productos')">Productos</a>
+<body class="text-purple-200">
+  <div class="bg-overlay min-h-screen">
+    <!-- NAV -->
+    <nav class="bg-purple-900 text-white px-6 py-4 flex justify-between items-center">
+      <h1 class="text-xl font-bold cursor-pointer" onclick="mostrarInicio()">Moore Club</h1>
+      <ul class="flex space-x-6 text-sm">
+        <li><a href="#" onclick="mostrarInicio()" class="hover:underline">Inicio</a></li>
+        <li><a href="#" onclick="mostrarLoginVIP()" class="hover:underline">Empleados</a></li>
+        <li><a href="#" onclick="mostrarPanelProductos()" class="hover:underline">Productos</a></li>
+      </ul>
     </nav>
 
-    <!-- INICIO -->
-    <section id="inicio" class="active panel">
-      <h1>Bienvenido a Moore Club</h1>
-      <p>Explora nuestras secciones y vive la experiencia única de nuestro club.</p>
-      <div class="flex-center" style="margin-top: 2rem;">
-        <div class="profile-card">
-          <img src="tito_y_marta.png" alt="Tito y Marta" />
-          <strong>Tito Giovanni y Marta</strong>
-          <p>Maestro de ceremonias y musa del club. Carisma y sensualidad pura.</p>
-        </div>
-        <div class="profile-card" style="max-width: 300px;">
-          <img src="mascara.png" alt="Mascara Dominante Cat Vanilla" />
-          <strong>Objetos Destacados</strong>
-          <p>Disfruta de nuestra selección exclusiva de productos con estilo y poder.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- EMPLEADOS -->
-    <section id="empleados" class="panel">
-      <!-- Aquí el contenido del panel de empleados que ya tienes, para mantener el código no lo repito -->
-      <h2>Panel de Empleados - (contenido aquí)</h2>
-    </section>
-
-    <!-- PRODUCTOS -->
-    <section id="productos" class="panel">
-      <h2>Productos Moore Club</h2>
-      <div class="product-grid">
-        <div class="product-card">
-          <img src="banana.png" alt="Banana Pelada" />
-          <strong>Banana Pelada</strong>
-          <p>Provocadora y dulce hasta el final.</p>
-        </div>
-        <div class="product-card">
-          <img src="magdalenas.png" alt="Magdalenas con Glaseado Rosa" />
-          <strong>Magdalenas con Glaseado Rosa</strong>
-          <p>Dos razones para pecar.</p>
-        </div>
-        <div class="product-card">
-          <img src="berenjena.png" alt="Berenjena Rellena" />
-          <strong>Berenjena Rellena</strong>
-          <p>Caliente y jugosa, te va a dejar sudando.</p>
-        </div>
-        <div class="product-card">
-          <img src="coctel.png" alt="Cóctel Dulce" />
-          <strong>Cóctel Dulce</strong>
-          <p>Tierno al principio, travieso al final.</p>
-        </div>
-        <div class="product-card">
-          <img src="trago_afrutado.png" alt="Trago Afrutado" />
-          <strong>Trago Afrutado</strong>
-          <p>Refresca... y se te queda pegado.</p>
-        </div>
-        <div class="product-card">
-          <img src="almejas.png" alt="Almejas Picantes" />
-          <strong>Almejas Picantes</strong>
-          <p>Suave por fuera, fuego por dentro.</p>
-        </div>
-        <div class="product-card">
-          <img src="tito.png" alt="Tito Dios Griego" />
-          <strong>Tito Dios Griego</strong>
-          <p>Figura divina, musculoso, con toga morada.</p>
-        </div>
-        <div class="product-card">
-          <img src="tita.png" alt="La Tita" />
-          <strong>La Tita</strong>
-          <p>Muñeca provocadora con actitud descarada.</p>
-        </div>
-        <div class="product-card">
-          <img src="mascara.png" alt="Mascara Dominante Cat Vanilla" />
-          <strong>Mascara Dominante "Cat Vanilla"</strong>
-          <p>Cuero morado con orejas felinas.</p>
-        </div>
-        <div class="product-card">
-          <img src="pinzas.png" alt="Pinzas LED Sweet Pain" />
-          <strong>Pinzas LED "Sweet Pain"</strong>
-          <p>Pinzas con corazones LED que brillan.</p>
-        </div>
-        <div class="product-card">
-          <img src="condones.png" alt="Preservativos Espadas del Deseo" />
-          <strong>Preservativos "Espadas del Deseo"</strong>
-          <p>Rojo y azul en envase negro brillante.</p>
-        </div>
-        <div class="product-card">
-          <img src="dildo.webp" alt="Dildo Doble Fusion Morada" />
-          <strong>Dildo Doble "Fusión Morada"</strong>
-          <p>Flexible y listo para retos atrevidos.</p>
-        </div>
-      </div>
-      <button onclick="mostrarSeccion('inicio')" class="btn" style="margin-top: 20px;">Volver</button>
-    </section>
+    <main id="contenido" class="p-8"></main>
   </div>
 
   <script>
-    // Función para cambiar de sección
-    function mostrarSeccion(seccion) {
-      document.querySelectorAll('section').forEach(sec => {
-        sec.classList.remove('active');
-      });
-      document.getElementById(seccion).classList.add('active');
+    // Datos iniciales
+    let empleados = JSON.parse(localStorage.getItem('empleados')) || [];
+    if (!empleados.includes('tito giovanni')) {
+      empleados.push('tito giovanni');
+      localStorage.setItem('empleados', JSON.stringify(empleados));
     }
+
+    let ventas = JSON.parse(localStorage.getItem('ventas')) || {
+      "Tito Dios Griego": 0,
+      "La Tita": 0,
+      "Máscara Dominante “Cat Vanilla”": 0,
+      "Pinzas LED “Sweet Pain”": 0,
+      "Preservativos “Espadas del Deseo”": 0,
+      "Dildo Doble “Fusión Morada”": 0,
+      "Banana Pelada": 0,
+      "Magdalenas con Glaseado Rosa": 0,
+      "Berenjena Rellena": 0,
+      "Cóctel Dulce": 0,
+      "Trago Afrutado": 0,
+      "Almejas Picantes": 0
+    };
+
+    let fichajes = JSON.parse(localStorage.getItem('fichajes')) || {};
+
+    function guardarEmpleados() {
+      localStorage.setItem('empleados', JSON.stringify(empleados));
+    }
+
+    function guardarVentas() {
+      localStorage.setItem('ventas', JSON.stringify(ventas));
+    }
+
+    function guardarFichajes() {
+      localStorage.setItem('fichajes', JSON.stringify(fichajes));
+    }
+
+    // Mostrar bienvenida elegante
+    function mostrarInicio() {
+      const contenido = document.getElementById('contenido');
+      contenido.innerHTML = `
+        <div class="welcome-container p-8 max-w-6xl mx-auto rounded-lg bg-purple-900 bg-opacity-90 shadow-lg">
+          <header class="mb-8 text-center">
+            <h1 class="text-5xl font-extrabold text-white drop-shadow-lg mb-2">Bienvenido a Moore Club</h1>
+            <p class="text-purple-300 text-lg">Vive la experiencia única de nuestro club. Explora secciones, productos y gestiona el fichaje de nuestro personal.</p>
+          </header>
+          <section class="flex flex-wrap justify-center gap-8 mb-12">
+            <div class="personaje-card p-4 bg-purple-700 rounded-lg text-center w-64 hover:scale-105 transition-transform shadow-md">
+              <img src="Tito.png" alt="Tito Giovanni" class="mx-auto mb-4 w-32 rounded-full border-4 border-purple-500" />
+              <h2 class="text-xl font-semibold text-white mb-2">Tito Giovanni</h2>
+              <p class="text-purple-200 text-sm">Maestro de ceremonias y corazón de Moore. Carisma y elegancia en estado puro.</p>
+            </div>
+            <div class="personaje-card p-4 bg-purple-700 rounded-lg text-center w-64 hover:scale-105 transition-transform shadow-md">
+              <img src="Marta.png" alt="Marta" class="mx-auto mb-4 w-32 rounded-full border-4 border-purple-500" />
+              <h2 class="text-xl font-semibold text-white mb-2">Marta</h2>
+              <p class="text-purple-200 text-sm">La musa del club, sensualidad y actitud que cautiva en cada show.</p>
+            </div>
+          </section>
+          <section class="productos-destacados grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div class="producto-card bg-purple-700 rounded-lg p-4 text-center shadow-md hover:bg-purple-600 cursor-pointer transition-colors">
+              <img src="banana.png" alt="Banana Pelada" class="mx-auto mb-3 w-24" />
+              <h3 class="text-white font-semibold">Banana Pelada</h3>
+            </div>
+            <div class="producto-card bg-purple-700 rounded-lg p-4 text-center shadow-md hover:bg-purple-600 cursor-pointer transition-colors">
+              <img src="Tita.png" alt="La Tita" class="mx-auto mb-3 w-24" />
+              <h3 class="text-white font-semibold">La Tita</h3>
+            </div>
+            <div class="producto-card bg-purple-700 rounded-lg p-4 text-center shadow-md hover:bg-purple-600 cursor-pointer transition-colors">
+              <img src="Coctel.png" alt="Cóctel Dulce" class="mx-auto mb-3 w-24" />
+              <h3 class="text-white font-semibold">Cóctel Dulce</h3>
+            </div>
+            <div class="producto-card bg-purple-700 rounded-lg p-4 text-center shadow-md hover:bg-purple-600 cursor-pointer transition-colors">
+              <img src="Dildo.webp" alt="Dildo Doble" class="mx-auto mb-3 w-24" />
+              <h3 class="text-white font-semibold">Dildo Doble</h3>
+            </div>
+          </section>
+          <div class="mt-10 flex justify-center gap-8">
+            <button onclick="mostrarLoginVIP()" class="btn">Área Empleados</button>
+            <button onclick="mostrarPanelProductos()" class="btn">Nuestros Productos</button>
+          </div>
+        </div>
+      `;
+    }
+
+    // Mostrar login para empleados (solo nombre)
+    function mostrarLoginVIP() {
+      const contenido = document.getElementById('contenido');
+      contenido.innerHTML = `
+        <h2 class="text-2xl font-bold mb-4">Acceso Empleados</h2>
+        <div class="max-w-md bg-black bg-opacity-30 p-6 rounded shadow">
+          <label class="block mb-2">Nombre completo:</label>
+          <input id="nombreInput" type="text" class="w-full px-3 py-2 text-black mb-4" placeholder="nombre y apellido en minúsculas" />
+          <button onclick="verificarAccesoVIP()" class="btn">Entrar</button>
+          <button onclick="mostrarInicio()" class="btn" style="background-color:#a055d6; margin-left: 1rem;">Volver</button>
+        </div>
+      `;
+    }
+
+    // Verificar acceso
+    function verificarAccesoVIP() {
+      const nombre = document.getElementById('nombreInput')?.value.trim().toLowerCase();
+      if (empleados.includes(nombre)) {
+        mostrarPanelEmpleados(nombre);
+      } else {
+        alert('Acceso denegado');
+      }
+    }
+
+    // Mostrar panel empleados con fichaje y ventas
+    function mostrarPanelEmpleados(nombre) {
+      if (!fichajes[nombre]) {
+        fichajes[nombre] = { fichado: false, inicio: null, tiempoAcumulado: 0 };
+        guardarFichajes();
+      }
+
+      const fichaje = fichajes[nombre];
+      const tiempoActual = fichaje.fichado ? (Date.now() - fichaje.inicio + fichaje.tiempoAcumulado) : fichaje.tiempoAcumulado;
+
+      function formatearTiempo(ms) {
+        const totalSegundos = Math.floor(ms / 1000);
+        const horas = String(Math.floor(totalSegundos / 3600)).padStart(2, '0');
+        const minutos = String(Math.floor((totalSegundos % 3600) / 60)).padStart(2, '0');
+        const segundos = String(totalSegundos % 60).padStart(2, '0');
+        return `${horas}:${minutos}:${segundos}`;
+      }
+
+      function actualizarTiempo() {
+        const now = Date.now();
+        const t = fichajes[nombre].fichado ? (now - fichajes[nombre].inicio + fichajes[nombre].tiempoAcumulado) : fichajes[nombre].tiempoAcumulado;
+        document.getElementById('tiempoTrabajado').textContent = formatearTiempo(t);
+      }
+
+      contenido.innerHTML = `
+        <div class="p-6 bg-purple-700 rounded-lg max-w-4xl mx-auto shadow-lg">
+          <h2 class="text-xl font-bold mb-4">Panel de Fichaje - ${nombre}</h2>
+          <button class="btn" onclick="fichar('${nombre}')">Fichar Entrada</button>
+          <button class="btn" onclick="desfichar('${nombre}')">Fichar Salida</button>
+          <button class="btn" style="background-color: #d63636;" onclick="cerrarSesion()">Cerrar Sesión</button>
+          <p class="mt-4">Tiempo trabajado hoy: <span id="tiempoTrabajado">${formatearTiempo(tiempoActual)}</span></p>
+
+          <h3 class="mt-8 font-semibold">Ventas registradas</h3>
+          <p>Registrar ventas de productos:</p>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4" id="productosVenta">
+          </div>
+        </div>
+      `;
+
+      // Renderizar productos de venta sin descripción, solo nombre e imagen
+      const contProductos = document.getElementById('productosVenta');
+      contProductos.innerHTML = '';
+      for (const [producto, cantidad] of Object.entries(ventas)) {
+        let imgFile = producto.toLowerCase()
+          .replace(/ /g, '')
+          .replace(/[“”]/g, '')
+          .replace(/é/g, 'e')
+          .replace(/ó/g, 'o')
+          .replace(/ñ/g, 'n')
+          .replace(/ç/g, 'c')
+          .replace(/í/g, 'i')
+          .replace(/á/g, 'a') + '.png';
+
+        // Ajuste específico para imágenes con nombres diferentes
+        if (producto === 'Dildo Doble “Fusión Morada”') imgFile = 'Dildo.webp';
+        if (producto === 'Banana Pelada') imgFile = 'banana.png';
+        if (producto === 'La Tita') imgFile = 'Tita.png';
+        if (producto === 'Tito Dios Griego') imgFile = 'Tito.png';
+        if (producto === 'Cóctel Dulce') imgFile = 'Coctel.png';
+        if (producto === 'Magdalenas con Glaseado Rosa') imgFile = 'magdalenas.png';
+        if (producto === 'Berenjena Rellena') imgFile = 'berenjena.png';
+        if (producto === 'Trago Afrutado') imgFile = 'tragoafrutado.png';
+        if (producto === 'Almejas Picantes') imgFile = 'almejas.png';
+        if (producto === 'Pinzas LED “Sweet Pain”') imgFile = 'pinzas.png';
+        if (producto === 'Preservativos “Espadas del Deseo”') imgFile = 'preservativos.png';
+        if (producto === 'Máscara Dominante “Cat Vanilla”') imgFile = 'mascara.png';
+
+        contProductos.innerHTML += `
+          <div class="producto-card bg-purple-800 rounded-lg p-4 text-center shadow-md hover:bg-purple-600 cursor-pointer transition-colors">
+            <img src="${imgFile}" alt="${producto}" class="mx-auto mb-3 w-24" />
+            <h3 class="text-white font-semibold">${producto}</h3>
+            <input
+              type="number"
+              min="0"
+              value="0"
+              id="input-${producto}"
+              class="w-16 px-2 py-1 mt-1 text-black rounded"
+              onchange="actualizarVentas('${producto}')"
+              aria-label="Cantidad de ventas para ${producto}"
+            />
+            <p class="mt-2">Total: <span id="total-${producto}">${cantidad}</span></p>
+          </div>`;
+      }
+
+      // Actualiza tiempo cada segundo mientras está fichado
+      if (fichajes[nombre].fichado) {
+        if (!window.tiempoIntervalo) {
+          window.tiempoIntervalo = setInterval(actualizarTiempo, 1000);
+        }
+      } else {
+        clearInterval(window.tiempoIntervalo);
+        window.tiempoIntervalo = null;
+      }
+    }
+
+    // Funciones fichar y desfichar sin alert
+    function fichar(nombre) {
+      if (!fichajes[nombre].fichado) {
+        fichajes[nombre].fichado = true;
+        fichajes[nombre].inicio = Date.now();
+        guardarFichajes();
+        mostrarPanelEmpleados(nombre);
+      }
+    }
+
+    function desfichar(nombre) {
+      if (fichajes[nombre].fichado) {
+        const tiempoTrabajado = Date.now() - fichajes[nombre].inicio;
+        fichajes[nombre].fichado = false;
+        fichajes[nombre].inicio = null;
+        fichajes[nombre].tiempoAcumulado += tiempoTrabajado;
+        guardarFichajes();
+        mostrarPanelEmpleados(nombre);
+      }
+    }
+
+    // Cerrar sesión vuelve a bienvenida
+    function cerrarSesion() {
+      window.tiempoIntervalo && clearInterval(window.tiempoIntervalo);
+      window.tiempoIntervalo = null;
+      mostrarInicio();
+    }
+
+    // Actualiza ventas globales
+    function actualizarVentas(producto) {
+      const input = document.getElementById(`input-${producto}`);
+      let nuevaCantidad = parseInt(input.value);
+      if (isNaN(nuevaCantidad) || nuevaCantidad < 0) {
+        nuevaCantidad = 0;
+      }
+      ventas[producto] = nuevaCantidad;
+      guardarVentas();
+      document.getElementById(`total-${producto}`).textContent = nuevaCantidad;
+    }
+
+    // Mostrar productos (solo listado sin inputs)
+    function mostrarPanelProductos() {
+      const contenido = document.getElementById('contenido');
+      contenido.innerHTML = `
+        <h2 class="text-2xl font-bold mb-6">Productos Moore Club</h2>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div class="producto-card bg-purple-700 rounded-lg p-4 text-center shadow-md">
+            <img src="banana.png" alt="Banana Pelada" class="mx-auto mb-3 w-24" />
+            <h3 class="text-white font-semibold">Banana Pelada</h3>
+            <p class="text-purple-300 text-sm">Provocadora y dulce hasta el final.</p>
+          </div>
+          <div class="producto-card bg-purple-700 rounded-lg p-4 text-center shadow-md">
+            <img src="magdalenas.png" alt="Magdalenas con Glaseado Rosa" class="mx-auto mb-3 w-24" />
+            <h3 class="text-white font-semibold">Magdalenas con Glaseado Rosa</h3>
+            <p class="text-purple-300 text-sm">Dos razones para pecar.</p>
+          </div>
+          <div class="producto-card bg-purple-700 rounded-lg p-4 text-center shadow-md">
+            <img src="berenjena.png" alt="Berenjena Rellena" class="mx-auto mb-3 w-24" />
+            <h3 class="text-white font-semibold">Berenjena Rellena</h3>
+            <p class="text-purple-300 text-sm">Caliente y jugosa. Te va a dejar sudando.</p>
+          </div>
+          <div class="producto-card bg-purple-700 rounded-lg p-4 text-center shadow-md">
+            <img src="coctel.png" alt="Cóctel Dulce" class="mx-auto mb-3 w-24" />
+            <h3 class="text-white font-semibold">Cóctel Dulce</h3>
+            <p class="text-purple-300 text-sm">Tierno al principio, travieso al final.</p>
+          </div>
+          <div class="producto-card bg-purple-700 rounded-lg p-4 text-center shadow-md">
+            <img src="tragoafrutado.png" alt="Trago Afrutado" class="mx-auto mb-3 w-24" />
+            <h3 class="text-white font-semibold">Trago Afrutado</h3>
+            <p class="text-purple-300 text-sm">Refresca... y se te queda pegado.</p>
+          </div>
+          <div class="producto-card bg-purple-700 rounded-lg p-4 text-center shadow-md">
+            <img src="almejas.png" alt="Almejas Picantes" class="mx-auto mb-3 w-24" />
+            <h3 class="text-white font-semibold">Almejas Picantes</h3>
+            <p class="text-purple-300 text-sm">Suave por fuera, fuego por dentro.</p>
+          </div>
+
+          <div class="producto-card bg-purple-700 rounded-lg p-4 text-center shadow-md">
+            <img src="Tito.png" alt="Tito Dios Griego" class="mx-auto mb-3 w-24" />
+            <h3 class="text-white font-semibold">Tito Dios Griego</h3>
+            <p class="text-purple-300 text-sm">Figura divina, musculoso, con toga morada.</p>
+          </div>
+          <div class="producto-card bg-purple-700 rounded-lg p-4 text-center shadow-md">
+            <img src="Tita.png" alt="La Tita" class="mx-auto mb-3 w-24" />
+            <h3 class="text-white font-semibold">La Tita</h3>
+            <p class="text-purple-300 text-sm">Muñeca provocadora con actitud descarada.</p>
+          </div>
+          <div class="producto-card bg-purple-700 rounded-lg p-4 text-center shadow-md">
+            <img src="mascara.png" alt="Máscara Dominante Cat Vanilla" class="mx-auto mb-3 w-24" />
+            <h3 class="text-white font-semibold">Máscara Dominante “Cat Vanilla”</h3>
+            <p class="text-purple-300 text-sm">Cuero morado con orejas felinas.</p>
+          </div>
+          <div class="producto-card bg-purple-700 rounded-lg p-4 text-center shadow-md">
+            <img src="pinzas.png" alt="Pinzas LED Sweet Pain" class="mx-auto mb-3 w-24" />
+            <h3 class="text-white font-semibold">Pinzas LED “Sweet Pain”</h3>
+            <p class="text-purple-300 text-sm">Pinzas con corazones LED que brillan.</p>
+          </div>
+          <div class="producto-card bg-purple-700 rounded-lg p-4 text-center shadow-md">
+            <img src="preservativos.png" alt="Preservativos Espadas del Deseo" class="mx-auto mb-3 w-24" />
+            <h3 class="text-white font-semibold">Preservativos “Espadas del Deseo”</h3>
+            <p class="text-purple-300 text-sm">Rojo y azul en envase negro brillante.</p>
+          </div>
+          <div class="producto-card bg-purple-700 rounded-lg p-4 text-center shadow-md">
+            <img src="Dildo.webp" alt="Dildo Doble Fusión Morada" class="mx-auto mb-3 w-24" />
+            <h3 class="text-white font-semibold">Dildo Doble “Fusión Morada”</h3>
+            <p class="text-purple-300 text-sm">Flexible y listo para retos atrevidos.</p>
+          </div>
+        </div>
+        <button onclick="mostrarInicio()" class="btn mt-8">Volver</button>
+      `;
+    }
+
+    // Inicialización página
+    mostrarInicio();
   </script>
 </body>
 </html>
-
