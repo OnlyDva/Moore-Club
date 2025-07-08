@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Moore Club - Fichaje con sesión</title>
+  <title>Moore Club - La Tentación Empieza Aquí</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body {
@@ -11,39 +11,35 @@
       background: url('mooreclub1.png') center top no-repeat;
       background-size: cover;
       background-attachment: fixed;
-      color: #d8b4fe; /* morado claro */
     }
     .bg-overlay {
-      background-color: rgba(0, 0, 0, 0.85);
+      background-color: rgba(0,0,0,0.85);
     }
     .btn {
-      background-color: #7c3aed;
+      background-color: #6b21a8;
+      color: white;
       padding: 0.5rem 1rem;
       border-radius: 0.375rem;
-      color: white;
+      font-weight: 600;
       cursor: pointer;
-      transition: background-color 0.2s;
-      border: none;
-      margin-right: 0.5rem;
+      transition: background-color 0.3s;
     }
     .btn:hover {
-      background-color: #5b21b6;
-    }
-    .time-display {
-      font-family: monospace;
-      font-size: 1.1rem;
-      margin-top: 0.5rem;
-      color: #a78bfa;
+      background-color: #5b189b;
     }
   </style>
 </head>
 <body class="text-purple-200">
+
   <div class="bg-overlay min-h-screen">
+
     <nav class="bg-purple-900 text-white px-6 py-4 flex justify-between items-center">
       <h1 class="text-xl font-bold cursor-pointer" onclick="mostrarInicio()">Moore Club</h1>
       <ul class="flex space-x-6 text-sm">
         <li><a href="#" onclick="mostrarInicio()" class="hover:underline">Inicio</a></li>
-        <li><a href="#" onclick="checkSesionYMostrarPanel()" class="hover:underline">Empleados</a></li>
+        <li><a href="#" onclick="mostrarPanelFichaje()" class="hover:underline">Fichaje</a></li>
+        <li><a href="#" onclick="mostrarPanelVentasPeluches()" class="hover:underline">Ventas Peluches</a></li>
+        <li><a href="#" onclick="mostrarPanelVentasComida()" class="hover:underline">Ventas Comida</a></li>
       </ul>
     </nav>
 
@@ -51,163 +47,275 @@
       <h2 class="text-2xl font-bold mb-4">Bienvenido a Moore Club</h2>
       <p>Explora nuestras secciones y vive la experiencia.</p>
     </main>
+
   </div>
 
 <script>
-  const empleados = ['tito giovanni', 'marta as']
+  // ------ Datos y estados ------
 
-  let estadosTrabajo = JSON.parse(localStorage.getItem('estadosTrabajo')) || {}
-  let temporizadores = {}
+  // Empleado actual (simulamos sesión)
+  let empleadoActual = null;
 
-  function guardarEstados() {
-    localStorage.setItem('estadosTrabajo', JSON.stringify(estadosTrabajo))
+  // Estados fichaje
+  let estadosTrabajo = JSON.parse(localStorage.getItem('estadosTrabajo')) || {
+    'tito giovanni': { fichado: false, inicio: null, tiempoAcumulado: 0 },
+    // Puedes añadir más empleados aquí
+  };
+
+  // Ventas peluches
+  const productosPeluches = [
+    { id: 'tito', nombre: 'Tito Dios Griego', img: 'url_tito.png' },
+    { id: 'tita', nombre: 'La Tita', img: 'url_tita.png' },
+    { id: 'mascara', nombre: 'Máscara Dominante “Cat Vanilla”', img: 'url_mascara.png' },
+    { id: 'pinzas', nombre: 'Pinzas LED “Sweet Pain”', img: 'url_pinzas.png' },
+    { id: 'condones', nombre: 'Condones “Espadas del Deseo”', img: 'url_condones.png' },
+    { id: 'dildo', nombre: 'Dildo Doble “Fusión Morada”', img: 'url_dildo.png' }
+  ];
+
+  let ventasPeluches = JSON.parse(localStorage.getItem('ventasPeluches')) || {
+    tito: 0,
+    tita: 0,
+    mascara: 0,
+    pinzas: 0,
+    condones: 0,
+    dildo: 0
+  };
+
+  // Ventas comida y bebida
+  const productosComida = [
+    { id: 'banana', nombre: 'Banana pelada con glaseado y cerezas', img: 'url_banana.png', descripcion: 'Provocadora y dulce hasta el final.' },
+    { id: 'magdalenas', nombre: 'Magdalenas con glaseado rosa', img: 'url_magdalenas.png', descripcion: 'Dos razones para pecar.' },
+    { id: 'berenjena', nombre: 'Berenjena rellena', img: 'url_berenjena.png', descripcion: 'Caliente y jugosa, te va a dejar sudando.' },
+    { id: 'coctel', nombre: 'Cóctel dulce con cereza y fresa', img: 'url_coctel.png', descripcion: 'Tierno al principio, travieso al final.' },
+    { id: 'trago', nombre: 'Trago afrutado y ácido', img: 'url_trago.png', descripcion: 'Refresca y se te queda pegado.' },
+    { id: 'almejas', nombre: 'Almejas picantes con limón', img: 'url_almejas.png', descripcion: 'Suave por fuera, fuego por dentro.' }
+  ];
+
+  let ventasComida = JSON.parse(localStorage.getItem('ventasComida')) || {
+    banana: 0,
+    magdalenas: 0,
+    berenjena: 0,
+    coctel: 0,
+    trago: 0,
+    almejas: 0
+  };
+
+  // ------ Guardar estados en localStorage ------
+  function guardarEstadosTrabajo() {
+    localStorage.setItem('estadosTrabajo', JSON.stringify(estadosTrabajo));
+  }
+  function guardarVentasPeluches() {
+    localStorage.setItem('ventasPeluches', JSON.stringify(ventasPeluches));
+  }
+  function guardarVentasComida() {
+    localStorage.setItem('ventasComida', JSON.stringify(ventasComida));
   }
 
+  // ------ Funciones UI ------
+
+  // Mostrar inicio
   function mostrarInicio() {
-    const contenido = document.getElementById('contenido')
-    contenido.innerHTML = `
+    empleadoActual = null;
+    document.getElementById('contenido').innerHTML = `
       <h2 class="text-2xl font-bold mb-4">Bienvenido a Moore Club</h2>
-      <p>Explora nuestras secciones y vive la experiencia.</p>`
+      <p>Explora nuestras secciones y vive la experiencia.</p>
+    `;
   }
 
-  function mostrarLoginVIP() {
-    const contenido = document.getElementById('contenido')
-    contenido.innerHTML = `
-      <h2 class="text-2xl font-bold mb-4">Acceso Empleados</h2>
+  // Panel fichaje
+  function mostrarPanelFichaje() {
+    if (!empleadoActual) {
+      return mostrarLoginFichaje();
+    }
+    actualizarEstadoGeneral();
+    document.getElementById('contenido').innerHTML = `
+      <h2 class="text-2xl font-bold mb-4">Panel de Fichaje - ${empleadoActual}</h2>
+      <button class="btn mr-2" onclick="ficharEntrada()">Fichar Entrada</button>
+      <button class="btn mr-2" onclick="ficharSalida()">Fichar Salida</button>
+      <button class="btn bg-red-600 hover:bg-red-700" onclick="cerrarSesion()">Cerrar Sesión</button>
+      <div class="mt-4" id="estadoGeneral"></div>
+    `;
+  }
+
+  // Login fichaje (solo para fichar)
+  function mostrarLoginFichaje() {
+    document.getElementById('contenido').innerHTML = `
+      <h2 class="text-2xl font-bold mb-4">Acceso Empleado</h2>
       <div class="max-w-md bg-black bg-opacity-30 p-6 rounded shadow">
-        <label class="block mb-2">Nombre:</label>
-        <input id="nombreInput" type="text" class="w-full px-3 py-2 text-black mb-4" placeholder="nombre en minúsculas">
-        <label class="block mb-2">Apellido:</label>
-        <input id="apellidoInput" type="text" class="w-full px-3 py-2 text-black mb-4" placeholder="apellido en minúsculas">
-        <button onclick="login()" class="btn">Entrar</button>
-      </div>`
-  }
-
-  function login() {
-    const nombre = document.getElementById('nombreInput').value.trim().toLowerCase()
-    const apellido = document.getElementById('apellidoInput').value.trim().toLowerCase()
-    const nombreCompleto = `${nombre} ${apellido}`
-    if (empleados.includes(nombreCompleto)) {
-      sessionStorage.setItem('usuarioActual', nombreCompleto)
-      mostrarPanelFichaje(nombreCompleto)
-    } else {
-      alert('Acceso denegado')
-    }
-  }
-
-  function logout() {
-    sessionStorage.removeItem('usuarioActual')
-    mostrarLoginVIP()
-  }
-
-  function checkSesionYMostrarPanel() {
-    const usuario = sessionStorage.getItem('usuarioActual')
-    if (usuario && empleados.includes(usuario)) {
-      mostrarPanelFichaje(usuario)
-    } else {
-      mostrarLoginVIP()
-    }
-  }
-
-  function formatearTiempo(ms) {
-    let totalSegundos = Math.floor(ms / 1000)
-    let horas = Math.floor(totalSegundos / 3600)
-    let minutos = Math.floor((totalSegundos % 3600) / 60)
-    let segundos = totalSegundos % 60
-    return `${horas.toString().padStart(2,'0')}:${minutos.toString().padStart(2,'0')}:${segundos.toString().padStart(2,'0')}`
-  }
-
-  function mostrarPanelFichaje(usuario) {
-    const contenido = document.getElementById('contenido')
-
-    contenido.innerHTML = `
-      <h2 class="text-2xl font-bold mb-4">Panel de Fichaje - ${usuario}</h2>
-      <button id="btnFichar" class="btn mb-2">Fichar Entrada</button>
-      <button id="btnDesfichar" class="btn mb-6">Fichar Salida</button>
-      <button id="btnLogout" class="btn mb-6 bg-red-600 hover:bg-red-700">Cerrar Sesión</button>
-      <div>
-        <h3>Tiempo trabajado:</h3>
-        <div id="tiempoTrabajado" class="time-display">00:00:00</div>
+        <label class="block mb-2">Nombre completo (minúsculas)</label>
+        <input id="nombreEmpleado" type="text" class="w-full px-3 py-2 mb-4 text-black" placeholder="Ej: tito giovanni" />
+        <button onclick="loginEmpleado()" class="btn w-full">Entrar</button>
       </div>
-      <div>
-        <h3>Estado general:</h3>
-        <pre id="estadoGeneral" class="bg-black bg-opacity-30 p-4 rounded text-sm"></pre>
-      </div>
-    `
-
-    if (!estadosTrabajo[usuario]) {
-      estadosTrabajo[usuario] = { fichado: false, inicio: null, tiempoAcumulado: 0 }
-      guardarEstados()
-    }
-
-    const btnFichar = document.getElementById('btnFichar')
-    const btnDesfichar = document.getElementById('btnDesfichar')
-    const btnLogout = document.getElementById('btnLogout')
-    const tiempoDisplay = document.getElementById('tiempoTrabajado')
-    const estadoGeneral = document.getElementById('estadoGeneral')
-
-    function actualizarEstadoGeneral() {
-      estadoGeneral.textContent = JSON.stringify(estadosTrabajo, null, 2)
-    }
-
-    function actualizarTemporizador() {
-      let estado = estadosTrabajo[usuario]
-      if (estado.fichado && estado.inicio) {
-        let tiempoTranscurrido = Date.now() - estado.inicio + estado.tiempoAcumulado
-        tiempoDisplay.textContent = formatearTiempo(tiempoTranscurrido)
-      } else {
-        tiempoDisplay.textContent = formatearTiempo(estado.tiempoAcumulado)
-      }
-    }
-
-    actualizarEstadoGeneral()
-    actualizarTemporizador()
-
-    if (temporizadores[usuario]) clearInterval(temporizadores[usuario])
-    temporizadores[usuario] = setInterval(actualizarTemporizador, 1000)
-
-    btnFichar.onclick = () => {
-      let estado = estadosTrabajo[usuario]
-      if (estado.fichado) {
-        alert('Ya estás fichado. Usa "Fichar Salida" para terminar tu turno.')
-        return
-      }
-      estado.fichado = true
-      estado.inicio = Date.now()
-      guardarEstados()
-      actualizarEstadoGeneral()
-      actualizarTemporizador()
-      temporizadores[usuario] = setInterval(actualizarTemporizador, 1000)
-      alert('Fichado entrada')
-    }
-
-    btnDesfichar.onclick = () => {
-      let estado = estadosTrabajo[usuario]
-      if (!estado.fichado) {
-        alert('No estás fichado. Usa "Fichar Entrada" para comenzar tu turno.')
-        return
-      }
-      estado.fichado = false
-      estado.tiempoAcumulado += Date.now() - estado.inicio
-      estado.inicio = null
-      guardarEstados()
-      actualizarEstadoGeneral()
-      actualizarTemporizador()
-      clearInterval(temporizadores[usuario])
-      alert('Fichado salida, turno registrado')
-    }
-
-    btnLogout.onclick = () => {
-      logout()
-    }
+    `;
   }
 
-  // Al cargar la página, comprobamos sesión activa
-  window.onload = () => {
-    checkSesionYMostrarPanel()
+  function loginEmpleado() {
+    const nombre = document.getElementById('nombreEmpleado').value.trim().toLowerCase();
+    if (!nombre) {
+      alert('Introduce un nombre válido');
+      return;
+    }
+    if (!(nombre in estadosTrabajo)) {
+      alert('Empleado no registrado');
+      return;
+    }
+    empleadoActual = nombre;
+    mostrarPanelFichaje();
+  }
+
+  function cerrarSesion() {
+    empleadoActual = null;
+    mostrarInicio();
+  }
+
+  // Fichar entrada
+  function ficharEntrada() {
+    const estado = estadosTrabajo[empleadoActual];
+    if (estado.fichado) {
+      alert('Ya estás fichado');
+      return;
+    }
+    estado.fichado = true;
+    estado.inicio = Date.now();
+    guardarEstadosTrabajo();
+    actualizarEstadoGeneral();
+  }
+
+  // Fichar salida
+  function ficharSalida() {
+    const estado = estadosTrabajo[empleadoActual];
+    if (!estado.fichado) {
+      alert('No estás fichado');
+      return;
+    }
+    estado.fichado = false;
+    estado.tiempoAcumulado += Date.now() - estado.inicio;
+    estado.inicio = null;
+    guardarEstadosTrabajo();
+    actualizarEstadoGeneral();
+  }
+
+  // Actualizar panel con tiempos calculados
+  function actualizarEstadoGeneral() {
+    const cont = document.getElementById('estadoGeneral');
+    const hoy = new Date();
+    const inicioDia = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate()).getTime();
+    const diaSemana = hoy.getDay();
+    const inicioSemana = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() - ((diaSemana + 6) % 7)).getTime();
+
+    let html = `<table class="min-w-full text-left border-collapse border border-purple-600">
+      <thead>
+        <tr class="bg-purple-800">
+          <th class="border border-purple-700 px-4 py-2">Empleado</th>
+          <th class="border border-purple-700 px-4 py-2">Horas hoy</th>
+          <th class="border border-purple-700 px-4 py-2">Horas esta semana</th>
+          <th class="border border-purple-700 px-4 py-2">Horas totales</th>
+          <th class="border border-purple-700 px-4 py-2">Estado</th>
+        </tr>
+      </thead>
+      <tbody>`;
+
+    function msAHoras(ms) {
+      return (ms / 3600000).toFixed(2);
+    }
+
+    for (const [usuario, datos] of Object.entries(estadosTrabajo)) {
+      let tiempoAcumulado = datos.tiempoAcumulado;
+      let tiempoHoy = 0;
+      let tiempoSemana = 0;
+
+      if (datos.fichado && datos.inicio) {
+        const ahora = Date.now();
+        tiempoAcumulado += (ahora - datos.inicio);
+        if (datos.inicio > inicioDia) {
+          tiempoHoy += ahora - datos.inicio;
+        }
+        if (datos.inicio > inicioSemana) {
+          tiempoSemana += ahora - datos.inicio;
+        }
+      }
+
+      html += `<tr>
+        <td class="border border-purple-700 px-4 py-2">${usuario}</td>
+        <td class="border border-purple-700 px-4 py-2">${msAHoras(tiempoHoy)}</td>
+        <td class="border border-purple-700 px-4 py-2">${msAHoras(tiempoSemana)}</td>
+        <td class="border border-purple-700 px-4 py-2">${msAHoras(tiempoAcumulado)}</td>
+        <td class="border border-purple-700 px-4 py-2">${datos.fichado ? 'Fichado' : 'No fichado'}</td>
+      </tr>`;
+    }
+    html += '</tbody></table>';
+    cont.innerHTML = html;
+  }
+
+  // ------ Panel Ventas Peluches ------
+
+  function mostrarPanelVentasPeluches() {
+    const contenido = document.getElementById('contenido');
+    let html = `<h2 class="text-2xl font-bold mb-4">Gestión de Ventas Peluches</h2><div class="grid grid-cols-1 md:grid-cols-2 gap-6">`;
+
+    productosPeluches.forEach(p => {
+      html += `
+        <div class="bg-black bg-opacity-30 p-4 rounded">
+          <h3 class="font-semibold mb-2">${p.nombre}</h3>
+          <img src="${p.img}" alt="${p.nombre}" class="w-24 mb-2" />
+          <p>Total vendido: <strong id="total-${p.id}">${ventasPeluches[p.id]}</strong></p>
+          <input type="number" id="input-${p.id}" min="1" placeholder="Cantidad a añadir" class="w-full px-2 py-1 mb-2 text-black" />
+          <button onclick="agregarVenta('${p.id}')" class="btn w-full">Añadir ventas</button>
+        </div>`;
+    });
+
+    html += '</div>';
+    contenido.innerHTML = html;
+  }
+
+  function agregarVenta(id) {
+    const input = document.getElementById(`input-${id}`);
+    const valor = parseInt(input.value);
+    if (isNaN(valor) || valor <= 0) {
+      alert('Introduce una cantidad válida');
+      return;
+    }
+    ventasPeluches[id] += valor;
+    guardarVentasPeluches();
+    document.getElementById(`total-${id}`).textContent = ventasPeluches[id];
+    input.value = '';
+  }
+
+  // ------ Panel Ventas Comida ------
+
+  function mostrarPanelVentasComida() {
+    const contenido = document.getElementById('contenido');
+    let html = `<h2 class="text-2xl font-bold mb-4">Gestión de Ventas Comida y Bebida</h2><div class="grid grid-cols-1 md:grid-cols-2 gap-6">`;
+
+    productosComida.forEach(p => {
+      html += `
+        <div class="bg-black bg-opacity-30 p-4 rounded">
+          <h3 class="font-semibold mb-2">${p.nombre}</h3>
+          <img src="${p.img}" alt="${p.nombre}" class="w-24 mb-2" />
+          <p class="italic mb-2">${p.descripcion}</p>
+          <p>Total vendido: <strong id="total-comida-${p.id}">${ventasComida[p.id]}</strong></p>
+          <input type="number" id="input-comida-${p.id}" min="1" placeholder="Cantidad a añadir" class="w-full px-2 py-1 mb-2 text-black" />
+          <button onclick="agregarVentaComida('${p.id}')" class="btn w-full">Añadir ventas</button>
+        </div>`;
+    });
+
+    html += '</div>';
+    contenido.innerHTML = html;
+  }
+
+  function agregarVentaComida(id) {
+    const input = document.getElementById(`input-comida-${id}`);
+    const valor = parseInt(input.value);
+    if (isNaN(valor) || valor <= 0) {
+      alert('Introduce una cantidad válida');
+      return;
+    }
+    ventasComida[id] += valor;
+    guardarVentasComida();
+    document.getElementById(`total-comida-${id}`).textContent = ventasComida[id];
+    input.value = '';
   }
 </script>
+
 </body>
 </html>
-
-
