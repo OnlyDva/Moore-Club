@@ -48,48 +48,34 @@
     let empleados = cargarDatos('empleados', ['tito giovanni']);
     let fichajes = cargarDatos('fichajes', {});
     let ventas = cargarDatos('ventas', {});
-    let relojAnimacionID = null;
+    let masterInterval = null;
 
     // ===================================================================================
-    //  2. LÓGICA DEL RELOJ con requestAnimationFrame
+    //  2. LÓGICA DEL RELOJ (NUEVA VERSIÓN SIMPLIFICADA)
     // ===================================================================================
-    function relojLoop() {
-      const nombre = cargarDatos('currentUser', null, sessionStorage);
-      if (!nombre) {
-        detenerReloj();
-        return;
-      }
-
-      const datosFichaje = fichajes[nombre];
-      if (!datosFichaje || !datosFichaje.fichado) {
-        detenerReloj();
-        return;
-      }
-
-      const tiempoHoyElemento = document.getElementById('tiempoHoy');
-      if (tiempoHoyElemento) {
-        const tiempoTranscurrido = Date.now() - datosFichaje.inicio + datosFichaje.hoy;
-        tiempoHoyElemento.textContent = formatearTiempo(tiempoTranscurrido);
-      }
-
-      const sesionElemento = document.getElementById('tiempoSesion');
-      if (sesionElemento) {
-        const tiempoSesion = Date.now() - datosFichaje.inicio;
-        sesionElemento.textContent = formatearTiempo(tiempoSesion);
-      }
+    function iniciarReloj(horaInicio, tiempoYaAcumulado) {
+      detenerReloj(); 
       
-      relojAnimacionID = requestAnimationFrame(relojLoop);
-    }
+      masterInterval = setInterval(() => {
+        const tiempoSesion = Date.now() - horaInicio;
+        const tiempoTotalHoy = tiempoSesion + tiempoYaAcumulado;
 
-    function iniciarReloj() {
-      detenerReloj();
-      relojAnimacionID = requestAnimationFrame(relojLoop);
+        const tiempoHoyElemento = document.getElementById('tiempoHoy');
+        const sesionElemento = document.getElementById('tiempoSesion');
+
+        if (tiempoHoyElemento) {
+          tiempoHoyElemento.textContent = formatearTiempo(tiempoTotalHoy);
+        }
+        if (sesionElemento) {
+          sesionElemento.textContent = formatearTiempo(tiempoSesion);
+        }
+      }, 1000);
     }
 
     function detenerReloj() {
-      if (relojAnimacionID) {
-        cancelAnimationFrame(relojAnimacionID);
-        relojAnimacionID = null;
+      if (masterInterval) {
+        clearInterval(masterInterval);
+        masterInterval = null;
       }
     }
     
@@ -131,8 +117,9 @@
       if (empleados.includes(nombre)) {
         guardarDatos('currentUser', nombre, sessionStorage);
         mostrarPanelEmpleados(nombre);
-        if (fichajes[nombre] && fichajes[nombre].fichado) {
-          iniciarReloj();
+        const datosFichaje = fichajes[nombre];
+        if (datosFichaje && datosFichaje.fichado) {
+          iniciarReloj(datosFichaje.inicio, datosFichaje.hoy);
         }
       } else { alert('Acceso denegado.'); }
     }
@@ -145,7 +132,7 @@
         fichajes[nombre] = datosFichaje;
         guardarDatos('fichajes', fichajes);
         mostrarPanelEmpleados(nombre);
-        iniciarReloj();
+        iniciarReloj(datosFichaje.inicio, datosFichaje.hoy);
       }
     }
 
@@ -172,7 +159,7 @@
     }
     
     // ===================================================================================
-    //  5. FUNCIONES AUXILIARES (Completas y bien formateadas)
+    //  5. FUNCIONES AUXILIARES
     // ===================================================================================
     function cargarDatos(clave, valorPorDefecto, storage = localStorage) {
       const datosGuardados = storage.getItem(clave);
@@ -243,8 +230,9 @@
         const currentUser = cargarDatos('currentUser', null, sessionStorage);
         if (currentUser && empleados.includes(currentUser)) {
             mostrarPanelEmpleados(currentUser);
-            if (fichajes[currentUser] && fichajes[currentUser].fichado) {
-                iniciarReloj();
+            const datosFichaje = fichajes[currentUser];
+            if (datosFichaje && datosFichaje.fichado) {
+                iniciarReloj(datosFichaje.inicio, datosFichaje.hoy);
             }
         } else {
             mostrarInicio();
