@@ -235,12 +235,17 @@
     // ===================================================================================
     //  INICIALIZACIÓN
     // ===================================================================================
+    // ===================================================================================
+    //  INICIALIZACIÓN (CORREGIDA)
+    // ===================================================================================
     document.addEventListener('DOMContentLoaded', () => {
         empleados = cargarDatos('empleados', ['tito giovanni', 'marta']);
         fichajes = cargarDatos('fichajes', {});
         ventas = cargarDatos('ventas', {});
         habitaciones = cargarDatos('habitaciones', []);
         
+        // Esta es la sección corregida.
+        // Ahora se asegura de que las habitaciones por defecto tengan el formato correcto.
         if (!Array.isArray(habitaciones) || habitaciones.length !== 10) {
             habitaciones = [];
             for (let i = 1; i <= 10; i++) {
