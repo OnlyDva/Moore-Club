@@ -63,8 +63,8 @@
     window.updateDoc = updateDoc;
     window.deleteDoc = deleteDoc;
     window.getDoc = getDoc;
-    window.query = query; // Añadido para hacer consultas (ej. ordenar anuncios)
-    window.orderBy = orderBy; // Añadido para hacer consultas (ej. ordenar anuncios)
+    window.query = query;
+    window.orderBy = orderBy;
   </script>
   </head>
 <body class="text-purple-200">
@@ -83,13 +83,12 @@
 
   <script>
     // Se envuelve todo en el listener para asegurar que el DOM está listo
-    document.addEventListener('DOMContentLoaded', async () => { // *** MANTENER 'async' AQUÍ ***
+    document.addEventListener('DOMContentLoaded', async () => {
         // ===================================================================================
         //  1. FUENTE DE DATOS Y ESTADO GLOBAL
         // ===================================================================================
         const productos = [ { id: 'tito_griego', nombre: 'Tito Dios Griego', imagen: 'Tito.png' }, { id: 'la_tita', nombre: 'La Tita', imagen: 'Tita.png' }, { id: 'mascara_cat', nombre: 'Máscara Dominante “Cat Vanilla”', imagen: 'Mascara.png' }, { id: 'pinzas_led', nombre: 'Pinzas LED “Sweet Pain”', imagen: 'Pinzas.png' }, { id: 'preservativos', nombre: 'Preservativos “Espadas del Deseo”', imagen: 'condones.png' }, { id: 'dildo_doble', nombre: 'Dildo Doble “Fusión Morada”', imagen: 'Dildo.webp' }, { id: 'banana', nombre: 'Banana Pelada', imagen: 'banana.png' }, { id: 'magdalenas', nombre: 'Magdalenas con Glaseado Rosa', imagen: 'magdalenas.png' }, { id: 'berenjena', nombre: 'Berenjena Rellena', imagen: 'berenjena.png' }, { id: 'coctel', nombre: 'Cóctel Dulce', imagen: 'Coctel.png' }, { id: 'trago_afrutado', nombre: 'Trago Afrutado', imagen: 'trago afrutado.png' }, { id: 'almejas', nombre: 'Almejas Picantes', imagen: 'almejas.png' }];
         
-        // *** VARIABLES GLOBALES - AHORA SERÁN POBLADAS DESDE FIRESTORE ***
         let empleados = [];
         let fichajes = {};
         let ventas = {};
@@ -103,12 +102,9 @@
         // ===================================================================================
         //  2. FUNCIONES GLOBALES Y AUXILIARES
         // ===================================================================================
-        // Se asignan a 'window' para que los 'onclick' del HTML puedan encontrarlas.
         
         window.hashPassword = (str) => { let hash = 0; if (typeof str !== 'string' || str.length === 0) return "hash_0"; for (let i = 0; i < str.length; i++) { const char = str.charCodeAt(i); hash = ((hash << 5) - hash) + char; hash |= 0; } return "hash_" + Math.abs(hash); }
         
-        // *** LAS FUNCIONES cargarDatos y guardarDatos DE localStorage YA NO SE USAN EN GENERAL ***
-        // *** SOLO SE MANTIENEN EN ESTE CÓDIGO POR SI HAY ALGUNA REFERENCIA ANTIGUA EN SECCIONES NO MIGRADA AÚN ***
         window.cargarDatos = (clave, valorPorDefecto, storage = localStorage) => { const datosGuardados = storage.getItem(clave); if (!datosGuardados) return valorPorDefecto; try { const datosParseados = JSON.parse(datosGuardados); return (typeof datosParseados === 'object' && datosParseados !== null) ? datosParseados : valorPorDefecto; } catch (e) { return valorPorDefecto; } }
         window.guardarDatos = (clave, datos, storage = localStorage) => { storage.setItem(clave, JSON.stringify(datos)); }
         
@@ -116,7 +112,6 @@
         window.getEstadoHabitacion = (hab) => { const ahora = Date.now(); if (!hab || !hab.reservas) return { estado: 'disponible', texto: 'Disponible', reservaActual: null }; const reservaActual = hab.reservas.find(r => ahora >= r.inicio && ahora < r.fin); if (reservaActual) { return { estado: 'ocupada', texto: 'Ocupada', reservaActual }; } return { estado: 'disponible', texto: 'Disponible', reservaActual: null }; }
         window.getWeekNumber = (d) => { d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())); d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7)); var yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1)); return Math.ceil((((d - yearStart) / 86400000) + 1)/7); }
         
-        // *** gestionarReseteoDatos AHORA TAMBIÉN INTERACTÚA CON FIRESTORE ***
         window.gestionarReseteoDatos = async (nombre, esVenta = false) => {
             const ahora = new Date();
             const anio = ahora.getFullYear();
@@ -126,7 +121,6 @@
             const semanaNum = getWeekNumber(ahora);
 
             if (esVenta) {
-                // Lógica para ventas
                 let datosVentaDoc = await getDoc(doc(db, 'ventas', nombre));
                 let datosV = datosVentaDoc.exists() ? datosVentaDoc.data() : { productos: {}, fecha: '' };
 
@@ -139,14 +133,13 @@
                         datosV.productos[key].hoy = 0;
                     });
                 }
-                ventas[nombre] = datosV; // Actualiza la variable global 'ventas'
+                ventas[nombre] = datosV;
                 return datosV;
             } else {
-                // Lógica para fichajes
                 let datosFichajeDoc = await getDoc(doc(db, 'fichajes', nombre));
                 let datosF = datosFichajeDoc.exists() ? datosFichajeDoc.data() : null;
 
-                if (!datosF || typeof datosF.total !== 'number') { // Si no existe o está mal, inicializa
+                if (!datosF || typeof datosF.total !== 'number') {
                     datosF = { total: 0, hoy: 0, semana: 0, fecha: hoyStr, numSemana: semanaNum, fichado: false, inicio: null };
                 }
                 
@@ -158,8 +151,7 @@
                     datosF.semana = 0;
                     datosF.numSemana = semanaNum;
                 }
-                fichajes[nombre] = datosF; // Actualiza la variable global 'fichajes'
-                // No guardamos aquí, solo gestionamos el estado local. El guardado se hará en fichar/desfichar.
+                fichajes[nombre] = datosF;
                 return datosF;
             }
         }
@@ -175,36 +167,42 @@
             return `<div class="producto-card bg-purple-800 rounded-lg p-2 text-center shadow-md flex flex-col justify-between text-sm"><div><img src="${producto.imagen}" alt="${producto.nombre}" class="mx-auto mb-2 w-20 h-20 object-cover rounded" /><h3 class="text-white font-semibold leading-tight">${producto.nombre}</h3></div><div>${inputVentasHTML}</div></div>`; 
         }
 
-        // *** NUEVA FUNCIÓN para actualizar ventas en Firestore ***
+        // *** FUNCIÓN ACTUALIZADA para actualizar ventas en Firestore (CON CONSOLE.LOGS) ***
         window.actualizarVentas = async (productoId, nombreEmpleado) => {
             const cantidadInput = document.getElementById(`input-${productoId}`);
+            console.log(`Valor del input ANTES de parsear: ${cantidadInput.value}`); // Log para depuración
             const cantidad = parseInt(cantidadInput.value);
 
-            if (isNaN(cantidad) || cantidad < 0) {
-                alert("Por favor, introduce una cantidad válida.");
-                cantidadInput.value = '0';
+            console.log(`Cantidad parseada (después de parseInt): ${cantidad}`); // Log para depuración
+
+            if (isNaN(cantidad) || cantidad <= 0) {
+                alert("Por favor, introduce una cantidad válida mayor que cero.");
+                cantidadInput.value = '0'; // Asegurar que se resetee si es inválido o 0
                 return;
             }
 
             try {
-                // Asegurar que el objeto de ventas para el empleado existe
                 let datosVenta = ventas[nombreEmpleado] || { productos: {}, fecha: '' };
                 if (!datosVenta.productos[productoId]) {
                     datosVenta.productos[productoId] = { hoy: 0, total: 0 };
                 }
 
-                // Actualizar las ventas en el objeto local (se sumará a lo que ya tenga)
                 datosVenta.productos[productoId].hoy += cantidad;
                 datosVenta.productos[productoId].total += cantidad;
-                datosVenta.fecha = new Date().toISOString().split('T')[0]; // Asegurar que la fecha es la de hoy
+                datosVenta.fecha = new Date().toISOString().split('T')[0];
 
-                ventas[nombreEmpleado] = datosVenta; // Actualiza la variable global
+                ventas[nombreEmpleado] = datosVenta;
 
-                // Guardar en Firestore
+                console.log(`Datos de venta LOCAL actualizados para ${nombreEmpleado}:`, ventas[nombreEmpleado]); // Log para depuración
+
                 await setDoc(doc(db, 'ventas', nombreEmpleado), datosVenta);
                 
+                console.log(`Datos de venta GUARDADOS en Firestore para ${nombreEmpleado}.`); // Log para depuración
+
                 alert(`Venta(s) de ${cantidad} ${productos.find(p => p.id === productoId).nombre} registrada(s) para ${nombreEmpleado}.`);
-                cantidadInput.value = '0'; // Resetear el input después de registrar
+                cantidadInput.value = '0'; // <<<<<<< ESTA LÍNEA AHORA ESTÁ ACTIVA DE NUEVO >>>>>>>
+                // La volvemos a activar porque el problema no es que se resetee,
+                // sino que no se registre la suma o el input no lea correctamente.
                 mostrarPanelEmpleados(nombreEmpleado); // Refrescar el panel para ver los totales actualizados
             } catch (e) {
                 console.error("Error al actualizar ventas en Firestore:", e);
@@ -214,7 +212,7 @@
 
         const iniciarRelojFichaje = (horaInicio, baseHoy, baseSemana, baseTotal) => { detenerRelojFichaje(); fichajeInterval = setInterval(() => { const tiempoSesion = Date.now() - horaInicio; document.getElementById('tiempoHoy').textContent = formatearTiempo(baseHoy + tiempoSesion); document.getElementById('tiempoSemana').textContent = formatearTiempo(baseSemana + tiempoSesion); document.getElementById('tiempoTotal').textContent = formatearTiempo(baseTotal + tiempoSesion); document.getElementById('tiempoSesion').textContent = formatearTiempo(tiempoSesion); }, 1000); }
         const detenerRelojFichaje = () => { if (fichajeInterval) { clearInterval(fichajeInterval); fichajeInterval = null; } }
-        const iniciarRelojHabitaciones = () => { detenerRelojHabitaciones(); habitacionesInterval = setInterval(() => { habitaciones.forEach(hab => { const estadoActual = getEstadoHabitacion(hab); let tiempoRestanteElem = document.getElementById(`timer-hab-${hab.id}`); if (tiempoRestanteElem) { if (estadoActual.estado === 'ocupada') { const restante = estadoActual.reservaActual.fin - Date.now(); if (restante > 0) { tiempoRestanteElem.textContent = formatearTiempo(restante); } else { tiempoRestanteElem.textContent = "¡TIEMPO AGOTADO!"; tiempoRestanteElem.classList.add('text-red-500'); } } else { // Si la habitación ya no está ocupada, limpia el temporizador
+        const iniciarRelojHabitaciones = () => { detenerRelojHabitaciones(); habitacionesInterval = setInterval(() => { habitaciones.forEach(hab => { const estadoActual = getEstadoHabitacion(hab); let tiempoRestanteElem = document.getElementById(`timer-hab-${hab.id}`); if (tiempoRestanteElem) { if (estadoActual.estado === 'ocupada') { const restante = estadoActual.reservaActual.fin - Date.now(); if (restante > 0) { tiempoRestanteElem.textContent = formatearTiempo(restante); } else { tiempoRestanteElem.textContent = "¡TIEMPO AGOTADO!"; tiempoRestanteElem.classList.add('text-red-500'); } } else {
                         tiempoRestanteElem.textContent = "--:--:--";
                         tiempoRestanteElem.classList.remove('text-red-500');
                     }
@@ -225,17 +223,14 @@
         const iniciarDashboard = () => { detenerDashboard(); dashboardInterval = setInterval(actualizarDashboard, 5000); }
         const detenerDashboard = () => { if(dashboardInterval) { clearInterval(dashboardInterval); dashboardInterval = null; } }
         
-        // El resto de funciones se asignan a window para ser accesibles desde el HTML
         window.mostrarInicio = () => { detenerRelojFichaje(); detenerRelojHabitaciones(); detenerDashboard(); document.getElementById('contenido').innerHTML = `<div class="p-4 md:p-8 max-w-7xl mx-auto rounded-lg bg-purple-900 bg-opacity-90 shadow-lg"><header class="mb-8 text-center"><h1 class="text-5xl font-extrabold text-white drop-shadow-lg mb-2">Bienvenido a Moore Club</h1><p class="text-purple-300 text-lg">Donde la tentación y la elegancia se encuentran.</p></header><div class="flex flex-col md:flex-row items-center gap-8"><div class="md:w-5/12"><img src="Tito y Marta.png" alt="Tito y Marta" class="rounded-lg shadow-2xl w-full h-auto object-cover" /></div><div class="md:w-7/12 space-y-6"><div class="bg-purple-800 bg-opacity-50 p-4 rounded-lg"><h2 class="text-2xl font-bold text-white mb-2">Tito Giovanni</h2><p class="text-purple-200">El carismático maestro de ceremonias y corazón de Moore. Su elegancia y estilo inconfundible, siempre vestido de morado, garantizan una noche inolvidable. Es el anfitrión perfecto, el alma de la fiesta.</p></div><div class="bg-purple-800 bg-opacity-50 p-4 rounded-lg"><h2 class="text-2xl font-bold text-white mb-2">Marta</h2><p class="text-purple-200">La musa indiscutible del club. Con una actitud que cautiva y una sensualidad que desarma, Marta es la protagonista de los shows más aclamados. Su presencia en el escenario es pura magia y provocación.</p></div></div></div><div class="mt-10 flex justify-center gap-4"><button onclick="mostrarLoginVIP()" class="btn">Área Empleados</button><button onclick="mostrarLoginAdmin()" class="btn" style="background-color: #a855f7;">Tito Giovanni</button></div></div>`; }
         
-        // *** mostrarPanelEmpleados - AHORA MÁS ASÍNCRONA ***
-        window.mostrarPanelEmpleados = async (nombre) => { // *** AÑADIDO 'async' ***
+        window.mostrarPanelEmpleados = async (nombre) => {
             detenerDashboard();
             detenerRelojHabitaciones();
             
-            // Cargar datos de fichaje y ventas para el empleado actual desde Firestore
-            const datosFichaje = await gestionarReseteoDatos(nombre); // gestiona y actualiza 'fichajes' globalmente
-            await gestionarReseteoDatos(nombre, true); // gestiona y actualiza 'ventas' globalmente
+            const datosFichaje = await gestionarReseteoDatos(nombre);
+            await gestionarReseteoDatos(nombre, true);
 
             let tiempoHoy = datosFichaje.hoy, tiempoSemana = datosFichaje.semana, tiempoTotal = datosFichaje.total;
             if (datosFichaje.fichado) {
@@ -248,8 +243,7 @@
             const productosVentaHTML = productos.map(p => crearTarjetaProducto(p, true, nombre)).join('');
             
             let habitacionesHTML = '';
-            // Asegúrate de que 'habitaciones' global está poblada antes de usarla
-            if (habitaciones.length === 0) { // Si por alguna razón no se cargaron al inicio
+            if (habitaciones.length === 0) {
                  await cargarTodasLasHabitaciones();
             }
             habitaciones.forEach(hab => {
@@ -263,7 +257,6 @@
                 habitacionesHTML += `<div class="bg-purple-800 p-4 rounded-lg text-center flex flex-col justify-between"><div><p class="font-bold text-lg">${hab.nombre}</p><p class="text-sm ${estadoActual.estado === 'ocupada' ? 'text-red-400' : 'text-green-400'} mb-2">${estadoActual.texto}</p></div><div>${controles}</div></div>`;
             });
 
-            // Revisa si hay nuevos anuncios (ahora desde Firestore)
             const hayNotificaciones = await comprobarNuevosAnuncios(nombre);
             const notificacionHTML = `<div class="relative"><button onclick="mostrarAnuncios('${nombre}')" class="text-2xl">🔔</button>${hayNotificaciones ? '<div class="notification-dot"></div>' : ''}</div>`;
             
@@ -275,13 +268,11 @@
 
         window.mostrarPanelProductos = () => { detenerRelojFichaje(); detenerRelojHabitaciones(); detenerDashboard(); document.getElementById('contenido').innerHTML = `<h2 class="text-2xl font-bold mb-6 text-center">Productos Moore Club</h2><div class="grid grid-cols-2 md:grid-cols-4 gap-6">${productos.map(p => crearTarjetaProducto(p, false)).join('')}</div><div class="text-center"><button onclick="mostrarInicio()" class="btn mt-8">Volver</button></div>`; }
         
-        // *** mostrarPanelHabitaciones - AHORA ASÍNCRONA ***
-        window.mostrarPanelHabitaciones = async () => { // *** AÑADIDO 'async' ***
+        window.mostrarPanelHabitaciones = async () => {
             detenerRelojFichaje();
             detenerRelojHabitaciones();
             detenerDashboard();
 
-            // Asegúrate de tener las habitaciones cargadas
             if (habitaciones.length === 0) {
                 await cargarTodasLasHabitaciones();
             }
@@ -307,28 +298,24 @@
         window.mostrarLoginVIP = () => { detenerRelojFichaje(); detenerRelojHabitaciones(); detenerDashboard(); document.getElementById('contenido').innerHTML = `<div class="max-w-md mx-auto bg-black bg-opacity-30 p-8 rounded-lg shadow-lg"><h2 class="text-2xl font-bold mb-4 text-center">Acceso Empleados</h2><div class="mb-4"><label class="block mb-2">Nombre completo:</label><input id="nombreInput" type="text" class="w-full px-3 py-2 text-black rounded" placeholder="nombre y apellido en minúsculas" /></div><div class="mb-4"><label class="block mb-2">Contraseña:</label><input id="passInput" type="password" class="w-full px-3 py-2 text-black rounded" /></div><div class="flex justify-between mt-6"><button onclick="verificarAccesoVIP()" class="btn">Entrar</button><button onclick="mostrarInicio()" class="btn" style="background-color:#5b189b;">Volver</button></div></div>`; }
         window.mostrarLoginAdmin = () => { detenerRelojFichaje(); detenerRelojHabitaciones(); detenerDashboard(); document.getElementById('contenido').innerHTML = `<div class="max-w-md mx-auto bg-black bg-opacity-50 p-8 rounded-lg shadow-lg border-2 border-purple-400"><h2 class="text-3xl font-bold mb-4 text-center text-purple-300">Acceso Privado - Tito Giovanni</h2><label class="block mb-2">Contraseña de Administrador:</label><input id="adminPassInput" type="password" class="w-full px-3 py-2 text-black rounded" /><div class="flex justify-between"><button onclick="verificarAccesoAdmin()" class="btn">Entrar</button><button onclick="mostrarInicio()" class="btn" style="background-color:#5b189b;">Volver</button></div></div>`; }
         
-        // *** mostrarPanelAdmin - AHORA MÁS ASÍNCRONA ***
-        window.mostrarPanelAdmin = async () => { // *** AÑADIDO 'async' ***
+        window.mostrarPanelAdmin = async () => {
             detenerRelojFichaje();
             detenerRelojHabitaciones();
             detenerDashboard();
 
-            // Asegurarse de tener los datos más recientes
-            await cargarTodosLosEmpleados(); // Recarga 'empleados'
-            await cargarTodosLosFichajes(); // Recarga 'fichajes'
-            await cargarTodasLasVentas(); // Recarga 'ventas'
-            await cargarTodosLosAnuncios(); // Recarga 'anuncios'
-            await cargarLibroNegro(); // Recarga 'libroNegro'
-            await cargarListaNegra(); // Recarga 'listaNegra'
+            await cargarTodosLosEmpleados();
+            await cargarTodosLosFichajes();
+            await cargarTodasLasVentas();
+            await cargarTodasLasHabitaciones();
+            await cargarTodosLosAnuncios();
+            await cargarLibroNegro();
+            await cargarListaNegra();
 
             const dashboardHTML = `<div class="mb-8 p-6 bg-purple-900 bg-opacity-50 rounded-lg"><h2 class="text-2xl font-bold mb-4">Dashboard en Tiempo Real</h2><div class="grid grid-cols-1 md:grid-cols-2 gap-6"><div><h3 class="font-semibold mb-2">Empleados Activos</h3><ul id="dashboard-empleados" class="space-y-1 text-sm"></ul></div><div><h3 class="font-semibold mb-2">Habitaciones Ocupadas</h3><ul id="dashboard-habitaciones" class="space-y-1 text-sm"></ul></div></div></div>`;
             const anunciosHTML = `<div class="mb-8 p-6 bg-purple-900 bg-opacity-50 rounded-lg"><h2 class="text-2xl font-bold mb-4">Publicar Anuncio Global</h2><textarea id="anuncioTexto" class="w-full p-2 text-black rounded mb-2" rows="3" placeholder="Escribe tu anuncio aquí..."></textarea><button onclick="publicarAnuncio()" class="btn">Publicar</button></div>`;
             
             let tablaEmpleadosHTML = '';
             empleados.forEach(empleado => {
-                // Hay que llamar a gestionarReseteoDatos (que es async) para cada empleado,
-                // pero eso complica el forEach síncrono.
-                // Para el panel de admin, la información de fichaje y ventas ya debería estar actualizada en 'fichajes' y 'ventas' globales.
                 const datosFichaje = fichajes[empleado.nombre] || { hoy: 0, semana: 0, total: 0 };
                 const datosVentas = ventas[empleado.nombre] || { productos: {} };
 
@@ -346,7 +333,6 @@
             const gestionHTML = `<div class="mb-8 p-6 bg-purple-900 bg-opacity-50 rounded-lg"><h2 class="text-2xl font-bold mb-4">Gestionar Empleados</h2><div class="flex flex-col md:flex-row gap-4"><input type="text" id="newEmployeeName" class="flex-grow px-3 py-2 text-black rounded" placeholder="Nombre y apellido..."><input type="password" id="newEmployeePass" class="flex-grow px-3 py-2 text-black rounded" placeholder="Contraseña..."><button onclick="anadirEmpleado()" class="btn">Añadir Empleado</button></div></div>`;
             const tablaHTML = `<div class="overflow-x-auto bg-purple-900 bg-opacity-80 rounded-lg shadow-xl"><table class="w-full text-left"><thead class="bg-purple-800 text-purple-200 uppercase text-sm"><tr><th class="p-3">Empleado</th><th class="p-3">Horas Hoy</th><th class="p-3">Horas Semana</th><th class="p-3">Horas Total</th><th class="p-3 text-center">Ventas Hoy (uds.)</th><th class="p-3 text-center">Ventas Total (uds.)</th><th class="p-3 text-center">Acciones</th></tr></thead><tbody>${tablaEmpleadosHTML}</tbody></table></div>`;
             
-            // Renderizar Libro Negro y Lista Negra usando las funciones actualizadas
             const libroNegroHTML = `<div class="mb-8 p-6 bg-purple-900 bg-opacity-50 rounded-lg"><h2 class="text-2xl font-bold mb-4">Libro Negro de Contactos</h2><div class="flex flex-col md:flex-row gap-4 mb-4"><input type="text" id="libroNombre" class="flex-grow px-3 py-2 text-black rounded" placeholder="Nombre del contacto..."><select id="libroRelacion" class="px-3 py-2 text-black rounded"><option value="Aliado">Aliado</option><option value="Rival">Rival</option><option value="Neutral">Neutral</option></select><input type="text" id="libroNotas" class="flex-grow px-3 py-2 text-black rounded" placeholder="Notas..."><button onclick="anadirAlLibroNegro()" class="btn">Añadir</button></div><ul id="listaLibroNegro" class="space-y-2"></ul></div>`;
             const listaNegraHTML = `<div class="mb-8 p-6 bg-purple-900 bg-opacity-50 rounded-lg"><h2 class="text-2xl font-bold mb-4">Lista Negra (Personas Vetadas)</h2><div class="flex flex-col md:flex-row gap-4 mb-4"><input type="text" id="vetadoNombre" class="flex-grow px-3 py-2 text-black rounded" placeholder="Nombre de la persona..."><input type="text" id="vetadoMotivo" class="flex-grow px-3 py-2 text-black rounded" placeholder="Motivo del veto..."><button onclick="anadirAListaNegra()" class="btn">Vetar</button></div><ul id="listaDeVetados" class="space-y-2"></ul></div>`;
             
@@ -354,7 +340,6 @@
             
             actualizarDashboard();
             iniciarDashboard();
-            // Llama a estas después de renderizar el HTML para que los IDs existan
             actualizarLibroNegro(); 
             actualizarListaNegra();
         }
@@ -365,7 +350,6 @@
             if (!empleadosActivosElem || !habitacionesOcupadasElem) return;
 
             empleadosActivosElem.innerHTML = '';
-            // Iterar sobre el objeto global 'fichajes'
             Object.keys(fichajes).forEach(nombre => {
                 if (fichajes[nombre].fichado) {
                     const tiempoSesion = formatearTiempo(Date.now() - fichajes[nombre].inicio);
@@ -385,11 +369,9 @@
             if (habitacionesOcupadasElem.innerHTML === '') habitacionesOcupadasElem.innerHTML = '<li>Ninguna habitación ocupada.</li>';
         }
         
-        // *** verificarAccesoAdmin - AHORA ASÍNCRONA Y DISPARA CARGA DE DATOS ***
-        window.verificarAccesoAdmin = async () => { // *** MANTENER 'async' ***
+        window.verificarAccesoAdmin = async () => {
             const adminPassInput = document.getElementById('adminPassInput');
             if (adminPassInput?.value === "D.VaSong11") {
-                // Antes de mostrar el panel, nos aseguramos de que todos los datos estén cargados
                 await cargarTodosLosEmpleados();
                 await cargarTodosLosFichajes();
                 await cargarTodasLasVentas();
@@ -403,20 +385,17 @@
             }
         }
 
-        // *** verificarAccesoVIP - AHORA ASÍNCRONA ***
-        window.verificarAccesoVIP = async () => { // *** MANTENER 'async' ***
+        window.verificarAccesoVIP = async () => {
             const nombre = document.getElementById('nombreInput')?.value.trim().toLowerCase();
             const pass = document.getElementById('passInput')?.value;
             
-            // Cargar el empleado específico de Firestore
-            const empleadoDoc = await getDoc(doc(db, 'empleados', nombre)); // 'empleados' es el nombre de la colección
+            const empleadoDoc = await getDoc(doc(db, 'empleados', nombre));
             const empleado = empleadoDoc.exists() ? empleadoDoc.data() : null;
 
             if (empleado && hashPassword(pass) === empleado.passHash) {
-                sessionStorage.setItem('currentUser', nombre); // Esto aún usa sessionStorage, que está bien para la sesión actual
-                // Cargar los datos del empleado específico para mostrar su panel
-                await gestionarReseteoDatos(nombre); // Fichajes
-                await gestionarReseteoDatos(nombre, true); // Ventas
+                sessionStorage.setItem('currentUser', nombre);
+                await gestionarReseteoDatos(nombre);
+                await gestionarReseteoDatos(nombre, true);
                 mostrarPanelEmpleados(nombre);
                 const datosFichaje = fichajes[nombre];
                 if (datosFichaje && datosFichaje.fichado) {
@@ -427,8 +406,7 @@
             }
         }
 
-        // *** anadirEmpleado - AHORA ASÍNCRONA ***
-        window.anadirEmpleado = async () => { // *** MANTENER 'async' ***
+        window.anadirEmpleado = async () => {
             const inputNombre = document.getElementById('newEmployeeName');
             const inputPass = document.getElementById('newEmployeePass');
             const nombre = inputNombre.value.trim().toLowerCase();
@@ -439,37 +417,32 @@
                 return;
             }
             
-            // Verificar si el empleado ya existe en Firestore
             const empleadoExistente = await getDoc(doc(db, 'empleados', nombre));
             if (empleadoExistente.exists()) {
                 alert('Este empleado ya existe.');
                 return;
             }
 
-            // Añadir el nuevo empleado a Firestore
             const nuevoEmpleado = { nombre: nombre, passHash: hashPassword(pass), ultimoAnuncioVisto: 0 };
             try {
-                await setDoc(doc(db, 'empleados', nombre), nuevoEmpleado); // Guarda usando el nombre como ID del documento
-                empleados.push(nuevoEmpleado); // Añade al array local para actualizar la vista
-                // Inicializar fichajes y ventas para el nuevo empleado en las colecciones globales
+                await setDoc(doc(db, 'empleados', nombre), nuevoEmpleado);
+                empleados.push(nuevoEmpleado);
                 fichajes[nombre] = { total: 0, hoy: 0, semana: 0, fecha: new Date().toISOString().split('T')[0], numSemana: getWeekNumber(new Date()), fichado: false, inicio: null };
                 ventas[nombre] = { productos: {}, fecha: '' };
                 alert(`Empleado ${nombre} añadido con éxito.`);
-                mostrarPanelAdmin(); // Vuelve a mostrar el panel para refrescar la lista
+                mostrarPanelAdmin();
             } catch (e) {
                 console.error("Error al añadir empleado a Firestore:", e);
                 alert("Error al añadir el empleado. Por favor, inténtalo de nuevo.");
             }
         }
         
-        // *** cambiarContrasena - AHORA ASÍNCRONA ***
-        window.cambiarContrasena = async (nombre) => { // *** MANTENER 'async' ***
+        window.cambiarContrasena = async (nombre) => {
             const nuevaPass = prompt(`Introduce la nueva contraseña para ${nombre}:`);
             if (nuevaPass) {
                 try {
                     const empleadoRef = doc(db, 'empleados', nombre);
                     await updateDoc(empleadoRef, { passHash: hashPassword(nuevaPass) });
-                    // Actualiza también el array local 'empleados' para reflejar el cambio
                     const empleadoLocal = empleados.find(e => e.nombre === nombre);
                     if (empleadoLocal) {
                         empleadoLocal.passHash = hashPassword(nuevaPass);
@@ -483,22 +456,17 @@
             }
         }
 
-        // *** eliminarEmpleado - AHORA ASÍNCRONA ***
-        window.eliminarEmpleado = async (nombre) => { // *** MANTENER 'async' ***
+        window.eliminarEmpleado = async (nombre) => {
             if (nombre === 'tito giovanni') {
                 alert('No se puede eliminar al administrador principal.');
                 return;
             }
             if (confirm(`¿Estás seguro de que quieres eliminar a ${nombre}?\nEsta acción es permanente y borrará todos sus datos de empleados, fichajes y ventas.`)) {
                 try {
-                    // Eliminar de la colección 'empleados'
                     await deleteDoc(doc(db, 'empleados', nombre));
-                    // Eliminar de la colección 'fichajes'
                     await deleteDoc(doc(db, 'fichajes', nombre));
-                    // Eliminar de la colección 'ventas'
                     await deleteDoc(doc(db, 'ventas', nombre));
 
-                    // Actualizar variables locales
                     empleados = empleados.filter(e => e.nombre !== nombre);
                     delete fichajes[nombre];
                     delete ventas[nombre];
@@ -512,17 +480,16 @@
             }
         }
 
-        // *** fichar - AHORA ASÍNCRONA ***
-        window.fichar = async (nombre) => { // *** AÑADIDO 'async' ***
-            let datosFichaje = await gestionarReseteoDatos(nombre); // Asegura que los datos locales están al día
+        window.fichar = async (nombre) => {
+            let datosFichaje = await gestionarReseteoDatos(nombre);
 
             if (!datosFichaje.fichado) {
                 datosFichaje.fichado = true;
                 datosFichaje.inicio = Date.now();
-                fichajes[nombre] = datosFichaje; // Actualiza la variable global
+                fichajes[nombre] = datosFichaje;
 
                 try {
-                    await setDoc(doc(db, 'fichajes', nombre), datosFichaje); // Guarda en Firestore
+                    await setDoc(doc(db, 'fichajes', nombre), datosFichaje);
                     mostrarPanelEmpleados(nombre);
                     iniciarRelojFichaje(datosFichaje.inicio, datosFichaje.hoy, datosFichaje.semana, datosFichaje.total);
                 } catch (e) {
@@ -532,10 +499,9 @@
             }
         }
 
-        // *** desfichar - AHORA ASÍNCRONA ***
-        window.desfichar = async (nombre) => { // *** AÑADIDO 'async' ***
+        window.desfichar = async (nombre) => {
             detenerRelojFichaje();
-            let datosFichaje = await gestionarReseteoDatos(nombre); // Asegura que los datos locales están al día
+            let datosFichaje = await gestionarReseteoDatos(nombre);
 
             if (datosFichaje.fichado) {
                 const tiempoTrabajado = Date.now() - datosFichaje.inicio;
@@ -544,10 +510,10 @@
                 datosFichaje.total += tiempoTrabajado;
                 datosFichaje.fichado = false;
                 datosFichaje.inicio = null;
-                fichajes[nombre] = datosFichaje; // Actualiza la variable global
+                fichajes[nombre] = datosFichaje;
 
                 try {
-                    await setDoc(doc(db, 'fichajes', nombre), datosFichaje); // Guarda en Firestore
+                    await setDoc(doc(db, 'fichajes', nombre), datosFichaje);
                     mostrarPanelEmpleados(nombre);
                 } catch (e) {
                     console.error("Error al fichar salida en Firestore:", e);
@@ -557,8 +523,7 @@
         }
         window.cerrarSesion = () => { detenerRelojFichaje(); detenerRelojHabitaciones(); detenerDashboard(); sessionStorage.removeItem('currentUser'); mostrarInicio(); }
         
-        // *** reservarHabitacion - AHORA ASÍNCRONA ***
-        window.reservarHabitacion = async (id) => { // *** AÑADIDO 'async' ***
+        window.reservarHabitacion = async (id) => {
             const hab = habitaciones.find(h => h.id === id);
             if (!hab) return;
 
@@ -577,40 +542,36 @@
             inicioReserva.setHours(parseInt(h), parseInt(m), 0, 0);
             const finReserva = new Date(inicioReserva.getTime() + duracion * 60 * 60 * 1000);
 
-            // Verificar conflicto de horario
             const hayConflicto = hab.reservas.some(r => (inicioReserva.getTime() < r.fin) && (finReserva.getTime() > r.inicio));
             if (hayConflicto) {
                 alert("Conflicto de horario. La habitación ya está reservada en ese tramo.");
                 return;
             }
 
-            // Añadir nueva reserva
             hab.reservas.push({ id: Date.now(), cliente: cliente, inicio: inicioReserva.getTime(), fin: finReserva.getTime() });
             
             try {
-                // Guardar la habitación actualizada en Firestore
-                await setDoc(doc(db, 'habitaciones', String(hab.id)), hab); // Usar String(hab.id) como ID del documento
+                await setDoc(doc(db, 'habitaciones', String(hab.id)), hab);
                 alert(`¡Reserva confirmada para ${cliente} en ${hab.nombre}!`);
-                mostrarPanelHabitaciones(); // Refrescar el panel
+                mostrarPanelHabitaciones();
             } catch (e) {
                 console.error("Error al reservar habitación en Firestore:", e);
                 alert("Error al confirmar la reserva. Por favor, inténtalo de nuevo.");
             }
         }
         
-        // *** cancelarReserva - AHORA ASÍNCRONA ***
-        window.cancelarReserva = async (habId, reservaId, nombreEmpleado) => { // *** AÑADIDO 'async' ***
+        window.cancelarReserva = async (habId, reservaId, nombreEmpleado) => {
             const hab = habitaciones.find(h => h.id === habId);
             if (!hab) return;
 
             const reservaIndex = hab.reservas.findIndex(r => r.id === reservaId);
             if (reservaIndex > -1) {
                 if (confirm(`¿Seguro que quieres cancelar la reserva de '${hab.reservas[reservaIndex].cliente}'?`)) {
-                    hab.reservas.splice(reservaIndex, 1); // Elimina del array local
+                    hab.reservas.splice(reservaIndex, 1);
                     try {
-                        await setDoc(doc(db, 'habitaciones', String(hab.id)), hab); // Guarda en Firestore
+                        await setDoc(doc(db, 'habitaciones', String(hab.id)), hab);
                         alert("Reserva cancelada.");
-                        mostrarPanelEmpleados(nombreEmpleado); // Refresca el panel
+                        mostrarPanelEmpleados(nombreEmpleado);
                     } catch (e) {
                         console.error("Error al cancelar reserva en Firestore:", e);
                         alert("Error al cancelar la reserva. Por favor, inténtalo de nuevo.");
@@ -619,17 +580,16 @@
             }
         }
         
-        // *** ocuparHabitacionAhora - AHORA ASÍNCRONA ***
-        window.ocuparHabitacionAhora = async (id, nombreEmpleado) => { // *** AÑADIDO 'async' ***
+        window.ocuparHabitacionAhora = async (id, nombreEmpleado) => {
             const hab = habitaciones.find(h => h.id === id);
             if (hab && getEstadoHabitacion(hab).estado === 'disponible') {
                 const ahora = Date.now();
                 const nuevaReserva = { id: ahora, cliente: 'Ocupación Directa', inicio: ahora, fin: ahora + 30 * 60 * 1000 };
-                hab.reservas.push(nuevaReserva); // Añade al array local
+                hab.reservas.push(nuevaReserva);
                 try {
-                    await setDoc(doc(db, 'habitaciones', String(hab.id)), hab); // Guarda en Firestore
+                    await setDoc(doc(db, 'habitaciones', String(hab.id)), hab);
                     alert(`Habitación ${hab.nombre} ocupada directamente.`);
-                    mostrarPanelEmpleados(nombreEmpleado); // Refresca el panel
+                    mostrarPanelEmpleados(nombreEmpleado);
                 } catch (e) {
                     console.error("Error al ocupar habitación en Firestore:", e);
                     alert("Error al ocupar la habitación. Por favor, inténtalo de nuevo.");
@@ -637,18 +597,17 @@
             }
         }
 
-        // *** anadirTiempoHabitacion - AHORA ASÍNCRONA ***
-        window.anadirTiempoHabitacion = async (id, nombreEmpleado) => { // *** AÑADIDO 'async' ***
+        window.anadirTiempoHabitacion = async (id, nombreEmpleado) => {
             const hab = habitaciones.find(h => h.id === id);
             const ahora = Date.now();
             const reservaActual = hab.reservas.find(r => ahora >= r.inicio && ahora < r.fin);
             
             if (hab && reservaActual) {
-                reservaActual.fin += 30 * 60 * 1000; // Actualiza en el array local
+                reservaActual.fin += 30 * 60 * 1000;
                 try {
-                    await setDoc(doc(db, 'habitaciones', String(hab.id)), hab); // Guarda en Firestore
+                    await setDoc(doc(db, 'habitaciones', String(hab.id)), hab);
                     alert(`Tiempo añadido a la habitación ${hab.nombre}.`);
-                    mostrarPanelEmpleados(nombreEmpleado); // Refresca el panel
+                    mostrarPanelEmpleados(nombreEmpleado);
                 } catch (e) {
                     console.error("Error al añadir tiempo a habitación en Firestore:", e);
                     alert("Error al añadir tiempo. Por favor, inténtalo de nuevo.");
@@ -656,19 +615,18 @@
             }
         }
 
-        // *** liberarHabitacion - AHORA ASÍNCRONA ***
-        window.liberarHabitacion = async (id, nombreEmpleado) => { // *** AÑADIDO 'async' ***
+        window.liberarHabitacion = async (id, nombreEmpleado) => {
             const hab = habitaciones.find(h => h.id === id);
             const ahora = Date.now();
             const reservaActualIndex = hab.reservas.findIndex(r => ahora >= r.inicio && ahora < r.fin);
             
             if (reservaActualIndex > -1) {
                 if (confirm(`¿Seguro que quieres liberar la habitación y finalizar la sesión de '${hab.reservas[reservaActualIndex].cliente}'?`)) {
-                    hab.reservas.splice(reservaActualIndex, 1); // Elimina del array local
+                    hab.reservas.splice(reservaActualIndex, 1);
                     try {
-                        await setDoc(doc(db, 'habitaciones', String(hab.id)), hab); // Guarda en Firestore
+                        await setDoc(doc(db, 'habitaciones', String(hab.id)), hab);
                         alert(`Habitación ${hab.nombre} liberada.`);
-                        mostrarPanelEmpleados(nombreEmpleado); // Refresca el panel
+                        mostrarPanelEmpleados(nombreEmpleado);
                     } catch (e) {
                         console.error("Error al liberar habitación en Firestore:", e);
                         alert("Error al liberar la habitación. Por favor, inténtalo de nuevo.");
@@ -679,19 +637,16 @@
             }
         }
 
-        // *** publicarAnuncio - AHORA ASÍNCRONA ***
-        window.publicarAnuncio = async () => { // *** AÑADIDO 'async' ***
+        window.publicarAnuncio = async () => {
             const texto = document.getElementById('anuncioTexto').value.trim();
             if (texto) {
                 const nuevoAnuncio = { id: Date.now(), texto: texto };
                 try {
-                    // Firestore asignará un ID automáticamente, o podemos usar Date.now().
-                    // Usaremos Date.now() como ID del documento para que podamos ordenar por él.
                     await setDoc(doc(db, 'anuncios', String(nuevoAnuncio.id)), nuevoAnuncio);
-                    anuncios.unshift(nuevoAnuncio); // Añade al array local al principio
+                    anuncios.unshift(nuevoAnuncio);
                     document.getElementById('anuncioTexto').value = '';
                     alert('Anuncio publicado.');
-                    mostrarPanelAdmin(); // Refresca el panel
+                    mostrarPanelAdmin();
                 } catch (e) {
                     console.error("Error al publicar anuncio en Firestore:", e);
                     alert("Error al publicar el anuncio. Por favor, inténtalo de nuevo.");
@@ -699,16 +654,13 @@
             }
         }
         
-        // *** mostrarAnuncios - AHORA ASÍNCRONA ***
-        window.mostrarAnuncios = async (nombre) => { // *** AÑADIDO 'async' ***
-            // Asegúrate de que los anuncios estén actualizados
+        window.mostrarAnuncios = async (nombre) => {
             await cargarTodosLosAnuncios(); 
             
             let mensaje = "Últimos Anuncios:\n\n";
             if (anuncios.length === 0) {
                 mensaje = "No hay anuncios recientes.";
             } else {
-                // Ordena por ID descendente (más reciente primero)
                 anuncios.sort((a, b) => b.id - a.id).slice(0, 5).forEach(anuncio => {
                     mensaje += `- ${anuncio.texto}\n`;
                 });
@@ -717,13 +669,12 @@
             marcarAnunciosComoVistos(nombre);
         }
 
-        // *** marcarAnunciosComoVistos - AHORA ASÍNCRONA ***
-        window.marcarAnunciosComoVistos = async (nombre) => { // *** AÑADIDO 'async' ***
+        window.marcarAnunciosComoVistos = async (nombre) => {
             const empleado = empleados.find(e => e.nombre === nombre);
             if (empleado && anuncios.length > 0) {
-                empleado.ultimoAnuncioVisto = anuncios[0].id; // Asume que anuncios[0] es el más reciente
+                empleado.ultimoAnuncioVisto = anuncios[0].id;
                 try {
-                    await setDoc(doc(db, 'empleados', nombre), empleado); // Actualiza en Firestore
+                    await setDoc(doc(db, 'empleados', nombre), empleado);
                     mostrarPanelEmpleados(nombre);
                 } catch (e) {
                     console.error("Error al marcar anuncio visto en Firestore:", e);
@@ -731,21 +682,18 @@
             }
         }
 
-        // *** comprobarNuevosAnuncios - AHORA ASÍNCRONA ***
-        window.comprobarNuevosAnuncios = async (nombre) => { // *** AÑADIDO 'async' ***
+        window.comprobarNuevosAnuncios = async (nombre) => {
             const empleado = empleados.find(e => e.nombre === nombre);
             if (!empleado) return false;
             
-            // Recarga los anuncios para tener la última versión
             await cargarTodosLosAnuncios();
 
             if (anuncios.length === 0) return false;
-            const ultimoAnuncioId = anuncios[0].id; // Asume que anuncios[0] es el más reciente (si están ordenados)
+            const ultimoAnuncioId = anuncios[0].id;
             return empleado.ultimoAnuncioVisto !== ultimoAnuncioId;
         }
 
-        // *** anadirAlLibroNegro - AHORA ASÍNCRONA ***
-        window.anadirAlLibroNegro = async () => { // *** AÑADIDO 'async' ***
+        window.anadirAlLibroNegro = async () => {
             const nombre = document.getElementById('libroNombre').value.trim();
             const relacion = document.getElementById('libroRelacion').value;
             const notas = document.getElementById('libroNotas').value.trim();
@@ -755,10 +703,9 @@
             }
             const nuevoContacto = { id: Date.now(), nombre, relacion, notas };
             try {
-                // Dejar que Firestore genere el ID del documento
-                await setDoc(doc(collection(db, 'libroNegro')), nuevoContacto); // Firestore genera un ID automático
-                libroNegro.push(nuevoContacto); // Añade al array local
-                actualizarLibroNegro(); // Refresca la lista visual
+                await setDoc(doc(collection(db, 'libroNegro')), nuevoContacto);
+                libroNegro.push(nuevoContacto);
+                actualizarLibroNegro();
                 document.getElementById('libroNombre').value = '';
                 document.getElementById('libroNotas').value = '';
             } catch (e) {
@@ -767,23 +714,18 @@
             }
         }
         
-        // *** eliminarDelLibro - AHORA ASÍNCRONA ***
-        window.eliminarDelLibro = async (id) => { // *** AÑADIDO 'async' ***
+        window.eliminarDelLibro = async (id) => {
             try {
-                // Para eliminar un documento por su ID, necesitamos el ID del documento en Firestore.
-                // Si usamos ID automático, tendríamos que buscar el documento por su 'id' interno.
-                // Si lo guardamos con id: Date.now(), entonces el ID del documento es el Date.now()
-                await deleteDoc(doc(db, 'libroNegro', String(id))); // Asume que el ID del documento es Date.now()
-                libroNegro = libroNegro.filter(c => c.id !== id); // Elimina del array local
-                actualizarLibroNegro(); // Refresca la lista visual
+                await deleteDoc(doc(db, 'libroNegro', String(id)));
+                libroNegro = libroNegro.filter(c => c.id !== id);
+                actualizarLibroNegro();
             } catch (e) {
                 console.error("Error al eliminar del Libro Negro en Firestore:", e);
                 alert("Error al eliminar el contacto. Por favor, inténtalo de nuevo.");
             }
         }
 
-        // *** actualizarLibroNegro - AHORA ASÍNCRONA (pero se llama desde un contexto que ya debería tener los datos cargados) ***
-        window.actualizarLibroNegro = () => { // No necesita ser async si 'libroNegro' ya está poblado
+        window.actualizarLibroNegro = () => {
             const lista = document.getElementById('listaLibroNegro');
             if (!lista) return;
             lista.innerHTML = '';
@@ -792,8 +734,7 @@
             });
         }
         
-        // *** anadirAListaNegra - AHORA ASÍNCRONA ***
-        window.anadirAListaNegra = async () => { // *** AÑADIDO 'async' ***
+        window.anadirAListaNegra = async () => {
             const nombre = document.getElementById('vetadoNombre').value.trim();
             const motivo = document.getElementById('vetadoMotivo').value.trim();
             if (!nombre || !motivo) {
@@ -802,10 +743,9 @@
             }
             const nuevaPersona = { id: Date.now(), nombre, motivo };
             try {
-                // Dejar que Firestore genere el ID del documento
-                await setDoc(doc(collection(db, 'listaNegra')), nuevaPersona); // Firestore genera un ID automático
-                listaNegra.push(nuevaPersona); // Añade al array local
-                actualizarListaNegra(); // Refresca la lista visual
+                await setDoc(doc(collection(db, 'listaNegra')), nuevaPersona);
+                listaNegra.push(nuevaPersona);
+                actualizarListaNegra();
                 document.getElementById('vetadoNombre').value = '';
                 document.getElementById('vetadoMotivo').value = '';
             } catch (e) {
@@ -814,20 +754,18 @@
             }
         }
 
-        // *** eliminarDeListaNegra - AHORA ASÍNCRONA ***
-        window.eliminarDeListaNegra = async (id) => { // *** AÑADIDO 'async' ***
+        window.eliminarDeListaNegra = async (id) => {
             try {
-                await deleteDoc(doc(db, 'listaNegra', String(id))); // Asume que el ID del documento es Date.now()
-                listaNegra = listaNegra.filter(p => p.id !== id); // Elimina del array local
-                actualizarListaNegra(); // Refresca la lista visual
+                await deleteDoc(doc(db, 'listaNegra', String(id)));
+                listaNegra = listaNegra.filter(p => p.id !== id);
+                actualizarListaNegra();
             } catch (e) {
                 console.error("Error al eliminar de la Lista Negra en Firestore:", e);
                 alert("Error al eliminar. Por favor, inténtalo de nuevo.");
             }
         }
 
-        // *** actualizarListaNegra - AHORA ASÍNCRONA (pero se llama desde un contexto que ya debería tener los datos cargados) ***
-        window.actualizarListaNegra = () => { // No necesita ser async
+        window.actualizarListaNegra = () => {
             const lista = document.getElementById('listaDeVetados');
             if (!lista) return;
             lista.innerHTML = '';
@@ -836,9 +774,7 @@
             });
         }
         
-        // *** mostrarListaNegraPublica - AHORA ASÍNCRONA ***
-        window.mostrarListaNegraPublica = async () => { // *** AÑADIDO 'async' ***
-            // Asegúrate de tener la lista negra actualizada
+        window.mostrarListaNegraPublica = async () => {
             await cargarListaNegra();
 
             let mensaje = "--- LISTA NEGRA ---\nPersonas con acceso denegado al local:\n\n";
@@ -859,13 +795,12 @@
         async function cargarTodosLosEmpleados() {
             try {
                 const empleadosSnapshot = await getDocs(collection(db, 'empleados'));
-                empleados = []; // Reinicia el array global
+                empleados = [];
                 if (!empleadosSnapshot.empty) {
                     empleadosSnapshot.forEach(doc => {
                         empleados.push(doc.data());
                     });
                 } else {
-                    // Si la colección está vacía, inicializa con los valores por defecto
                     empleados = [
                         {nombre: 'tito giovanni', passHash: hashPassword('1234'), ultimoAnuncioVisto: 0},
                         {nombre: 'marta', passHash: hashPassword('1234'), ultimoAnuncioVisto: 0}
@@ -878,7 +813,6 @@
                 console.log("Empleados cargados desde Firestore:", empleados);
             } catch (e) {
                 console.error("Error al cargar empleados desde Firestore:", e);
-                // Asegura que 'empleados' siempre tenga un valor por defecto en caso de error grave
                 if (!empleados || empleados.length === 0) {
                     empleados = [
                         {nombre: 'tito giovanni', passHash: hashPassword('1234'), ultimoAnuncioVisto: 0},
@@ -891,40 +825,39 @@
         async function cargarTodosLosFichajes() {
             try {
                 const fichajesSnapshot = await getDocs(collection(db, 'fichajes'));
-                fichajes = {}; // Reinicia el objeto global
+                fichajes = {};
                 fichajesSnapshot.forEach(doc => {
-                    fichajes[doc.id] = doc.data(); // El ID del documento es el nombre del empleado
+                    fichajes[doc.id] = doc.data();
                 });
                 console.log("Fichajes cargados desde Firestore:", fichajes);
             } catch (e) {
                 console.error("Error al cargar fichajes desde Firestore:", e);
-                fichajes = {}; // En caso de error, inicializa vacío
+                fichajes = {};
             }
         }
 
         async function cargarTodasLasVentas() {
             try {
                 const ventasSnapshot = await getDocs(collection(db, 'ventas'));
-                ventas = {}; // Reinicia el objeto global
+                ventas = {};
                 ventasSnapshot.forEach(doc => {
-                    ventas[doc.id] = doc.data(); // El ID del documento es el nombre del empleado
+                    ventas[doc.id] = doc.data();
                 });
                 console.log("Ventas cargadas desde Firestore:", ventas);
             } catch (e) {
                 console.error("Error al cargar ventas desde Firestore:", e);
-                ventas = {}; // En caso de error, inicializa vacío
+                ventas = {};
             }
         }
 
         async function cargarTodasLasHabitaciones() {
             try {
                 const habitacionesSnapshot = await getDocs(collection(db, 'habitaciones'));
-                habitaciones = []; // Reinicia el array global
+                habitaciones = [];
                 if (!habitacionesSnapshot.empty) {
                     habitacionesSnapshot.forEach(doc => {
                         habitaciones.push(doc.data());
                     });
-                    // Asegura que siempre haya 10 habitaciones, aunque no todas tengan datos
                     if (habitaciones.length < 10) {
                         for (let i = 1; i <= 10; i++) {
                             if (!habitaciones.find(h => h.id === i)) {
@@ -932,21 +865,18 @@
                             }
                         }
                     }
-                    // Ordenar por ID para consistencia
                     habitaciones.sort((a, b) => a.id - b.id);
                 } else {
-                    // Si la colección está vacía, inicializa las 10 habitaciones por defecto
                     for (let i = 1; i <= 10; i++) {
                         const nuevaHab = { id: i, nombre: `Habitación ${i}`, reservas: [] };
                         habitaciones.push(nuevaHab);
-                        await setDoc(doc(db, 'habitaciones', String(i)), nuevaHab); // Guarda en Firestore
+                        await setDoc(doc(db, 'habitaciones', String(i)), nuevaHab);
                     }
                     console.log("Habitaciones por defecto creadas en Firestore.");
                 }
                 console.log("Habitaciones cargadas desde Firestore:", habitaciones);
             } catch (e) {
                 console.error("Error al cargar habitaciones desde Firestore:", e);
-                // Si falla la carga, asegurar que al menos haya las 10 habitaciones base
                 if (!habitaciones || habitaciones.length < 10) {
                     habitaciones = [];
                     for (let i = 1; i <= 10; i++) {
@@ -958,45 +888,44 @@
 
         async function cargarTodosLosAnuncios() {
             try {
-                // Cargar y ordenar por ID (que es el timestamp, para que los más recientes salgan primero)
                 const anunciosQuery = query(collection(db, 'anuncios'), orderBy('id', 'desc'));
                 const anunciosSnapshot = await getDocs(anunciosQuery);
-                anuncios = []; // Reinicia el array global
+                anuncios = [];
                 anunciosSnapshot.forEach(doc => {
                     anuncios.push(doc.data());
                 });
                 console.log("Anuncios cargados desde Firestore:", anuncios);
             } catch (e) {
                 console.error("Error al cargar anuncios desde Firestore:", e);
-                anuncios = []; // En caso de error, inicializa vacío
+                anuncios = [];
             }
         }
 
         async function cargarLibroNegro() {
             try {
                 const libroNegroSnapshot = await getDocs(collection(db, 'libroNegro'));
-                libroNegro = []; // Reinicia el array global
+                libroNegro = [];
                 libroNegroSnapshot.forEach(doc => {
                     libroNegro.push(doc.data());
                 });
                 console.log("Libro Negro cargado desde Firestore:", libroNegro);
             } catch (e) {
                 console.error("Error al cargar Libro Negro desde Firestore:", e);
-                libroNegro = []; // En caso de error, inicializa vacío
+                libroNegro = [];
             }
         }
 
         async function cargarListaNegra() {
             try {
                 const listaNegraSnapshot = await getDocs(collection(db, 'listaNegra'));
-                listaNegra = []; // Reinicia el array global
+                listaNegra = [];
                 listaNegraSnapshot.forEach(doc => {
                     listaNegra.push(doc.data());
                 });
                 console.log("Lista Negra cargada desde Firestore:", listaNegra);
             } catch (e) {
                 console.error("Error al cargar Lista Negra desde Firestore:", e);
-                listaNegra = []; // En caso de error, inicializa vacío
+                listaNegra = [];
             }
         }
 
@@ -1014,11 +943,10 @@
         console.log("Carga de datos desde Firestore completada.");
 
 
-        const currentUser = sessionStorage.getItem('currentUser'); // Sigue usando sessionStorage para la sesión actual
+        const currentUser = sessionStorage.getItem('currentUser');
         if (currentUser && empleados.find(e => e.nombre === currentUser)) {
-            // Recargar datos específicos del usuario si ya había una sesión
-            await gestionarReseteoDatos(currentUser); // Fichajes
-            await gestionarReseteoDatos(currentUser, true); // Ventas
+            await gestionarReseteoDatos(currentUser);
+            await gestionarReseteoDatos(currentUser, true);
             mostrarPanelEmpleados(currentUser);
             const datosFichaje = fichajes[currentUser];
             if (datosFichaje && datosFichaje.fichado) {
