@@ -1,0 +1,9 @@
+{
+  "name": "openai-chat-function",
+  "version": "1.0.0",
+  "description": "Netlify function for OpenAI chat API",
+  "main": "openai-chat.js",
+  "dependencies": {
+    "openai": "^4.0.0"
+  }
+}
