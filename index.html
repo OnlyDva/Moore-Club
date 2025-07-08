@@ -33,11 +33,11 @@
     /* Estilos para el Chatbot */
     #chatbot-button {
         position: fixed;
-        bottom: 20px;
+        bottom: 40px; /* Más arriba */
         right: 20px;
         border-radius: 50%;
-        width: 60px;
-        height: 60px;
+        width: 80px; /* Más grande */
+        height: 80px; /* Más grande */
         overflow: hidden;
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
         cursor: pointer;
@@ -62,10 +62,10 @@
 
     #chatbot-container {
         position: fixed;
-        bottom: 90px;
+        bottom: 120px; /* Encima del botón más grande */
         right: 20px;
-        width: 350px;
-        height: 500px;
+        width: 400px; /* Más grande */
+        height: 550px; /* Más grande */
         background-color: #1a1a2e;
         border-radius: 10px;
         box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
@@ -217,11 +217,7 @@
   </div>
 
   <script>
-    // *** ¡ATENCIÓN! LA CLAVE API HA SIDO ELIMINADA DE AQUÍ POR SEGURIDAD. ***
-    // Ahora la llamada a la IA se hará a través de tu Netlify Function.
-    
-    // Configuración del modelo (puedes probar con otros si quieres, como "gpt-3.5-turbo" o "gpt-4o-mini")
-    const OPENAI_MODEL = "gpt-3.5-turbo"; // O "gpt-4o-mini" para una opción más económica y ligera si te da error el 3.5
+    const OPENAI_MODEL = "gpt-3.5-turbo";
 
     // ===================================================================================
     //  LÓGICA DEL CHATBOT
@@ -233,12 +229,11 @@
     const chatbotInput = document.getElementById('chatbot-input');
     const chatbotSendButton = document.getElementById('chatbot-send');
 
-    // Muestra/Oculta el chatbot
     chatbotButton.addEventListener('click', () => {
       chatbotContainer.style.display = chatbotContainer.style.display === 'flex' ? 'none' : 'flex';
       if (chatbotContainer.style.display === 'flex') {
-        chatbotInput.focus(); // Enfoca el input al abrir
-        chatbotMessages.scrollTop = chatbotMessages.scrollHeight; // Desplaza al final
+        chatbotInput.focus();
+        chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
       }
     });
 
@@ -246,28 +241,24 @@
       chatbotContainer.style.display = 'none';
     });
 
-    // Función para añadir mensajes al chat
     function addMessage(text, sender) {
       const messageElement = document.createElement('div');
       messageElement.classList.add('message', sender);
       messageElement.textContent = text;
       chatbotMessages.appendChild(messageElement);
-      chatbotMessages.scrollTop = chatbotMessages.scrollHeight; // Auto-scroll
+      chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
     }
 
-    // Función para enviar mensaje a OpenAI (AHORA A TRAVÉS DE NETLIFY FUNCTION)
     async function sendMessageToOpenAI(message) {
-      addMessage(message, 'user'); // Muestra el mensaje del usuario
+      addMessage(message, 'user');
 
       try {
-        addMessage('Escribiendo...', 'bot'); // Mensaje de "pensando" del bot
+        addMessage('Escribiendo...', 'bot');
 
-        // *** LA LLAMADA A LA API AHORA VA A TU FUNCIÓN DE NETLIFY ***
-        const response = await fetch('/netlify/functions/openai-chat', { // URL relativa a tu función
+        const response = await fetch('/netlify/functions/openai-chat', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
-            // Ya no necesitas 'Authorization' aquí, la función de Netlify lo manejará con la clave segura
           },
           body: JSON.stringify({
             model: OPENAI_MODEL,
@@ -281,32 +272,28 @@
 
         const data = await response.json();
         
-        // Elimina el mensaje "Escribiendo..."
         if (chatbotMessages.lastChild && chatbotMessages.lastChild.textContent === 'Escribiendo...') {
             chatbotMessages.removeChild(chatbotMessages.lastChild);
         }
 
-        if (response.ok) { // Verifica si la respuesta HTTP es exitosa (200-299)
-          const botResponse = data.result; // Tu función de Netlify devuelve la respuesta en 'result'
-          addMessage(botResponse, 'bot'); // Muestra la respuesta del bot
+        if (response.ok) {
+          const botResponse = data.result;
+          addMessage(botResponse, 'bot');
         } else {
-          // Si hay un error de la función de Netlify
           console.error('Error de la Netlify Function:', data);
           addMessage(`Lo siento, hubo un error al procesar tu solicitud: ${data.error || 'Error desconocido'}`, 'bot');
         }
       } catch (error) {
-        // Elimina el mensaje "Escribiendo..." en caso de error de red
         if (chatbotMessages.lastChild && chatbotMessages.lastChild.textContent === 'Escribiendo...') {
             chatbotMessages.removeChild(chatbotMessages.lastChild);
         }
         console.error('Error al conectar con la Netlify Function:', error);
         addMessage('Lo siento, no pude conectar con el asistente en este momento. Inténtalo más tarde.', 'bot');
       } finally {
-        chatbotInput.value = ''; // Limpia el input
+        chatbotInput.value = '';
       }
     }
 
-    // Evento al enviar mensaje (botón o Enter)
     chatbotSendButton.addEventListener('click', () => {
       const message = chatbotInput.value.trim();
       if (message) {
@@ -625,7 +612,7 @@
             if (empleado && hashPassword(pass) === empleado.passHash) {
                 sessionStorage.setItem('currentUser', nombre);
                 await gestionarReseteoDatos(nombre);
-                await gestionarReseteoDatos(nombre, true);
+                await gestionarResionarReseteoDatos(nombre, true);
                 mostrarPanelEmpleados(nombre);
                 const datosFichaje = fichajes[nombre];
                 if (datosFichaje && datosFichaje.fichado) {
@@ -760,7 +747,8 @@
             const cliente = document.getElementById(`cliente-hab-${id}`).value.trim();
             const fecha = document.getElementById(`fecha-hab-${id}`).value;
             const hora = document.getElementById(`hora-hab-${id}`).value;
-            const duracion = parseInt(document.getElementById(`duracion-hab-${id}).value);
+            // CORRECCIÓN DEL SYNTAXERROR AQUÍ
+            const duracion = parseInt(document.getElementById(`duracion-hab-${id}`).value);
 
             if (!cliente || !fecha || !hora || isNaN(duracion) || duracion <= 0) {
                 alert("Por favor, rellena todos los campos y la duración.");
