@@ -38,7 +38,7 @@
         border-radius: 50%;
         width: 100px; /* Más grande */
         height: 100px; /* Más grande */
-        overflow: hidden;
+        overflow: hidden; /* Para asegurar que la imagen se recorte en el círculo */
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
         cursor: pointer;
         z-index: 1000;
@@ -48,7 +48,7 @@
     #chatbot-button img {
         width: 100%;
         height: 100%;
-        object-fit: cover;
+        object-fit: cover; /* Ajusta la imagen para que cubra el círculo, recortando si es necesario */
         display: block;
     }
     #chatbot-button:hover {
@@ -74,7 +74,7 @@
         z-index: 999;
         overflow: hidden;
         border: 2px solid #6b21a8;
-        display: none;
+        display: none; /* Oculto por defecto */
     }
     #chatbot-header {
         background-color: #6b21a8;
@@ -93,6 +93,15 @@
         color: white;
         font-size: 1.2em;
         cursor: pointer;
+    }
+    /* Estilo para el nuevo botón de minimizar */
+    #chatbot-minimize {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 1.5em; /* Un poco más grande para el icono de "-" */
+        cursor: pointer;
+        margin-right: 10px; /* Espacio entre minimizar y cerrar */
     }
     #chatbot-messages {
         flex-grow: 1;
@@ -206,7 +215,9 @@
   <div id="chatbot-container">
     <div id="chatbot-header">
       Asistente Moore Club
-      <button id="chatbot-close">X</button>
+      <div>
+          <button id="chatbot-minimize" title="Minimizar">_</button> <button id="chatbot-close" title="Cerrar">X</button>
+      </div>
     </div>
     <div id="chatbot-messages">
       </div>
@@ -225,10 +236,13 @@
     const chatbotButton = document.getElementById('chatbot-button');
     const chatbotContainer = document.getElementById('chatbot-container');
     const chatbotCloseButton = document.getElementById('chatbot-close');
+    // Nuevo elemento para el botón de minimizar
+    const chatbotMinimizeButton = document.getElementById('chatbot-minimize'); 
     const chatbotMessages = document.getElementById('chatbot-messages');
     const chatbotInput = document.getElementById('chatbot-input');
     const chatbotSendButton = document.getElementById('chatbot-send');
 
+    // Muestra/Oculta el chatbot
     chatbotButton.addEventListener('click', () => {
       chatbotContainer.style.display = chatbotContainer.style.display === 'flex' ? 'none' : 'flex';
       if (chatbotContainer.style.display === 'flex') {
@@ -239,7 +253,15 @@
 
     chatbotCloseButton.addEventListener('click', () => {
       chatbotContainer.style.display = 'none';
+      chatbotButton.style.display = 'flex'; // Asegura que el botón de Luna se vea al cerrar
     });
+
+    // Nueva lógica para el botón de minimizar
+    chatbotMinimizeButton.addEventListener('click', () => {
+        chatbotContainer.style.display = 'none'; // Simplemente ocultar la ventana
+        chatbotButton.style.display = 'flex'; // Asegura que el botón de Luna sea visible como "indicador"
+    });
+
 
     function addMessage(text, sender) {
       const messageElement = document.createElement('div');
@@ -611,9 +633,8 @@
 
             if (empleado && hashPassword(pass) === empleado.passHash) {
                 sessionStorage.setItem('currentUser', nombre);
-                await gestionarReseteoDatos(currentUser); // Esto gestiona fichajes
-                // *** CORRECCIÓN DE ERROR AQUÍ: LA LÍNEA REPETIDA Y MAL ESCRITA FUE ELIMINADA ***
-                await gestionarReseteoDatos(currentUser, true); // Esto gestiona ventas
+                await gestionarReseteoDatos(currentUser);
+                await gestionarReseteoDatos(currentUser, true);
                 mostrarPanelEmpleados(currentUser);
                 const datosFichaje = fichajes[currentUser];
                 if (datosFichaje && datosFichaje.fichado) {
