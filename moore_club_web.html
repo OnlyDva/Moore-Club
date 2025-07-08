@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Moore Club - La Tentación Empieza Aquí</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: url('mooreclub1.png') center top no-repeat;
+      background-size: cover;
+      background-attachment: fixed;
+    }
+    .bg-overlay {
+      background-color: rgba(0, 0, 0, 0.85);
+    }
+  </style>
+</head>
+<body class="text-purple-200">
+  <div class="bg-overlay min-h-screen">
+    <!-- NAV -->
+    <nav class="bg-purple-900 text-white px-6 py-4 flex justify-between items-center">
+      <h1 class="text-xl font-bold cursor-pointer" onclick="mostrarInicio()">Moore Club</h1>
+      <ul class="flex space-x-6 text-sm">
+        <li><a href="#" onclick="mostrarInicio()" class="hover:underline">Inicio</a></li>
+        <li><a href="#" onclick="mostrarLoginVIP()" class="hover:underline">Empleados</a></li>
+      </ul>
+    </nav>
+
+    <main id="contenido" class="p-8">
+      <h2 class="text-2xl font-bold mb-4">Bienvenido a Moore Club</h2>
+      <p>Explora nuestras secciones y vive la experiencia.</p>
+    </main>
+  </div>
+
+  <script>
+    let empleados = JSON.parse(localStorage.getItem('empleados')) || []
+    if (!empleados.includes('tito giovanni')) {
+      empleados.push('tito giovanni')
+      localStorage.setItem('empleados', JSON.stringify(empleados))
+    }
+
+    function guardarEmpleados() {
+      localStorage.setItem('empleados', JSON.stringify(empleados))
+    }
+
+    function mostrarLoginVIP() {
+      const contenido = document.getElementById('contenido')
+      contenido.innerHTML = `
+        <h2 class="text-2xl font-bold mb-4">Acceso Empleados</h2>
+        <div class="max-w-md bg-black bg-opacity-30 p-6 rounded shadow">
+          <label class="block mb-2">Nombre:</label>
+          <input id="nombreInput" type="text" class="w-full px-3 py-2 text-black mb-4" placeholder="nombre en minúsculas">
+          <label class="block mb-2">Apellido:</label>
+          <input id="apellidoInput" type="text" class="w-full px-3 py-2 text-black mb-4" placeholder="apellido en minúsculas">
+          <button onclick="verificarAccesoVIP()" class="bg-purple-700 hover:bg-purple-800 text-white px-4 py-2">Entrar</button>
+        </div>`
+    }
+
+    function verificarAccesoVIP() {
+      const nombre = document.getElementById('nombreInput')?.value.trim().toLowerCase()
+      const apellido = document.getElementById('apellidoInput')?.value.trim().toLowerCase()
+      const nombreCompleto = `${nombre} ${apellido}`
+      if (empleados.includes(nombreCompleto)) {
+        mostrarPanelFichaje()
+      } else {
+        alert('Acceso denegado')
+      }
+    }
+
+    function mostrarPanelFichaje() {
+      const contenido = document.getElementById('contenido')
+      contenido.innerHTML = `
+        <h2 class="text-2xl font-bold mb-4">Panel de Fichaje</h2>
+        <div class="grid md:grid-cols-2 gap-8">
+          <div>
+            <h3 class="font-bold mb-2">Registro de Fichajes</h3>
+            <input id="nuevoFichaje" type="text" placeholder="Nombre del fichaje" class="w-full px-4 py-2 mb-2 text-black" />
+            <button onclick="registrarFichaje()" class="bg-purple-700 hover:bg-purple-800 text-white px-4 py-2 mb-4">Fichar</button>
+            <ul id="listaFichajes" class="text-sm"></ul>
+          </div>
+          <div>
+            <h3 class="font-bold mb-2">Registro de Ventas</h3>
+            <input id="nuevaVenta" type="text" placeholder="Descripción venta" class="w-full px-4 py-2 mb-2 text-black" />
+            <button onclick="registrarVenta()" class="bg-purple-700 hover:bg-purple-800 text-white px-4 py-2 mb-4">Registrar Venta</button>
+            <ul id="listaVentas" class="text-sm"></ul>
+          </div>
+        </div>`
+      mostrarListaFichajes()
+      mostrarListaVentas()
+    }
+
+    let fichajes = JSON.parse(localStorage.getItem('fichajes')) || []
+    let ventas = JSON.parse(localStorage.getItem('ventas')) || []
+
+    function registrarFichaje() {
+      const campo = document.getElementById('nuevoFichaje')
+      const nombre = campo.value.trim()
+      if (nombre) {
+        fichajes.push(`${nombre} - Entrada: ${new Date().toLocaleString()}`)
+        localStorage.setItem('fichajes', JSON.stringify(fichajes))
+        mostrarListaFichajes()
+      }
+      campo.value = ''
+    }
+
+    function registrarVenta() {
+      const campo = document.getElementById('nuevaVenta')
+      const venta = campo.value.trim()
+      if (venta) {
+        ventas.push(`${venta} - ${new Date().toLocaleString()}`)
+        localStorage.setItem('ventas', JSON.stringify(ventas))
+        mostrarListaVentas()
+      }
+      campo.value = ''
+    }
+
+    function mostrarListaFichajes() {
+      const lista = document.getElementById('listaFichajes')
+      if (!lista) return
+      lista.innerHTML = ''
+      fichajes.forEach(f => {
+        const li = document.createElement('li')
+        li.textContent = f
+        lista.appendChild(li)
+      })
+    }
+
+    function mostrarListaVentas() {
+      const lista = document.getElementById('listaVentas')
+      if (!lista) return
+      lista.innerHTML = ''
+      ventas.forEach(v => {
+        const li = document.createElement('li')
+        li.textContent = v
+        lista.appendChild(li)
+      })
+    }
+
+    function mostrarInicio() {
+      const contenido = document.getElementById('contenido')
+      contenido.innerHTML = `
+        <h2 class="text-2xl font-bold mb-4">Bienvenido a Moore Club</h2>
+        <p>Explora nuestras secciones y vive la experiencia.</p>`
+    }
+  </script>
+</body>
+</html>
