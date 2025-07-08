@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Moore Club - La Tentación Empieza Aquí</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Moore Club - Fichaje con sesión</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body {
@@ -11,20 +11,39 @@
       background: url('mooreclub1.png') center top no-repeat;
       background-size: cover;
       background-attachment: fixed;
+      color: #d8b4fe; /* morado claro */
     }
     .bg-overlay {
       background-color: rgba(0, 0, 0, 0.85);
+    }
+    .btn {
+      background-color: #7c3aed;
+      padding: 0.5rem 1rem;
+      border-radius: 0.375rem;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      border: none;
+      margin-right: 0.5rem;
+    }
+    .btn:hover {
+      background-color: #5b21b6;
+    }
+    .time-display {
+      font-family: monospace;
+      font-size: 1.1rem;
+      margin-top: 0.5rem;
+      color: #a78bfa;
     }
   </style>
 </head>
 <body class="text-purple-200">
   <div class="bg-overlay min-h-screen">
-    <!-- NAV -->
     <nav class="bg-purple-900 text-white px-6 py-4 flex justify-between items-center">
       <h1 class="text-xl font-bold cursor-pointer" onclick="mostrarInicio()">Moore Club</h1>
       <ul class="flex space-x-6 text-sm">
         <li><a href="#" onclick="mostrarInicio()" class="hover:underline">Inicio</a></li>
-        <li><a href="#" onclick="mostrarLoginVIP()" class="hover:underline">Empleados</a></li>
+        <li><a href="#" onclick="checkSesionYMostrarPanel()" class="hover:underline">Empleados</a></li>
       </ul>
     </nav>
 
@@ -34,117 +53,161 @@
     </main>
   </div>
 
-  <script>
-    let empleados = JSON.parse(localStorage.getItem('empleados')) || []
-    if (!empleados.includes('tito giovanni')) {
-      empleados.push('tito giovanni')
-      localStorage.setItem('empleados', JSON.stringify(empleados))
+<script>
+  const empleados = ['tito giovanni', 'marta as']
+
+  let estadosTrabajo = JSON.parse(localStorage.getItem('estadosTrabajo')) || {}
+  let temporizadores = {}
+
+  function guardarEstados() {
+    localStorage.setItem('estadosTrabajo', JSON.stringify(estadosTrabajo))
+  }
+
+  function mostrarInicio() {
+    const contenido = document.getElementById('contenido')
+    contenido.innerHTML = `
+      <h2 class="text-2xl font-bold mb-4">Bienvenido a Moore Club</h2>
+      <p>Explora nuestras secciones y vive la experiencia.</p>`
+  }
+
+  function mostrarLoginVIP() {
+    const contenido = document.getElementById('contenido')
+    contenido.innerHTML = `
+      <h2 class="text-2xl font-bold mb-4">Acceso Empleados</h2>
+      <div class="max-w-md bg-black bg-opacity-30 p-6 rounded shadow">
+        <label class="block mb-2">Nombre:</label>
+        <input id="nombreInput" type="text" class="w-full px-3 py-2 text-black mb-4" placeholder="nombre en minúsculas">
+        <label class="block mb-2">Apellido:</label>
+        <input id="apellidoInput" type="text" class="w-full px-3 py-2 text-black mb-4" placeholder="apellido en minúsculas">
+        <button onclick="login()" class="btn">Entrar</button>
+      </div>`
+  }
+
+  function login() {
+    const nombre = document.getElementById('nombreInput').value.trim().toLowerCase()
+    const apellido = document.getElementById('apellidoInput').value.trim().toLowerCase()
+    const nombreCompleto = `${nombre} ${apellido}`
+    if (empleados.includes(nombreCompleto)) {
+      sessionStorage.setItem('usuarioActual', nombreCompleto)
+      mostrarPanelFichaje(nombreCompleto)
+    } else {
+      alert('Acceso denegado')
+    }
+  }
+
+  function logout() {
+    sessionStorage.removeItem('usuarioActual')
+    mostrarLoginVIP()
+  }
+
+  function checkSesionYMostrarPanel() {
+    const usuario = sessionStorage.getItem('usuarioActual')
+    if (usuario && empleados.includes(usuario)) {
+      mostrarPanelFichaje(usuario)
+    } else {
+      mostrarLoginVIP()
+    }
+  }
+
+  function formatearTiempo(ms) {
+    let totalSegundos = Math.floor(ms / 1000)
+    let horas = Math.floor(totalSegundos / 3600)
+    let minutos = Math.floor((totalSegundos % 3600) / 60)
+    let segundos = totalSegundos % 60
+    return `${horas.toString().padStart(2,'0')}:${minutos.toString().padStart(2,'0')}:${segundos.toString().padStart(2,'0')}`
+  }
+
+  function mostrarPanelFichaje(usuario) {
+    const contenido = document.getElementById('contenido')
+
+    contenido.innerHTML = `
+      <h2 class="text-2xl font-bold mb-4">Panel de Fichaje - ${usuario}</h2>
+      <button id="btnFichar" class="btn mb-2">Fichar Entrada</button>
+      <button id="btnDesfichar" class="btn mb-6">Fichar Salida</button>
+      <button id="btnLogout" class="btn mb-6 bg-red-600 hover:bg-red-700">Cerrar Sesión</button>
+      <div>
+        <h3>Tiempo trabajado:</h3>
+        <div id="tiempoTrabajado" class="time-display">00:00:00</div>
+      </div>
+      <div>
+        <h3>Estado general:</h3>
+        <pre id="estadoGeneral" class="bg-black bg-opacity-30 p-4 rounded text-sm"></pre>
+      </div>
+    `
+
+    if (!estadosTrabajo[usuario]) {
+      estadosTrabajo[usuario] = { fichado: false, inicio: null, tiempoAcumulado: 0 }
+      guardarEstados()
     }
 
-    function guardarEmpleados() {
-      localStorage.setItem('empleados', JSON.stringify(empleados))
+    const btnFichar = document.getElementById('btnFichar')
+    const btnDesfichar = document.getElementById('btnDesfichar')
+    const btnLogout = document.getElementById('btnLogout')
+    const tiempoDisplay = document.getElementById('tiempoTrabajado')
+    const estadoGeneral = document.getElementById('estadoGeneral')
+
+    function actualizarEstadoGeneral() {
+      estadoGeneral.textContent = JSON.stringify(estadosTrabajo, null, 2)
     }
 
-    function mostrarLoginVIP() {
-      const contenido = document.getElementById('contenido')
-      contenido.innerHTML = `
-        <h2 class="text-2xl font-bold mb-4">Acceso Empleados</h2>
-        <div class="max-w-md bg-black bg-opacity-30 p-6 rounded shadow">
-          <label class="block mb-2">Nombre:</label>
-          <input id="nombreInput" type="text" class="w-full px-3 py-2 text-black mb-4" placeholder="nombre en minúsculas">
-          <label class="block mb-2">Apellido:</label>
-          <input id="apellidoInput" type="text" class="w-full px-3 py-2 text-black mb-4" placeholder="apellido en minúsculas">
-          <button onclick="verificarAccesoVIP()" class="bg-purple-700 hover:bg-purple-800 text-white px-4 py-2">Entrar</button>
-        </div>`
-    }
-
-    function verificarAccesoVIP() {
-      const nombre = document.getElementById('nombreInput')?.value.trim().toLowerCase()
-      const apellido = document.getElementById('apellidoInput')?.value.trim().toLowerCase()
-      const nombreCompleto = `${nombre} ${apellido}`
-      if (empleados.includes(nombreCompleto)) {
-        mostrarPanelFichaje()
+    function actualizarTemporizador() {
+      let estado = estadosTrabajo[usuario]
+      if (estado.fichado && estado.inicio) {
+        let tiempoTranscurrido = Date.now() - estado.inicio + estado.tiempoAcumulado
+        tiempoDisplay.textContent = formatearTiempo(tiempoTranscurrido)
       } else {
-        alert('Acceso denegado')
+        tiempoDisplay.textContent = formatearTiempo(estado.tiempoAcumulado)
       }
     }
 
-    function mostrarPanelFichaje() {
-      const contenido = document.getElementById('contenido')
-      contenido.innerHTML = `
-        <h2 class="text-2xl font-bold mb-4">Panel de Fichaje</h2>
-        <div class="grid md:grid-cols-2 gap-8">
-          <div>
-            <h3 class="font-bold mb-2">Registro de Fichajes</h3>
-            <input id="nuevoFichaje" type="text" placeholder="Nombre del fichaje" class="w-full px-4 py-2 mb-2 text-black" />
-            <button onclick="registrarFichaje()" class="bg-purple-700 hover:bg-purple-800 text-white px-4 py-2 mb-4">Fichar</button>
-            <ul id="listaFichajes" class="text-sm"></ul>
-          </div>
-          <div>
-            <h3 class="font-bold mb-2">Registro de Ventas</h3>
-            <input id="nuevaVenta" type="text" placeholder="Descripción venta" class="w-full px-4 py-2 mb-2 text-black" />
-            <button onclick="registrarVenta()" class="bg-purple-700 hover:bg-purple-800 text-white px-4 py-2 mb-4">Registrar Venta</button>
-            <ul id="listaVentas" class="text-sm"></ul>
-          </div>
-        </div>`
-      mostrarListaFichajes()
-      mostrarListaVentas()
-    }
+    actualizarEstadoGeneral()
+    actualizarTemporizador()
 
-    let fichajes = JSON.parse(localStorage.getItem('fichajes')) || []
-    let ventas = JSON.parse(localStorage.getItem('ventas')) || []
+    if (temporizadores[usuario]) clearInterval(temporizadores[usuario])
+    temporizadores[usuario] = setInterval(actualizarTemporizador, 1000)
 
-    function registrarFichaje() {
-      const campo = document.getElementById('nuevoFichaje')
-      const nombre = campo.value.trim()
-      if (nombre) {
-        fichajes.push(`${nombre} - Entrada: ${new Date().toLocaleString()}`)
-        localStorage.setItem('fichajes', JSON.stringify(fichajes))
-        mostrarListaFichajes()
+    btnFichar.onclick = () => {
+      let estado = estadosTrabajo[usuario]
+      if (estado.fichado) {
+        alert('Ya estás fichado. Usa "Fichar Salida" para terminar tu turno.')
+        return
       }
-      campo.value = ''
+      estado.fichado = true
+      estado.inicio = Date.now()
+      guardarEstados()
+      actualizarEstadoGeneral()
+      actualizarTemporizador()
+      temporizadores[usuario] = setInterval(actualizarTemporizador, 1000)
+      alert('Fichado entrada')
     }
 
-    function registrarVenta() {
-      const campo = document.getElementById('nuevaVenta')
-      const venta = campo.value.trim()
-      if (venta) {
-        ventas.push(`${venta} - ${new Date().toLocaleString()}`)
-        localStorage.setItem('ventas', JSON.stringify(ventas))
-        mostrarListaVentas()
+    btnDesfichar.onclick = () => {
+      let estado = estadosTrabajo[usuario]
+      if (!estado.fichado) {
+        alert('No estás fichado. Usa "Fichar Entrada" para comenzar tu turno.')
+        return
       }
-      campo.value = ''
+      estado.fichado = false
+      estado.tiempoAcumulado += Date.now() - estado.inicio
+      estado.inicio = null
+      guardarEstados()
+      actualizarEstadoGeneral()
+      actualizarTemporizador()
+      clearInterval(temporizadores[usuario])
+      alert('Fichado salida, turno registrado')
     }
 
-    function mostrarListaFichajes() {
-      const lista = document.getElementById('listaFichajes')
-      if (!lista) return
-      lista.innerHTML = ''
-      fichajes.forEach(f => {
-        const li = document.createElement('li')
-        li.textContent = f
-        lista.appendChild(li)
-      })
+    btnLogout.onclick = () => {
+      logout()
     }
+  }
 
-    function mostrarListaVentas() {
-      const lista = document.getElementById('listaVentas')
-      if (!lista) return
-      lista.innerHTML = ''
-      ventas.forEach(v => {
-        const li = document.createElement('li')
-        li.textContent = v
-        lista.appendChild(li)
-      })
-    }
-
-    function mostrarInicio() {
-      const contenido = document.getElementById('contenido')
-      contenido.innerHTML = `
-        <h2 class="text-2xl font-bold mb-4">Bienvenido a Moore Club</h2>
-        <p>Explora nuestras secciones y vive la experiencia.</p>`
-    }
-  </script>
+  // Al cargar la página, comprobamos sesión activa
+  window.onload = () => {
+    checkSesionYMostrarPanel()
+  }
+</script>
 </body>
 </html>
+
 
