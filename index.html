@@ -46,8 +46,8 @@
     // ===================================================================================
     const productos = [ { id: 'tito_griego', nombre: 'Tito Dios Griego', descripcion: 'Figura divina, musculoso, con toga morada.', imagen: 'Tito.png' }, { id: 'la_tita', nombre: 'La Tita', descripcion: 'Muñeca provocadora con actitud descarada.', imagen: 'Tita.png' }, { id: 'mascara_cat', nombre: 'Máscara Dominante “Cat Vanilla”', descripcion: 'Cuero morado con orejas felinas.', imagen: 'Mascara.png' }, { id: 'pinzas_led', nombre: 'Pinzas LED “Sweet Pain”', descripcion: 'Pinzas con corazones LED que brillan.', imagen: 'Pinzas.png' }, { id: 'preservativos', nombre: 'Preservativos “Espadas del Deseo”', descripcion: 'Rojo y azul en envase negro brillante.', imagen: 'condones.png' }, { id: 'dildo_doble', nombre: 'Dildo Doble “Fusión Morada”', descripcion: 'Flexible y listo para retos atrevidos.', imagen: 'Dildo.webp' }, { id: 'banana', nombre: 'Banana Pelada', descripcion: 'Provocadora y dulce hasta el final.', imagen: 'banana.png' }, { id: 'magdalenas', nombre: 'Magdalenas con Glaseado Rosa', descripcion: 'Dos razones para pecar.', imagen: 'magdalenas.png' }, { id: 'berenjena', nombre: 'Berenjena Rellena', descripcion: 'Caliente y jugosa. Te va a dejar sudando.', imagen: 'berenjena.png' }, { id: 'coctel', nombre: 'Cóctel Dulce', descripcion: 'Tierno al principio, travieso al final.', imagen: 'Coctel.png' }, { id: 'trago_afrutado', nombre: 'Trago Afrutado', descripcion: 'Refresca... y se te queda pegado.', imagen: 'trago afrutado.png' }, { id: 'almejas', nombre: 'Almejas Picantes', descripcion: 'Suave por fuera, fuego por dentro.', imagen: 'almejas.png' }];
     let empleados = cargarDatos('empleados', ['tito giovanni']);
-    let fichajes = cargarDatos('fichajes', {});
-    let ventas = cargarDatos('ventas', {});
+    let fichajes;
+    let ventas;
     let masterInterval = null;
 
     // ===================================================================================
@@ -55,7 +55,6 @@
     // ===================================================================================
     function iniciarReloj(horaInicio, baseHoy, baseSemana, baseTotal) {
       detenerReloj();
-      
       masterInterval = setInterval(() => {
         const tiempoSesion = Date.now() - horaInicio;
         document.getElementById('tiempoHoy').textContent = formatearTiempo(baseHoy + tiempoSesion);
@@ -135,7 +134,6 @@
       let datosFichaje = gestionarReseteoTiempos(nombre);
       if (datosFichaje.fichado) {
         const tiempoTrabajado = Date.now() - datosFichaje.inicio;
-        console.log(`DIAGNÓSTICO: Tiempo trabajado en esta sesión: ${tiempoTrabajado} ms`);
         datosFichaje.hoy += tiempoTrabajado;
         datosFichaje.semana += tiempoTrabajado;
         datosFichaje.total += tiempoTrabajado;
@@ -156,32 +154,30 @@
     // ===================================================================================
     //  5. FUNCIONES AUXILIARES
     // ===================================================================================
-    function cargarDatos(clave, valorPorDefecto, storage = localStorage) {
-      const datosGuardados = storage.getItem(clave);
-      console.log(`DIAGNÓSTICO: Cargando '${clave}'. Datos:`, datosGuardados);
-      return datosGuardados ? JSON.parse(datosGuardados) : valorPorDefecto;
-    }
-    
-    function guardarDatos(clave, datos, storage = localStorage) {
-      const datosAguardar = JSON.stringify(datos);
-      console.log(`DIAGNÓSTICO: Guardando '${clave}'. Datos:`, datosAguardar);
-      storage.setItem(clave, datosAguardar);
-    }
-
+    function cargarDatos(clave, valorPorDefecto, storage = localStorage) { const datosGuardados = storage.getItem(clave); return datosGuardados ? JSON.parse(datosGuardados) : valorPorDefecto; }
+    function guardarDatos(clave, datos, storage = localStorage) { storage.setItem(clave, JSON.stringify(datos)); }
     function crearTarjetaProducto(producto, esPanelVenta = false) { const totalVentas = ventas[producto.id] || 0; const inputVentasHTML = esPanelVenta ? `<input type="number" min="0" value="0" id="input-${producto.id}" class="w-20 px-2 py-1 mt-2 text-black rounded" onchange="actualizarVentas('${producto.id}')" /><p class="mt-2 text-sm">Total: <span id="total-${producto.id}">${totalVentas}</span></p>` : `<p class="text-purple-300 text-sm mt-2">${producto.descripcion}</p>`; return `<div class="producto-card bg-purple-800 rounded-lg p-4 text-center shadow-md flex flex-col justify-between"><div><img src="${producto.imagen}" alt="${producto.nombre}" class="mx-auto mb-3" /><h3 class="text-white font-semibold">${producto.nombre}</h3></div><div>${inputVentasHTML}</div></div>`; }
     function actualizarVentas(productoId) { const input = document.getElementById(`input-${productoId}`); let nuevaCantidad = parseInt(input.value); if (isNaN(nuevaCantidad) || nuevaCantidad < 0) { nuevaCantidad = 0; } ventas[productoId] = (ventas[productoId] || 0) + nuevaCantidad; guardarDatos('ventas', ventas); document.getElementById(`total-${productoId}`).textContent = ventas[productoId]; input.value = 0; }
     function formatearTiempo(ms) { if (isNaN(ms) || ms < 0) ms = 0; const totalSegundos = Math.floor(ms / 1000); const horas = String(Math.floor(totalSegundos / 3600)).padStart(2, '0'); const minutos = String(Math.floor((totalSegundos % 3600) / 60)).padStart(2, '0'); const segundos = String(totalSegundos % 60).padStart(2, '0'); return `${horas}:${minutos}:${segundos}`; }
     function getWeekNumber(d) { d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())); d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7)); var yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1)); return Math.ceil((((d - yearStart) / 86400000) + 1)/7); }
-    function gestionarReseteoTiempos(nombre) { const ahora = new Date(); const anio = ahora.getFullYear(); const mes = String(ahora.getMonth() + 1).padStart(2, '0'); const dia = String(ahora.getDate()).padStart(2, '0'); const hoyStr = `${anio}-${mes}-${dia}`; const semanaNum = getWeekNumber(ahora); let datos = fichajes[nombre] || {}; if (!datos.total) { datos = { total: 0, hoy: 0, semana: 0, fecha: hoyStr, numSemana: semanaNum, fichado: false, inicio: null }; } if (datos.fecha !== hoyStr) { datos.hoy = 0; datos.fecha = hoyStr; } if (datos.numSemana !== semanaNum) { datos.semana = 0; datos.numSemana = semanaNum; } fichajes[nombre] = datos; return datos; }
+    function gestionarReseteoTiempos(nombre) { const ahora = new Date(); const anio = ahora.getFullYear(); const mes = String(ahora.getMonth() + 1).padStart(2, '0'); const dia = String(ahora.getDate()).padStart(2, '0'); const hoyStr = `${anio}-${mes}-${dia}`; const semanaNum = getWeekNumber(ahora); let datos = fichajes[nombre] || {}; if (typeof datos !== 'object' || Array.isArray(datos)) { datos = {}; } if (!datos.total) { datos = { total: 0, hoy: 0, semana: 0, fecha: hoyStr, numSemana: semanaNum, fichado: false, inicio: null }; } if (datos.fecha !== hoyStr) { datos.hoy = 0; datos.fecha = hoyStr; } if (datos.numSemana !== semanaNum) { datos.semana = 0; datos.numSemana = semanaNum; } fichajes[nombre] = datos; return datos; }
 
     // ===================================================================================
     //  INICIALIZACIÓN
     // ===================================================================================
     document.addEventListener('DOMContentLoaded', () => {
-        console.log("DIAGNÓSTICO: Página cargada. Inicializando...");
-        const ventasGuardadas = cargarDatos('ventas', {});
-        productos.forEach(p => { if (ventasGuardadas[p.id] === undefined) { ventasGuardadas[p.id] = 0; }});
-        ventas = ventasGuardadas;
+        let loadedFichajes = cargarDatos('fichajes', {});
+        if (typeof loadedFichajes !== 'object' || Array.isArray(loadedFichajes) || loadedFichajes === null) {
+            loadedFichajes = {};
+        }
+        fichajes = loadedFichajes;
+
+        let loadedVentas = cargarDatos('ventas', {});
+        if (typeof loadedVentas !== 'object' || Array.isArray(loadedVentas) || loadedVentas === null) {
+            loadedVentas = {};
+        }
+        productos.forEach(p => { if (loadedVentas[p.id] === undefined) { loadedVentas[p.id] = 0; }});
+        ventas = loadedVentas;
 
         const currentUser = cargarDatos('currentUser', null, sessionStorage);
         if (currentUser && empleados.includes(currentUser)) {
