@@ -126,8 +126,9 @@
     sessionStorage.removeItem('empleadoActual')
     document.getElementById('contenido').innerHTML = `
       <main class="min-h-screen flex flex-col justify-center items-center px-6 py-12 bg-gradient-to-b from-black via-purple-900 to-black bg-opacity-90 text-purple-200">
-        <h1 class="text-5xl font-extrabold mb-12 drop-shadow-lg">Bienvenido a <span class="text-purple-400">Moore Club</span></h1>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 max-w-6xl w-full">
+        <h1 class="text-6xl font-extrabold mb-12 drop-shadow-lg text-center">Bienvenido a <span class="text-purple-400">Moore Club</span></h1>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 max-w-7xl w-full mb-16">
           <div class="bg-purple-900 bg-opacity-70 rounded-lg p-6 shadow-lg hover:shadow-xl transition-shadow cursor-pointer">
             <h2 class="text-2xl font-bold mb-3">Nuestra Historia</h2>
             <p class="text-purple-300 leading-relaxed">Un lugar de lujo y misterio donde cada noche es única</p>
@@ -145,7 +146,42 @@
             <p class="text-purple-300 leading-relaxed">Síguenos y mantente al día con nuestras novedades</p>
           </div>
         </div>
-        <button onclick="abrirEmpleados()" class="mt-16 px-12 py-4 bg-purple-700 hover:bg-purple-800 rounded-full text-white text-xl font-semibold shadow-lg transition duration-300">Acceso Empleados</button>
+
+        <section class="max-w-7xl w-full grid grid-cols-1 md:grid-cols-2 gap-10 mb-16">
+          <div class="bg-purple-900 bg-opacity-70 rounded-lg p-6 flex flex-col items-center text-center shadow-lg">
+            <img src="tito.png" alt="Tito Giovanni" class="w-48 rounded-full mb-4 shadow-xl" />
+            <h3 class="text-3xl font-semibold mb-2">Tito Giovanni</h3>
+            <p class="text-purple-300">Líder carismático y extravagante del Moore Club. Siempre con su traje morado y sombrero de copa, es la esencia del lujo y la diversión.</p>
+          </div>
+          <div class="bg-purple-900 bg-opacity-70 rounded-lg p-6 flex flex-col items-center text-center shadow-lg">
+            <img src="marta.png" alt="Marta AS" class="w-48 rounded-full mb-4 shadow-xl" />
+            <h3 class="text-3xl font-semibold mb-2">Marta AS</h3>
+            <p class="text-purple-300">La reina del club, pareja de Tito, con un estilo único y una presencia que domina el ambiente. Su energía hace vibrar cada evento.</p>
+          </div>
+        </section>
+
+        <section class="max-w-7xl w-full mb-16">
+          <h2 class="text-4xl font-bold mb-8 text-center">Objetos Emblemáticos</h2>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-10">
+            <div class="bg-purple-900 bg-opacity-70 rounded-lg p-6 text-center shadow-lg hover:shadow-xl transition-shadow cursor-pointer">
+              <img src="tito.png" alt="Peluche Tito Dios Griego" class="mx-auto mb-4 w-36" />
+              <h3 class="text-2xl font-semibold mb-2">Peluche Tito Dios Griego</h3>
+              <p class="text-purple-300">Un símbolo de poder y estilo, fiel a la esencia del Moore Club.</p>
+            </div>
+            <div class="bg-purple-900 bg-opacity-70 rounded-lg p-6 text-center shadow-lg hover:shadow-xl transition-shadow cursor-pointer">
+              <img src="mascara.png" alt="Máscara Dominante Cat Vanilla" class="mx-auto mb-4 w-36" />
+              <h3 class="text-2xl font-semibold mb-2">Máscara Dominante “Cat Vanilla”</h3>
+              <p class="text-purple-300">Un toque misterioso y seductor para las noches más inolvidables.</p>
+            </div>
+            <div class="bg-purple-900 bg-opacity-70 rounded-lg p-6 text-center shadow-lg hover:shadow-xl transition-shadow cursor-pointer">
+              <img src="condones.png" alt="Condones Espadas del Deseo" class="mx-auto mb-4 w-36" />
+              <h3 class="text-2xl font-semibold mb-2">Condones “Espadas del Deseo”</h3>
+              <p class="text-purple-300">Para quienes buscan que la pasión no tenga límites.</p>
+            </div>
+          </div>
+        </section>
+
+        <button onclick="abrirEmpleados()" class="mt-8 px-16 py-4 bg-purple-700 hover:bg-purple-800 rounded-full text-white text-2xl font-semibold shadow-lg transition duration-300">Acceso Empleados</button>
       </main>
     `
   }
