@@ -231,150 +231,216 @@
         // 2. Función para añadir mensajes a la ventana del chat
         function addMessageToChat(text, sender) {
             const messageElement = document.createElement('div');
-            messageElement.classList.add('message', sender);
+            // Nota: Cambié 'message' por 'chat-message' para evitar posibles conflictos CSS generales
+            // Y user/bot por sender-message
+            messageElement.classList.add('chat-message', `${sender}-message`);
             messageElement.textContent = text;
             chatbotMessages.appendChild(messageElement);
             chatbotMessages.scrollTop = chatbotMessages.scrollHeight; // Auto-scroll hacia abajo
         }
 
-// 3. Función para enviar el mensaje al "cerebro" (Netlify Function)
-async function handleSendMessage() {
-    const messageText = chatbotInput.value.trim();
-    if (!messageText) return;
+        // 3. Función para enviar el mensaje al "cerebro" (Netlify Function)
+        async function handleSendMessage() {
+            const messageText = chatbotInput.value.trim();
+            if (!messageText) return;
 
-    addMessageToChat(messageText, 'user');
-    chatbotInput.value = '';
+            addMessageToChat(messageText, 'user');
+            chatbotInput.value = '';
 
-    addMessageToChat('Escribiendo...', 'bot');
+            addMessageToChat('Escribiendo...', 'bot');
 
-    try {
-        const response = await fetch('/.netlify/functions/openai-chat', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: messageText })
-        });
+            try {
+                const response = await fetch('/.netlify/functions/openai-chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: messageText })
+                });
 
-        if (chatbotMessages.lastChild && chatbotMessages.lastChild.textContent === 'Escribiendo...') {
-            chatbotMessages.removeChild(chatbotMessages.lastChild);
-        }
+                if (chatbotMessages.lastChild && chatbotMessages.lastChild.textContent === 'Escribiendo...') {
+                    chatbotMessages.removeChild(chatbotMessages.lastChild);
+                }
 
-        if (!response.ok) {
-            throw new Error(`Error del servidor: ${response.statusText}`);
-        }
+                if (!response.ok) {
+                    throw new Error(`Error del servidor: ${response.statusText}`);
+                }
 
-        const data = await response.json();
-        const botReply = data.reply;
+                const data = await response.json();
+                const botReply = data.reply;
 
-        // --- ¡LA MAGIA DE LA INTERACCIÓN COMIENZA AQUÍ! ---
+                // --- ¡LA MAGIA DE LA INTERACCIÓN COMIENZA AQUÍ! ---
 
-        // Primero, procesamos los comandos GOTO que no deben mostrarse como mensaje de Luna
-        if (botReply.includes('GOTO_EMPLOYEES')) {
-            addMessageToChat("Claro que sí, cielo. Abriendo el portal de empleados...", 'bot');
-            mostrarLoginVIP();
-            return; // Salimos de la función después de ejecutar un comando GOTO
-        } else if (botReply.includes('GOTO_PRODUCTS')) {
-            addMessageToChat("¡Marchando un vistazo a nuestros tesoros! Atento...", 'bot');
-            mostrarPanelProductos();
-            return; // Salimos
-        } else if (botReply.includes('GOTO_ROOMS')) {
-            addMessageToChat("Te enseño nuestras suites del placer, bombón...", 'bot');
-            mostrarPanelHabitaciones();
-            return; // Salimos
-        }
+                // Primero, procesamos los comandos GOTO que no deben mostrarse como mensaje de Luna
+                if (botReply.includes('GOTO_EMPLOYEES')) {
+                    addMessageToChat("Claro que sí, cielo. Abriendo el portal de empleados...", 'bot');
+                    mostrarLoginVIP();
+                    return; // Salimos de la función después de ejecutar un comando GOTO
+                } else if (botReply.includes('GOTO_PRODUCTS')) {
+                    addMessageToChat("¡Marchando un vistazo a nuestros tesoros! Atento...", 'bot');
+                    mostrarPanelProductos();
+                    return; // Salimos
+                } else if (botReply.includes('GOTO_ROOMS')) {
+                    addMessageToChat("Te enseño nuestras suites del placer, bombón...", 'bot');
+                    mostrarPanelHabitaciones();
+                    return; // Salimos
+                }
 
-        // Si no es un comando GOTO, mostramos el mensaje de Luna normalmente
-        addMessageToChat(botReply, 'bot');
+                // Si no es un comando GOTO, mostramos el mensaje de Luna normalmente
+                addMessageToChat(botReply, 'bot');
 
-        // --- Lógica para la interacción de Luna con la web (después de mostrar el mensaje) ---
+                // --- Lógica para la interacción de Luna con la web (después de mostrar el mensaje) ---
 
-        // IMPORTANTE: Tu Netlify Function debe responder con estas frases clave.
+                // IMPORTANTE: Tu Netlify Function debe responder con estas frases clave.
 
-        // 1. Interacción con "Fichar" (Entrada/Salida)
-        // Frases clave que Luna diría: "Fichaje de entrada registrado, [NombreEmpleado]!" o "Fichaje de salida realizado, [NombreEmpleado]!"
-        if (botReply.toLowerCase().includes('fichaje de entrada registrado') || botReply.toLowerCase().includes('fichaje de salida realizado')) {
-            const currentEmployee = sessionStorage.getItem('currentUser'); // Obtenemos el empleado logeado
-            if (currentEmployee) {
-                if (botReply.toLowerCase().includes('fichaje de entrada registrado')) {
-                    if (typeof window.fichar === 'function') {
-                        await window.fichar(currentEmployee);
-                        console.log(`Luna activó el fichaje de entrada para ${currentEmployee}.`);
-                        addMessageToChat('¡El sistema ha registrado tu entrada!', 'bot'); // Confirmación extra de Luna
+                // 1. Interacción con "Fichar" (Entrada/Salida)
+                // Frases clave que Luna diría: "Fichaje de entrada registrado, [NombreEmpleado]!" o "Fichaje de salida realizado, [NombreEmpleado]!"
+                if (botReply.toLowerCase().includes('fichaje de entrada registrado') || botReply.toLowerCase().includes('fichaje de salida realizado')) {
+                    const currentEmployee = sessionStorage.getItem('currentUser'); // Obtenemos el empleado logeado
+                    if (currentEmployee) {
+                        if (botReply.toLowerCase().includes('fichaje de entrada registrado')) {
+                            if (typeof window.fichar === 'function') {
+                                await window.fichar(currentEmployee);
+                                console.log(`Luna activó el fichaje de entrada para ${currentEmployee}.`);
+                                addMessageToChat('¡El sistema ha registrado tu entrada!', 'bot'); // Confirmación extra de Luna
+                            } else {
+                                console.warn("La función 'window.fichar' no está disponible o no se puede llamar directamente.");
+                                addMessageToChat('Hubo un problema al registrar tu entrada. Por favor, inténtalo manualmente.', 'bot');
+                            }
+                        } else if (botReply.toLowerCase().includes('fichaje de salida realizado')) {
+                            if (typeof window.desfichar === 'function') {
+                                await window.desfichar(currentEmployee);
+                                console.log(`Luna activó el fichaje de salida para ${currentEmployee}.`);
+                                addMessageToChat('¡El sistema ha registrado tu salida!', 'bot'); // Confirmación extra de Luna
+                            } else {
+                                console.warn("La función 'window.desfichar' no está disponible o no se puede llamar directamente.");
+                                addMessageToChat('Hubo un problema al registrar tu salida. Por favor, inténtalo manualmente.', 'bot');
+                            }
+                        }
                     } else {
-                        console.warn("La función 'window.fichar' no está disponible.");
-                        addMessageToChat('Hubo un problema al registrar tu entrada. Por favor, inténtalo manualmente.', 'bot');
-                    }
-                } else if (botReply.toLowerCase().includes('fichaje de salida realizado')) {
-                    if (typeof window.desfichar === 'function') {
-                        await window.desfichar(currentEmployee);
-                        console.log(`Luna activó el fichaje de salida para ${currentEmployee}.`);
-                        addMessageToChat('¡El sistema ha registrado tu salida!', 'bot'); // Confirmación extra de Luna
-                    } else {
-                        console.warn("La función 'window.desfichar' no está disponible.");
-                        addMessageToChat('Hubo un problema al registrar tu salida. Por favor, inténtalo manualmente.', 'bot');
+                        addMessageToChat('Para registrar el fichaje, por favor, asegúrate de haber iniciado sesión como empleado.', 'bot');
                     }
                 }
-            } else {
-                addMessageToChat('Para registrar el fichaje, por favor, asegúrate de haber iniciado sesión como empleado.', 'bot');
-            }
-        }
 
-        // 2. Interacción para "Aumentar Peluches Vendidos"
-        // Frases clave que Luna diría: "Venta de peluche registrada. Producto: [ID_PRODUCTO]. Cantidad: [CANTIDAD]."
-        if (botReply.toLowerCase().includes('venta de peluche registrada')) {
-            const currentEmployee = sessionStorage.getItem('currentUser');
-            if (currentEmployee) {
-                const productoIdMatch = botReply.match(/producto:\s*([a-zA-Z0-9_]+)/i); // Extrae el ID del producto
-                const cantidadMatch = botReply.match(/cantidad:\s*(\d+)/i); // Extrae la cantidad
+                // 2. Interacción para "Aumentar Peluches Vendidos"
+                // Frases clave que Luna diría: "Venta de peluche registrada. Producto: [ID_PRODUCTO]. Cantidad: [CANTIDAD]."
+                if (botReply.toLowerCase().includes('venta de peluche registrada')) {
+                    const currentEmployee = sessionStorage.getItem('currentUser');
+                    if (currentEmployee) {
+                        const productoIdMatch = botReply.match(/producto:\s*([a-zA-Z0-9_]+)/i); // Extrae el ID del producto
+                        const cantidadMatch = botReply.match(/cantidad:\s*(\d+)/i); // Extrae la cantidad
 
-                const productoId = productoIdMatch && productoIdMatch[1] ? productoIdMatch[1] : null;
-                const cantidad = cantidadMatch && cantidadMatch[1] ? parseInt(cantidadMatch[1]) : 1; // Por defecto 1 si no se especifica
+                        const productoId = productoIdMatch && productoIdMatch[1] ? productoIdMatch[1] : null;
+                        const cantidad = cantidadMatch && cantidadMatch[1] ? parseInt(cantidadMatch[1]) : 1; // Por defecto 1 si no se especifica
 
-                if (productoId && !isNaN(cantidad) && cantidad > 0) {
-                    // Crea un input temporal para simular la interacción que espera actualizarVentas
-                    const tempInput = document.createElement('input');
-                    tempInput.type = 'number';
-                    tempInput.value = cantidad.toString();
-                    tempInput.id = `input-${productoId}`; // ID que 'actualizarVentas' buscará
-                    document.body.appendChild(tempInput); // Lo añadimos temporalmente al DOM
+                        if (productoId && !isNaN(cantidad) && cantidad > 0) {
+                            // Crea un input temporal para simular la interacción que espera actualizarVentas
+                            // Tu función 'actualizarVentas' espera leer un input.
+                            const tempInput = document.createElement('input');
+                            tempInput.type = 'number';
+                            tempInput.value = cantidad.toString();
+                            tempInput.id = `input-${productoId}`; // ID que 'actualizarVentas' buscará
+                            document.body.appendChild(tempInput); // Lo añadimos temporalmente al DOM
 
-                    if (typeof window.actualizarVentas === 'function') {
-                        await window.actualizarVentas(productoId, currentEmployee);
-                        addMessageToChat(`¡Confirmado! ${cantidad} unidad(es) de ${productoId} registrada(s).`, 'bot');
+                            if (typeof window.actualizarVentas === 'function') {
+                                await window.actualizarVentas(productoId, currentEmployee); // Llama a la función
+                                addMessageToChat(`¡Confirmado! ${cantidad} unidad(es) de ${productoId} registrada(s).`, 'bot');
+                            } else {
+                                console.warn("La función 'window.actualizarVentas' no está disponible o no se puede llamar directamente.");
+                                addMessageToChat('No pude registrar la venta directamente. Por favor, hazlo manualmente.', 'bot');
+                            }
+                            document.body.removeChild(tempInput); // Eliminamos el input temporal
+                        } else {
+                            addMessageToChat('Para registrar la venta, Luna necesita el ID del producto y la cantidad (ej. "Producto: tito_griego. Cantidad: 1").', 'bot');
+                        }
                     } else {
-                        console.warn("La función 'window.actualizarVentas' no está disponible.");
-                        addMessageToChat('No pude registrar la venta directamente. Por favor, hazlo manualmente.', 'bot');
+                        addMessageToChat('Para registrar ventas, por favor, inicia sesión como empleado.', 'bot');
                     }
-                    document.body.removeChild(tempInput); // Eliminamos el input temporal
-                } else {
-                    addMessageToChat('Para registrar la venta, Luna necesita el ID del producto y la cantidad (ej. "Producto: tito_griego. Cantidad: 1").', 'bot');
                 }
-            } else {
-                addMessageToChat('Para registrar ventas, por favor, inicia sesión como empleado.', 'bot');
+
+                // 3. Interacción para "Ocupar una Habitación" (con datos de Luna)
+                // Frase clave que Luna diría: "Habitación [NÚMERO_HABITACION] ocupada por [NOMBRE_CLIENTE] hasta [FECHA_FIN] a las [HORA_FIN]."
+                // (Cliente opcional, fecha y hora de fin son CRÍTICAS)
+                if (botReply.toLowerCase().includes('habitación') && botReply.toLowerCase().includes('ocupada por') && botReply.toLowerCase().includes('hasta') && botReply.toLowerCase().includes('a las')) {
+                    const currentEmployee = sessionStorage.getItem('currentUser'); // Asegura que un empleado esté logeado
+                    if (currentEmployee) {
+                        const roomMatch = botReply.match(/habitación\s*(\d+)/i);
+                        const clientNameMatch = botReply.match(/por\s*([a-zA-Z\s]+?)(?=\s*hasta|$)/i); // Captura nombre hasta 'hasta' o fin de frase
+                        const endDateMatch = botReply.match(/hasta\s*(\d{4}-\d{2}-\d{2})/i); // Formato YYYY-MM-DD
+                        const endTimeMatch = botReply.match(/a las\s*(\d{2}:\d{2})/i); // Formato HH:MM
+
+                        const roomNumber = roomMatch && roomMatch[1] ? parseInt(roomMatch[1]) : null;
+                        const clientName = clientNameMatch && clientNameMatch[1] ? clientNameMatch[1].trim() : 'Cliente Anónimo';
+                        const endDate = endDateMatch && endDateMatch[1] ? endDateMatch[1] : null;
+                        const endTime = endTimeMatch && endTimeMatch[1] ? endTimeMatch[1] : null;
+
+                        if (roomNumber && !isNaN(roomNumber) && roomNumber >= 1 && roomNumber <= 10 && endDate && endTime) {
+                            // En tu código, 'ocuparHabitacionAhora' toma solo 'id' y 'nombreEmpleado' y usa una duración fija.
+                            // Para usar la fecha/hora de Luna, necesitas una función 'reservarHabitacion' con más parámetros
+                            // o una versión modificada de 'ocuparHabitacionAhora'.
+                            // La función que tienes para reservar ya es 'window.reservarHabitacion(id)',
+                            // la cual lee de inputs. Podemos simular la interacción con esos inputs.
+
+                            // 1. Simular rellenar los inputs del panel de habitaciones
+                            const tempClienteInput = document.createElement('input');
+                            tempClienteInput.id = `cliente-hab-${roomNumber}`;
+                            tempClienteInput.value = clientName;
+                            document.body.appendChild(tempClienteInput);
+
+                            const tempFechaInput = document.createElement('input');
+                            tempFechaInput.id = `fecha-hab-${roomNumber}`;
+                            tempFechaInput.value = endDate;
+                            document.body.appendChild(tempFechaInput);
+
+                            const tempHoraInput = document.createElement('input');
+                            tempHoraInput.id = `hora-hab-${roomNumber}`;
+                            tempHoraInput.value = endTime;
+                            document.body.appendChild(tempHoraInput);
+
+                            // Para la duración, tu IA DEBE CALCULARLA O TU FUNCIÓN NECESITA ADAPTARSE
+                            // O LUNA PUEDE DECIR "POR 1 HORA", "POR 2 HORAS".
+                            // Asumo que tu funcion `reservarHabitacion` usará la duracion por defecto si no se especifica en un input.
+                            const tempDuracionInput = document.createElement('select');
+                            tempDuracionInput.id = `duracion-hab-${roomNumber}`;
+                            tempDuracionInput.innerHTML = `<option value="1">1 Hora</option><option value="2">2 Horas</option><option value="3">3 Horas</option>`;
+                            // Puedes intentar extraer la duración de la respuesta de Luna si ella la menciona
+                            const duracionMatch = botReply.match(/por\s*(\d+)\s*hora/i);
+                            if (duracionMatch && duracionMatch[1]) {
+                                tempDuracionInput.value = duracionMatch[1];
+                            } else {
+                                tempDuracionInput.value = "1"; // Valor por defecto si Luna no especifica
+                            }
+                            document.body.appendChild(tempDuracionInput);
+
+
+                            if (typeof window.reservarHabitacion === 'function') {
+                                await window.reservarHabitacion(roomNumber); // Llamamos a la función que leerá de los inputs temporales
+                                addMessageToChat(`¡Habitación ${roomNumber} reservada para ${clientName} hasta ${endDate} a las ${endTime}! ¡Que la disfruten!`, 'bot');
+                            } else {
+                                console.warn("La función 'window.reservarHabitacion' no está disponible o no se puede llamar directamente.");
+                                addMessageToChat('No pude marcar la habitación como ocupada. Por favor, hazlo manualmente.', 'bot');
+                            }
+                            // Limpiamos los inputs temporales
+                            document.body.removeChild(tempClienteInput);
+                            document.body.removeChild(tempFechaInput);
+                            document.body.removeChild(tempHoraInput);
+                            document.body.removeChild(tempDuracionInput);
+
+                        } else {
+                            addMessageToChat('Para ocupar una habitación, Luna necesita el número de la habitación, el nombre del cliente (opcional), la fecha y la hora de fin. Formato: "Habitación [num] ocupada por [cliente] hasta [AAAA-MM-DD] a las [HH:MM]".', 'bot');
+                        }
+                    } else {
+                        addMessageToChat('Para ocupar habitaciones, por favor, inicia sesión como empleado.', 'bot');
+                    }
+                }
+
+
+            } catch (error) {
+                console.error("Error al enviar mensaje:", error);
+                if (chatbotMessages.lastChild && chatbotMessages.lastChild.textContent === 'Escribiendo...') {
+                    chatbotMessages.removeChild(chatbotMessages.lastChild);
+                }
+                addMessageToChat('Lo siento, algo salió mal. Inténtalo de nuevo.', 'bot');
             }
         }
-
-        // 3. Interacción con "Alquilar Habitaciones" (Redirección o apertura de formulario)
-        // Frases clave que Luna diría: "Te llevo a las habitaciones." o "Abriendo formulario de reserva."
-        if (botReply.toLowerCase().includes('te llevo a las habitaciones') || botReply.toLowerCase().includes('abriendo formulario de reserva')) {
-            if (typeof window.mostrarPanelHabitaciones === 'function') {
-                await window.mostrarPanelHabitaciones();
-                addMessageToChat('¡Aquí tienes el panel de habitaciones para que hagas tu reserva!', 'bot');
-            } else {
-                console.warn("La función 'window.mostrarPanelHabitaciones' no está disponible.");
-                addMessageToChat('No pude redirigirte a las habitaciones. ¿Quieres que te explique cómo llegar?', 'bot');
-            }
-        }
-
-        // --- FIN DE LA LÓGICA DE INTERACCIÓN ---
-
-    } catch (error) {
-        console.error("Error al enviar mensaje:", error);
-        if (chatbotMessages.lastChild && chatbotMessages.lastChild.textContent === 'Escribiendo...') {
-            chatbotMessages.removeChild(chatbotMessages.lastChild);
-        }
-        addMessageToChat('Lo siento, algo salió mal. Inténtalo de nuevo.', 'bot');
-    }
-}
 
         // 4. Event Listeners para hacer que los botones funcionen
         chatbotButton.addEventListener('click', () => {
@@ -395,7 +461,7 @@ async function handleSendMessage() {
                 handleSendMessage();
             }
         });
-        
+
         // Mensaje inicial del bot
         addMessageToChat('¡Hola! Soy Luna, tu asistente en Moore Club. ¿En qué puedo ayudarte?', 'bot');
 
@@ -914,6 +980,42 @@ async function handleSendMessage() {
             }
         }
 
+        // Nueva función para ocupar habitación con fecha/hora específica (adaptada de reservarHabitacion)
+        // Esto asume que Luna ya dio todos los datos necesarios
+        window.ocuparHabitacion = async (id, nombreEmpleado, fechaFinStr, horaFinStr, clienteNombre = 'Cliente Luna') => {
+            const hab = habitaciones.find(h => h.id === id);
+            if (!hab) {
+                console.error(`Habitación con ID ${id} no encontrada para ocupar.`);
+                return;
+            }
+
+            const [h, m] = horaFinStr.split(':');
+            const finReserva = new Date(fechaFinStr);
+            finReserva.setHours(parseInt(h), parseInt(m), 0, 0);
+
+            const inicioReserva = Date.now(); // Asumimos que se ocupa 'ahora' si Luna no especificó un inicio
+
+            const hayConflicto = hab.reservas.some(r => (inicioReserva < r.fin) && (finReserva.getTime() > r.inicio));
+            if (hayConflicto) {
+                alert("Conflicto de horario. La habitación ya está reservada en ese tramo.");
+                return;
+            }
+
+            // Aquí se añade una nueva reserva, no se modifica una existente directamente.
+            const nuevaReserva = { id: Date.now(), cliente: clienteNombre, inicio: inicioReserva, fin: finReserva.getTime() };
+            hab.reservas.push(nuevaReserva);
+            
+            try {
+                await setDoc(doc(db, 'habitaciones', String(hab.id)), hab);
+                alert(`¡Habitación ${hab.nombre} ocupada por ${clienteNombre} hasta ${fechaFinStr} a las ${horaFinStr}!`);
+                mostrarPanelEmpleados(nombreEmpleado); // Actualiza la vista del panel de empleados
+            } catch (e) {
+                console.error("Error al ocupar habitación en Firestore:", e);
+                alert("Error al ocupar la habitación. Por favor, inténtalo de nuevo.");
+            }
+        };
+
+
         window.anadirTiempoHabitacion = async (id, nombreEmpleado) => {
             const hab = habitaciones.find(h => h.id === id);
             const ahora = Date.now();
@@ -1272,7 +1374,9 @@ async function handleSendMessage() {
         } else {
             mostrarInicio();
         }
-    }); </script>
+    });
+</script>
+ 
 
  <div id="chatbot-button">
   <img src="Luna.png" alt="Asistente de Chat" />
