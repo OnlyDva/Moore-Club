@@ -223,6 +223,7 @@
 
         // 3. Función para enviar el mensaje al "cerebro" (Netlify Function)
        // Reemplaza tu función handleSendMessage() ENTERA por esta:
+// Reemplaza tu función handleSendMessage() ENTERA por esta:
 async function handleSendMessage() {
     const messageText = chatbotInput.value.trim();
     if (!messageText) return;
@@ -237,7 +238,7 @@ async function handleSendMessage() {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ message: messageText })
-        });
+        }); // <-- ¡AQUÍ ES DONDE ESTABA EL ERROR! Debe ser ');' en la misma línea.
 
         if (chatbotMessages.lastChild && chatbotMessages.lastChild.textContent === 'Escribiendo...') {
             chatbotMessages.removeChild(chatbotMessages.lastChild);
@@ -1172,7 +1173,7 @@ async function handleSendMessage() {
         } else {
             mostrarInicio();
         }
-    );
+    ;
   </script>
 <div id="chatbot-button">
   <img src="Luna.png" alt="Asistente de Chat" />
@@ -1193,4 +1194,4 @@ async function handleSendMessage() {
     <button id="chatbot-send">&#10148;</button>
   </div>
 </div>  
-</body></html>
+</body></html>}
