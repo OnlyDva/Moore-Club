@@ -196,7 +196,6 @@
   </div>
 
   <script>
-
     // Se envuelve todo en el listener para asegurar que el DOM está listo
     document.addEventListener('DOMContentLoaded', async () => {
             // === LÓGICA DEL CHATBOT ===
@@ -222,7 +221,55 @@ function addMessageToChat(text, sender) {
 // 3. Función para enviar el mensaje al "cerebro" (Netlify Function)
 async function handleSendMessage() {
     const messageText = chatbotInput.value.trim();
-    if (!messageText) return; // No enviar mensajes vacíos
+    if (!messageText) return;
+
+    addMessageToChat(messageText, 'user');
+    chatbotInput.value = '';
+
+    addMessageToChat('Escribiendo...', 'bot');
+
+    try {
+        const response = await fetch('/.netlify/functions/openai-chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: messageText })
+        });
+
+        if (chatbotMessages.lastChild && chatbotMessages.lastChild.textContent === 'Escribiendo...') {
+            chatbotMessages.removeChild(chatbotMessages.lastChild);
+        }
+
+        if (!response.ok) {
+            throw new Error(`Error del servidor: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        const botReply = data.reply;
+
+        // --- ¡AQUÍ ESTÁ LA MAGIA NUEVA! ---
+        // Comprobamos si la respuesta de Luna es un código de navegación
+        if (botReply === 'GOTO_EMPLOYEES') {
+            addMessageToChat("Claro que sí, cielo. Abriendo el portal de empleados...", 'bot');
+            mostrarLoginVIP(); // Llama a la función que muestra el login de empleados
+        } else if (botReply === 'GOTO_PRODUCTS') {
+            addMessageToChat("¡Marchando un vistazo a nuestros tesoros! Atento...", 'bot');
+            mostrarPanelProductos(); // Llama a la función que muestra los productos
+        } else if (botReply === 'GOTO_ROOMS') {
+            addMessageToChat("Te enseño nuestras suites del placer, bombón...", 'bot');
+            mostrarPanelHabitaciones(); // Llama a la función que muestra las habitaciones
+        } else {
+            // Si no es un código, es un mensaje de texto normal
+            addMessageToChat(botReply, 'bot');
+        }
+
+    } catch (error) {
+        console.error("Error al enviar mensaje:", error);
+        if (chatbotMessages.lastChild && chatbotMessages.lastChild.textContent === 'Escribiendo...') {
+            chatbotMessages.removeChild(chatbotMessages.lastChild);
+        }
+        addMessageToChat('Lo siento, algo salió mal. Inténtalo de nuevo.', 'bot');
+    }
+}
 
     addMessageToChat(messageText, 'user');
     chatbotInput.value = ''; // Limpiar el input
