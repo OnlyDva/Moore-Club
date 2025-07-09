@@ -222,60 +222,55 @@
         }
 
         // 3. Función para enviar el mensaje al "cerebro" (Netlify Function)
-       // Reemplaza tu función handleSendMessage() ENTERA por esta:
-// Reemplaza tu función handleSendMessage() ENTERA por esta:
-async function handleSendMessage() {
-    const messageText = chatbotInput.value.trim();
-    if (!messageText) return;
+        async function handleSendMessage() {
+            const messageText = chatbotInput.value.trim();
+            if (!messageText) return;
 
-    addMessageToChat(messageText, 'user');
-    chatbotInput.value = '';
+            addMessageToChat(messageText, 'user');
+            chatbotInput.value = '';
 
-    addMessageToChat('Escribiendo...', 'bot');
+            addMessageToChat('Escribiendo...', 'bot');
 
-    try {
-        const response = await fetch('/.netlify/functions/openai-chat', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: messageText })
-        }); // <-- ¡AQUÍ ES DONDE ESTABA EL ERROR! Debe ser ');' en la misma línea.
+            try {
+                const response = await fetch('/.netlify/functions/openai-chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: messageText })
+                });
 
-        if (chatbotMessages.lastChild && chatbotMessages.lastChild.textContent === 'Escribiendo...') {
-            chatbotMessages.removeChild(chatbotMessages.lastChild);
+                if (chatbotMessages.lastChild && chatbotMessages.lastChild.textContent === 'Escribiendo...') {
+                    chatbotMessages.removeChild(chatbotMessages.lastChild);
+                }
+
+                if (!response.ok) {
+                    throw new Error(`Error del servidor: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                const botReply = data.reply;
+
+                // --- ¡LA MAGIA MEJORADA! ---
+                if (botReply.includes('GOTO_EMPLOYEES')) {
+                    addMessageToChat("Claro que sí, cielo. Abriendo el portal de empleados...", 'bot');
+                    mostrarLoginVIP();
+                } else if (botReply.includes('GOTO_PRODUCTS')) {
+                    addMessageToChat("¡Marchando un vistazo a nuestros tesoros! Atento...", 'bot');
+                    mostrarPanelProductos();
+                } else if (botReply.includes('GOTO_ROOMS')) {
+                    addMessageToChat("Te enseño nuestras suites del placer, bombón...", 'bot');
+                    mostrarPanelHabitaciones();
+                } else {
+                    addMessageToChat(botReply, 'bot');
+                }
+
+            } catch (error) {
+                console.error("Error al enviar mensaje:", error);
+                if (chatbotMessages.lastChild && chatbotMessages.lastChild.textContent === 'Escribiendo...') {
+                    chatbotMessages.removeChild(chatbotMessages.lastChild);
+                }
+                addMessageToChat('Lo siento, algo salió mal. Inténtalo de nuevo.', 'bot');
+            }
         }
-
-        if (!response.ok) {
-            throw new Error(`Error del servidor: ${response.statusText}`);
-        }
-
-        const data = await response.json();
-        const botReply = data.reply;
-
-        // --- ¡LA MAGIA MEJORADA! ---
-        // Ahora usamos .includes() para buscar el código secreto DENTRO de la respuesta
-        if (botReply.includes('GOTO_EMPLOYEES')) {
-            addMessageToChat("Claro que sí, cielo. Abriendo el portal de empleados...", 'bot');
-            mostrarLoginVIP();
-        } else if (botReply.includes('GOTO_PRODUCTS')) {
-            addMessageToChat("¡Marchando un vistazo a nuestros tesoros! Atento...", 'bot');
-            mostrarPanelProductos();
-        } else if (botReply.includes('GOTO_ROOMS')) {
-            addMessageToChat("Te enseño nuestras suites del placer, bombón...", 'bot');
-            mostrarPanelHabitaciones();
-        } else {
-            // Si no es un código, es un mensaje de texto normal
-            addMessageToChat(botReply, 'bot');
-        }
-
-    } catch (error) {
-        console.error("Error al enviar mensaje:", error);
-        if (chatbotMessages.lastChild && chatbotMessages.lastChild.textContent === 'Escribiendo...') {
-            chatbotMessages.removeChild(chatbotMessages.lastChild);
-        }
-        addMessageToChat('Lo siento, algo salió mal. Inténtalo de nuevo.', 'bot');
-    }
-}
-        
 
         // 4. Event Listeners para hacer que los botones funcionen
         chatbotButton.addEventListener('click', () => {
@@ -431,12 +426,12 @@ async function handleSendMessage() {
         const iniciarRelojFichaje = (horaInicio, baseHoy, baseSemana, baseTotal) => { detenerRelojFichaje(); fichajeInterval = setInterval(() => { const tiempoSesion = Date.now() - horaInicio; document.getElementById('tiempoHoy').textContent = formatearTiempo(baseHoy + tiempoSesion); document.getElementById('tiempoSemana').textContent = formatearTiempo(baseSemana + tiempoSesion); document.getElementById('tiempoTotal').textContent = formatearTiempo(baseTotal + tiempoSesion); document.getElementById('tiempoSesion').textContent = formatearTiempo(tiempoSesion); }, 1000); }
         const detenerRelojFichaje = () => { if (fichajeInterval) { clearInterval(fichajeInterval); fichajeInterval = null; } }
         const iniciarRelojHabitaciones = () => { detenerRelojHabitaciones(); habitacionesInterval = setInterval(() => { habitaciones.forEach(hab => { const estadoActual = getEstadoHabitacion(hab); let tiempoRestanteElem = document.getElementById(`timer-hab-${hab.id}`); if (tiempoRestanteElem) { if (estadoActual.estado === 'ocupada') { const restante = estadoActual.reservaActual.fin - Date.now(); if (restante > 0) { tiempoRestanteElem.textContent = formatearTiempo(restante); } else { tiempoRestanteElem.textContent = "¡TIEMPO AGOTADO!"; tiempoRestanteElem.classList.add('text-red-500'); } } else {
-                        tiempoRestanteElem.textContent = "--:--:--";
-                        tiempoRestanteElem.classList.remove('text-red-500');
-                    }
-                }
-            });
-        }, 1000); }
+                                tiempoRestanteElem.textContent = "--:--:--";
+                                tiempoRestanteElem.classList.remove('text-red-500');
+                            }
+                        }
+                    });
+                }, 1000); }
         const detenerRelojHabitaciones = () => { if(habitacionesInterval) { clearInterval(habitacionesInterval); habitacionesInterval = null; } }
         const iniciarDashboard = () => { detenerDashboard(); dashboardInterval = setInterval(actualizarDashboard, 5000); }
         const detenerDashboard = () => { if(dashboardInterval) { clearInterval(dashboardInterval); dashboardInterval = null; } }
@@ -462,7 +457,7 @@ async function handleSendMessage() {
             
             let habitacionesHTML = '';
             if (habitaciones.length === 0) {
-                 await cargarTodasLasHabitaciones();
+                    await cargarTodasLasHabitaciones();
             }
             habitaciones.forEach(hab => {
                 const estadoActual = getEstadoHabitacion(hab);
@@ -1173,8 +1168,7 @@ async function handleSendMessage() {
         } else {
             mostrarInicio();
         }
-    ;
-  </script>
+    }); </script>
 <div id="chatbot-button">
   <img src="Luna.png" alt="Asistente de Chat" />
 </div>
@@ -1185,13 +1179,14 @@ async function handleSendMessage() {
     <div>
       <button id="chatbot-minimize" title="Minimizar">_</button>
       <button id="chatbot-close" title="Cerrar">X</button>
-    </div>
+    </div
   </div>
   <div id="chatbot-messages">
-      </div>
+  </div>
   <div id="chatbot-input-container">
     <input type="text" id="chatbot-input" placeholder="Escribe tu mensaje...">
     <button id="chatbot-send">&#10148;</button>
   </div>
-</div>  
-</body></html>}
+</div>
+</body>
+</html>
