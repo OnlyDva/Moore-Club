@@ -195,140 +195,113 @@
     <main id="contenido" class="p-8"></main>
   </div>
 
-  <script>
+<script>
     // Se envuelve todo en el listener para asegurar que el DOM está listo
     document.addEventListener('DOMContentLoaded', async () => {
-            // === LÓGICA DEL CHATBOT ===
 
-// 1. Referencias a los elementos del DOM
-const chatbotButton = document.getElementById('chatbot-button');
-const chatbotContainer = document.getElementById('chatbot-container');
-const chatbotCloseButton = document.getElementById('chatbot-close');
-const chatbotMinimizeButton = document.getElementById('chatbot-minimize');
-const chatbotMessages = document.getElementById('chatbot-messages');
-const chatbotInput = document.getElementById('chatbot-input');
-const chatbotSendButton = document.getElementById('chatbot-send');
+        // ===================================================================================
+        //  LÓGICA DEL CHATBOT
+        // ===================================================================================
 
-// 2. Función para añadir mensajes a la ventana del chat
-function addMessageToChat(text, sender) {
-    const messageElement = document.createElement('div');
-    messageElement.classList.add('message', sender);
-    messageElement.textContent = text;
-    chatbotMessages.appendChild(messageElement);
-    chatbotMessages.scrollTop = chatbotMessages.scrollHeight; // Auto-scroll hacia abajo
-}
+        // 1. Referencias a los elementos del DOM del chatbot
+        const chatbotButton = document.getElementById('chatbot-button');
+        const chatbotContainer = document.getElementById('chatbot-container');
+        const chatbotCloseButton = document.getElementById('chatbot-close');
+        const chatbotMinimizeButton = document.getElementById('chatbot-minimize');
+        const chatbotMessages = document.getElementById('chatbot-messages');
+        const chatbotInput = document.getElementById('chatbot-input');
+        const chatbotSendButton = document.getElementById('chatbot-send');
 
-// 3. Función para enviar el mensaje al "cerebro" (Netlify Function)
-async function handleSendMessage() {
-    const messageText = chatbotInput.value.trim();
-    if (!messageText) return;
+        // 2. Función para añadir mensajes a la ventana del chat
+        function addMessageToChat(text, sender) {
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('message', sender);
+            messageElement.textContent = text;
+            chatbotMessages.appendChild(messageElement);
+            chatbotMessages.scrollTop = chatbotMessages.scrollHeight; // Auto-scroll hacia abajo
+        }
 
-    addMessageToChat(messageText, 'user');
-    chatbotInput.value = '';
+        // 3. Función para enviar el mensaje al "cerebro" (Netlify Function)
+        async function handleSendMessage() {
+            const messageText = chatbotInput.value.trim();
+            if (!messageText) return;
 
-    addMessageToChat('Escribiendo...', 'bot');
+            addMessageToChat(messageText, 'user');
+            chatbotInput.value = '';
 
-    try {
-        const response = await fetch('/.netlify/functions/openai-chat', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: messageText })
+            addMessageToChat('Escribiendo...', 'bot');
+
+            try {
+                const response = await fetch('/.netlify/functions/openai-chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: messageText })
+                });
+
+                if (chatbotMessages.lastChild && chatbotMessages.lastChild.textContent === 'Escribiendo...') {
+                    chatbotMessages.removeChild(chatbotMessages.lastChild);
+                }
+
+                if (!response.ok) {
+                    throw new Error(`Error del servidor: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                const botReply = data.reply;
+
+                // Comprobamos si la respuesta de Luna es un código de navegación
+                if (botReply === 'GOTO_EMPLOYEES') {
+                    addMessageToChat("Claro que sí, cielo. Abriendo el portal de empleados...", 'bot');
+                    mostrarLoginVIP();
+                } else if (botReply === 'GOTO_PRODUCTS') {
+                    addMessageToChat("¡Marchando un vistazo a nuestros tesoros! Atento...", 'bot');
+                    mostrarPanelProductos();
+                } else if (botReply === 'GOTO_ROOMS') {
+                    addMessageToChat("Te enseño nuestras suites del placer, bombón...", 'bot');
+                    mostrarPanelHabitaciones();
+                } else {
+                    // Si no es un código, es un mensaje de texto normal
+                    addMessageToChat(botReply, 'bot');
+                }
+
+            } catch (error) {
+                console.error("Error al enviar mensaje:", error);
+                if (chatbotMessages.lastChild && chatbotMessages.lastChild.textContent === 'Escribiendo...') {
+                    chatbotMessages.removeChild(chatbotMessages.lastChild);
+                }
+                addMessageToChat('Lo siento, algo salió mal. Inténtalo de nuevo.', 'bot');
+            }
+        }
+
+        // 4. Event Listeners para hacer que los botones funcionen
+        chatbotButton.addEventListener('click', () => {
+            chatbotContainer.style.display = 'flex';
         });
 
-        if (chatbotMessages.lastChild && chatbotMessages.lastChild.textContent === 'Escribiendo...') {
-            chatbotMessages.removeChild(chatbotMessages.lastChild);
-        }
-
-        if (!response.ok) {
-            throw new Error(`Error del servidor: ${response.statusText}`);
-        }
-
-        const data = await response.json();
-        const botReply = data.reply;
-
-        // --- ¡AQUÍ ESTÁ LA MAGIA NUEVA! ---
-        // Comprobamos si la respuesta de Luna es un código de navegación
-        if (botReply === 'GOTO_EMPLOYEES') {
-            addMessageToChat("Claro que sí, cielo. Abriendo el portal de empleados...", 'bot');
-            mostrarLoginVIP(); // Llama a la función que muestra el login de empleados
-        } else if (botReply === 'GOTO_PRODUCTS') {
-            addMessageToChat("¡Marchando un vistazo a nuestros tesoros! Atento...", 'bot');
-            mostrarPanelProductos(); // Llama a la función que muestra los productos
-        } else if (botReply === 'GOTO_ROOMS') {
-            addMessageToChat("Te enseño nuestras suites del placer, bombón...", 'bot');
-            mostrarPanelHabitaciones(); // Llama a la función que muestra las habitaciones
-        } else {
-            // Si no es un código, es un mensaje de texto normal
-            addMessageToChat(botReply, 'bot');
-        }
-
-    } catch (error) {
-        console.error("Error al enviar mensaje:", error);
-        if (chatbotMessages.lastChild && chatbotMessages.lastChild.textContent === 'Escribiendo...') {
-            chatbotMessages.removeChild(chatbotMessages.lastChild);
-        }
-        addMessageToChat('Lo siento, algo salió mal. Inténtalo de nuevo.', 'bot');
-    }
-}
-
-    addMessageToChat(messageText, 'user');
-    chatbotInput.value = ''; // Limpiar el input
-
-    addMessageToChat('Escribiendo...', 'bot'); // Mensaje de "pensando"
-
-    try {
-        const response = await fetch('/.netlify/functions/openai-chat', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: messageText })
+        chatbotCloseButton.addEventListener('click', () => {
+            chatbotContainer.style.display = 'none';
         });
 
-        // Borrar el mensaje de "Escribiendo..."
-        if (chatbotMessages.lastChild && chatbotMessages.lastChild.textContent === 'Escribiendo...') {
-            chatbotMessages.removeChild(chatbotMessages.lastChild);
-        }
+        chatbotMinimizeButton.addEventListener('click', () => {
+            chatbotContainer.style.display = 'none';
+        });
 
-        if (!response.ok) {
-            throw new Error(`Error del servidor: ${response.statusText}`);
-        }
+        chatbotSendButton.addEventListener('click', handleSendMessage);
+        chatbotInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                handleSendMessage();
+            }
+        });
+        
+        // Mensaje inicial del bot
+        addMessageToChat('¡Hola! Soy Luna, tu asistente en Moore Club. ¿En qué puedo ayudarte?', 'bot');
 
-        const data = await response.json();
-        addMessageToChat(data.reply, 'bot');
 
-    } catch (error) {
-        console.error("Error al enviar mensaje:", error);
-        // Borrar el mensaje de "Escribiendo..." si falla
-        if (chatbotMessages.lastChild && chatbotMessages.lastChild.textContent === 'Escribiendo...') {
-            chatbotMessages.removeChild(chatbotMessages.lastChild);
-        }
-        addMessageToChat('Lo siento, algo salió mal. Inténtalo de nuevo.', 'bot');
-    }
-}
-
-// 4. Event Listeners para hacer que los botones funcionen
-chatbotButton.addEventListener('click', () => {
-    chatbotContainer.style.display = 'flex';
-});
-
-chatbotCloseButton.addEventListener('click', () => {
-    chatbotContainer.style.display = 'none';
-});
-
-chatbotMinimizeButton.addEventListener('click', () => {
-    chatbotContainer.style.display = 'none';
-});
-
-chatbotSendButton.addEventListener('click', handleSendMessage);
-chatbotInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-        handleSendMessage();
-    }
-});
-
-addMessageToChat('¡Hola! Soy tu asistente en Moore Club. ¿En qué puedo ayudarte?', 'bot');
         // ===================================================================================
-        //  1. FUENTE DE DATOS Y ESTADO GLOBAL
+        //  LÓGICA PRINCIPAL DE LA APLICACIÓN
         // ===================================================================================
+
+        // 1. FUENTE DE DATOS Y ESTADO GLOBAL
         const productos = [ { id: 'tito_griego', nombre: 'Tito Dios Griego', imagen: 'Tito.png' }, { id: 'la_tita', nombre: 'La Tita', imagen: 'Tita.png' }, { id: 'mascara_cat', nombre: 'Máscara Dominante “Cat Vanilla”', imagen: 'Mascara.png' }, { id: 'pinzas_led', nombre: 'Pinzas LED “Sweet Pain”', imagen: 'Pinzas.png' }, { id: 'preservativos', nombre: 'Preservativos “Espadas del Deseo”', imagen: 'condones.png' }, { id: 'dildo_doble', nombre: 'Dildo Doble “Fusión Morada”', imagen: 'Dildo.webp' }, { id: 'banana', nombre: 'Banana Pelada', imagen: 'banana.png' }, { id: 'magdalenas', nombre: 'Magdalenas con Glaseado Rosa', imagen: 'magdalenas.png' }, { id: 'berenjena', nombre: 'Berenjena Rellena', imagen: 'berenjena.png' }, { id: 'coctel', nombre: 'Cóctel Dulce', imagen: 'Coctel.png' }, { id: 'trago_afrutado', nombre: 'Trago Afrutado', imagen: 'trago afrutado.png' }, { id: 'almejas', nombre: 'Almejas Picantes', imagen: 'almejas.png' }];
         
         let empleados = [];
@@ -338,7 +311,6 @@ addMessageToChat('¡Hola! Soy tu asistente en Moore Club. ¿En qué puedo ayudar
         let anuncios = [];
         let libroNegro = [];
         let listaNegra = [];
-
         let fichajeInterval = null, habitacionesInterval = null, dashboardInterval = null;
 
         // ===================================================================================
