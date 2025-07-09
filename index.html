@@ -222,55 +222,58 @@
         }
 
         // 3. Función para enviar el mensaje al "cerebro" (Netlify Function)
-        async function handleSendMessage() {
-            const messageText = chatbotInput.value.trim();
-            if (!messageText) return;
+       // Reemplaza tu función handleSendMessage() ENTERA por esta:
+async function handleSendMessage() {
+    const messageText = chatbotInput.value.trim();
+    if (!messageText) return;
 
-            addMessageToChat(messageText, 'user');
-            chatbotInput.value = '';
+    addMessageToChat(messageText, 'user');
+    chatbotInput.value = '';
 
-            addMessageToChat('Escribiendo...', 'bot');
+    addMessageToChat('Escribiendo...', 'bot');
 
-            try {
-                const response = await fetch('/.netlify/functions/openai-chat', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: messageText })
-                });
+    try {
+        const response = await fetch('/.netlify/functions/openai-chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: messageText })
+        });
 
-                if (chatbotMessages.lastChild && chatbotMessages.lastChild.textContent === 'Escribiendo...') {
-                    chatbotMessages.removeChild(chatbotMessages.lastChild);
-                }
+        if (chatbotMessages.lastChild && chatbotMessages.lastChild.textContent === 'Escribiendo...') {
+            chatbotMessages.removeChild(chatbotMessages.lastChild);
+        }
 
-                if (!response.ok) {
-                    throw new Error(`Error del servidor: ${response.statusText}`);
-                }
+        if (!response.ok) {
+            throw new Error(`Error del servidor: ${response.statusText}`);
+        }
 
-                const data = await response.json();
-                const botReply = data.reply;
+        const data = await response.json();
+        const botReply = data.reply;
 
-                // Comprobamos si la respuesta de Luna es un código de navegación
-                if (botReply === 'GOTO_EMPLOYEES') {
-                    addMessageToChat("Claro que sí, cielo. Abriendo el portal de empleados...", 'bot');
-                    mostrarLoginVIP();
-                } else if (botReply === 'GOTO_PRODUCTS') {
-                    addMessageToChat("¡Marchando un vistazo a nuestros tesoros! Atento...", 'bot');
-                    mostrarPanelProductos();
-                } else if (botReply === 'GOTO_ROOMS') {
-                    addMessageToChat("Te enseño nuestras suites del placer, bombón...", 'bot');
-                    mostrarPanelHabitaciones();
-                } else {
-                    // Si no es un código, es un mensaje de texto normal
-                    addMessageToChat(botReply, 'bot');
-                }
+        // --- ¡LA MAGIA MEJORADA! ---
+        // Ahora usamos .includes() para buscar el código secreto DENTRO de la respuesta
+        if (botReply.includes('GOTO_EMPLOYEES')) {
+            addMessageToChat("Claro que sí, cielo. Abriendo el portal de empleados...", 'bot');
+            mostrarLoginVIP();
+        } else if (botReply.includes('GOTO_PRODUCTS')) {
+            addMessageToChat("¡Marchando un vistazo a nuestros tesoros! Atento...", 'bot');
+            mostrarPanelProductos();
+        } else if (botReply.includes('GOTO_ROOMS')) {
+            addMessageToChat("Te enseño nuestras suites del placer, bombón...", 'bot');
+            mostrarPanelHabitaciones();
+        } else {
+            // Si no es un código, es un mensaje de texto normal
+            addMessageToChat(botReply, 'bot');
+        }
 
-            } catch (error) {
-                console.error("Error al enviar mensaje:", error);
-                if (chatbotMessages.lastChild && chatbotMessages.lastChild.textContent === 'Escribiendo...') {
-                    chatbotMessages.removeChild(chatbotMessages.lastChild);
-                }
-                addMessageToChat('Lo siento, algo salió mal. Inténtalo de nuevo.', 'bot');
-            }
+    } catch (error) {
+        console.error("Error al enviar mensaje:", error);
+        if (chatbotMessages.lastChild && chatbotMessages.lastChild.textContent === 'Escribiendo...') {
+            chatbotMessages.removeChild(chatbotMessages.lastChild);
+        }
+        addMessageToChat('Lo siento, algo salió mal. Inténtalo de nuevo.', 'bot');
+    }
+}
         }
 
         // 4. Event Listeners para hacer que los botones funcionen
