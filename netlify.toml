@@ -1,8 +1,9 @@
 [functions]
   directory = "netlify/functions"
-  node_bundler = "esbuild" # Usa esbuild para empaquetar funciones, a menudo más robusto
+  # node_bundler = "esbuild" # Comentamos esto también para la prueba más simple
 
 [build]
-  # Este comando instalará las dependencias de tu función antes de desplegar
-  command = "npm install --prefix netlify/functions"
+  # Hemos quitado el comando npm install --prefix netlify/functions de aquí
+  # Netlify debería autodetectar e instalar las dependencias de las funciones
+  # si hay un package.json dentro de la carpeta de la función.
   publish = "." # Directorio raíz para publicar archivos estáticos
