@@ -29,6 +29,120 @@
         height: 8px; width: 8px; background-color: #ef4444;
         border-radius: 50%; position: absolute; top: 0; right: 0;
     }
+    /* === ESTILOS PARA EL CHATBOT === */
+#chatbot-button {
+    position: fixed;
+    bottom: 150px;
+    right: 20px;
+    border-radius: 50%;
+    width: 100px;
+    height: 100px;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+    cursor: pointer;
+    z-index: 1000;
+    transition: transform 0.3s ease;
+    animation: pulse 2s infinite;
+}
+#chatbot-button img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+#chatbot-button:hover {
+    transform: scale(1.05);
+}
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+#chatbot-container {
+    position: fixed;
+    bottom: 260px;
+    right: 20px;
+    width: 450px;
+    height: 600px;
+    background-color: #1a1a2e;
+    border-radius: 10px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+    display: flex;
+    flex-direction: column;
+    z-index: 999;
+    overflow: hidden;
+    border: 2px solid #6b21a8;
+}
+#chatbot-header {
+    background-color: #6b21a8;
+    color: white;
+    padding: 10px 15px;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+#chatbot-close, #chatbot-minimize {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.2em;
+    cursor: pointer;
+    margin-left: 10px;
+}
+#chatbot-messages {
+    flex-grow: 1;
+    padding: 15px;
+    overflow-y: auto;
+    background-color: #2a2a4a;
+    display: flex;
+    flex-direction: column;
+}
+.message {
+    margin-bottom: 10px;
+    padding: 8px 12px;
+    border-radius: 15px;
+    max-width: 80%;
+    line-height: 1.4;
+}
+.message.user {
+    background-color: #a855f7;
+    align-self: flex-end;
+    border-bottom-right-radius: 2px;
+}
+.message.bot {
+    background-color: #4a4a6e;
+    align-self: flex-start;
+    border-bottom-left-radius: 2px;
+}
+#chatbot-input-container {
+    padding: 10px 15px;
+    display: flex;
+    gap: 10px;
+    background-color: #1a1a2e;
+}
+#chatbot-input {
+    flex-grow: 1;
+    padding: 10px;
+    border-radius: 20px;
+    border: 1px solid #6b21a8;
+    background-color: #333355;
+    color: white;
+}
+#chatbot-send {
+    background-color: #6b21a8;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    font-size: 1.2em;
+    transition: background-color 0.3s;
+}
+#chatbot-send:hover { background-color: #5b189b; }
   </style>
 
   <script type="module">
@@ -82,8 +196,89 @@
   </div>
 
   <script>
+
     // Se envuelve todo en el listener para asegurar que el DOM está listo
     document.addEventListener('DOMContentLoaded', async () => {
+            // === LÓGICA DEL CHATBOT ===
+
+// 1. Referencias a los elementos del DOM
+const chatbotButton = document.getElementById('chatbot-button');
+const chatbotContainer = document.getElementById('chatbot-container');
+const chatbotCloseButton = document.getElementById('chatbot-close');
+const chatbotMinimizeButton = document.getElementById('chatbot-minimize');
+const chatbotMessages = document.getElementById('chatbot-messages');
+const chatbotInput = document.getElementById('chatbot-input');
+const chatbotSendButton = document.getElementById('chatbot-send');
+
+// 2. Función para añadir mensajes a la ventana del chat
+function addMessageToChat(text, sender) {
+    const messageElement = document.createElement('div');
+    messageElement.classList.add('message', sender);
+    messageElement.textContent = text;
+    chatbotMessages.appendChild(messageElement);
+    chatbotMessages.scrollTop = chatbotMessages.scrollHeight; // Auto-scroll hacia abajo
+}
+
+// 3. Función para enviar el mensaje al "cerebro" (Netlify Function)
+async function handleSendMessage() {
+    const messageText = chatbotInput.value.trim();
+    if (!messageText) return; // No enviar mensajes vacíos
+
+    addMessageToChat(messageText, 'user');
+    chatbotInput.value = ''; // Limpiar el input
+
+    addMessageToChat('Escribiendo...', 'bot'); // Mensaje de "pensando"
+
+    try {
+        const response = await fetch('/.netlify/functions/openai-chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: messageText })
+        });
+
+        // Borrar el mensaje de "Escribiendo..."
+        if (chatbotMessages.lastChild && chatbotMessages.lastChild.textContent === 'Escribiendo...') {
+            chatbotMessages.removeChild(chatbotMessages.lastChild);
+        }
+
+        if (!response.ok) {
+            throw new Error(`Error del servidor: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        addMessageToChat(data.reply, 'bot');
+
+    } catch (error) {
+        console.error("Error al enviar mensaje:", error);
+        // Borrar el mensaje de "Escribiendo..." si falla
+        if (chatbotMessages.lastChild && chatbotMessages.lastChild.textContent === 'Escribiendo...') {
+            chatbotMessages.removeChild(chatbotMessages.lastChild);
+        }
+        addMessageToChat('Lo siento, algo salió mal. Inténtalo de nuevo.', 'bot');
+    }
+}
+
+// 4. Event Listeners para hacer que los botones funcionen
+chatbotButton.addEventListener('click', () => {
+    chatbotContainer.style.display = 'flex';
+});
+
+chatbotCloseButton.addEventListener('click', () => {
+    chatbotContainer.style.display = 'none';
+});
+
+chatbotMinimizeButton.addEventListener('click', () => {
+    chatbotContainer.style.display = 'none';
+});
+
+chatbotSendButton.addEventListener('click', handleSendMessage);
+chatbotInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        handleSendMessage();
+    }
+});
+
+addMessageToChat('¡Hola! Soy tu asistente en Moore Club. ¿En qué puedo ayudarte?', 'bot');
         // ===================================================================================
         //  1. FUENTE DE DATOS Y ESTADO GLOBAL
         // ===================================================================================
@@ -956,4 +1151,24 @@
             mostrarInicio();
         }
     });
-  </script></body></html>
+  </script>
+<div id="chatbot-button">
+  <img src="Luna.png" alt="Asistente de Chat" />
+</div>
+
+<div id="chatbot-container" style="display: none;">
+  <div id="chatbot-header">
+    <span>Asistente Moore Club</span>
+    <div>
+      <button id="chatbot-minimize" title="Minimizar">_</button>
+      <button id="chatbot-close" title="Cerrar">X</button>
+    </div>
+  </div>
+  <div id="chatbot-messages">
+      </div>
+  <div id="chatbot-input-container">
+    <input type="text" id="chatbot-input" placeholder="Escribe tu mensaje...">
+    <button id="chatbot-send">&#10148;</button>
+  </div>
+</div>  
+</body></html>
