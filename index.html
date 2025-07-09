@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 
 <html lang="es">
 
@@ -1710,113 +1710,224 @@
 
 
 
-   // ===================================================================================
-    //  NUEVAS FUNCIONES DE CARGA ASÍNCRONA DESDE FIRESTORE
-    // ===================================================================================
-    async function cargarDatosDeFirestore(nombreColeccion) {
-        try {
-            const snapshot = await window.getDocs(window.collection(window.db, nombreColeccion));
-            const lista = [];
-            snapshot.forEach(doc => {
-                // Para 'libroNegro' y 'listaNegra' que no usan el nombre como ID, guardamos el ID del documento
-                const data = doc.data();
-                if (nombreColeccion === 'libroNegro' || nombreColeccion === 'listaNegra') {
-                    data.docId = doc.id; 
-                }
-                lista.push(data);
-            });
-            console.log(`${nombreColeccion} cargados desde Firestore:`, lista);
-            return lista;
-        } catch (e) {
-            console.error(`Error al cargar ${nombreColeccion} desde Firestore:`, e);
-            return []; // Devuelve array vacío en caso de error
-        }
-    }
+    // ===================================================================================
 
-    async function cargarDatosDeFirestoreComoObjeto(nombreColeccion) {
-        try {
-            const snapshot = await window.getDocs(window.collection(window.db, nombreColeccion));
-            const objeto = {};
-            snapshot.forEach(doc => {
-                objeto[doc.id] = doc.data();
-            });
-            console.log(`${nombreColeccion} cargados desde Firestore:`, objeto);
-            return objeto;
-        } catch (e) {
-            console.error(`Error al cargar ${nombreColeccion} desde Firestore:`, e);
-            return {}; // Devuelve objeto vacío en caso de error
-        }
-    }
+    //  NUEVAS FUNCIONES DE CARGA ASÍNCRONA DESDE FIRESTORE
+
+    // ===================================================================================
+
+    // Nota: Estas funciones no se llaman directamente desde onclick, sino internamente.
 
 
-    // ===================================================================================
-    //  INICIALIZACIÓN PRINCIPAL - CARGA TODOS LOS DATOS AL INICIO
-    // ===================================================================================
-    document.addEventListener('DOMContentLoaded', async () => {
-        console.log("Iniciando carga de datos desde Firestore...");
-        try {
-            // Carga todos los datos en paralelo
-            const [empleadosData, fichajesData, ventasData, habitacionesData, anunciosData, libroNegroData, listaNegraData] = await Promise.all([
-                cargarDatosDeFirestore('empleados'),
-                cargarDatosDeFirestoreComoObjeto('fichajes'),
-                cargarDatosDeFirestoreComoObjeto('ventas'),
-                cargarDatosDeFirestore('habitaciones'),
-                cargarDatosDeFirestore('anuncios'),
-                cargarDatosDeFirestore('libroNegro'),
-                cargarDatosDeFirestore('listaNegra')
-            ]);
 
-            empleados = empleadosData;
-            fichajes = fichajesData;
-            ventas = ventasData;
-            habitaciones = habitacionesData.sort((a, b) => a.id - b.id);
-            anuncios = anunciosData.sort((a, b) => b.id - a.id);
-            libroNegro = libroNegroData;
-            listaNegra = listaNegraData;
+    async function cargarTodosLosEmpleados() {
 
-            // Comprueba si hay que crear datos por defecto
-            if (empleados.length === 0) {
-                console.log("No se encontraron empleados, creando los de por defecto...");
-                empleados = [ {nombre: 'tito giovanni', passHash: hashPassword('1234'), ultimoAnuncioVisto: 0}, {nombre: 'marta', passHash: hashPassword('1234'), ultimoAnuncioVisto: 0} ];
-                const batch = window.fb.writeBatch(window.db);
-                empleados.forEach(emp => batch.set(window.doc(window.db, 'empleados', emp.nombre), emp));
-                await batch.commit();
-            }
+        try {
 
-            if (habitaciones.length < 10) {
-                console.log("No se encontraron todas las habitaciones, creando las que faltan...");
-                const batch = window.fb.writeBatch(window.db);
-                for (let i = 1; i <= 10; i++) {
-                    if (!habitaciones.find(h => h.id === i)) {
-                        const nuevaHab = { id: i, nombre: `Habitación ${i}`, reservas: [] };
-                        habitaciones.push(nuevaHab);
-                        batch.set(window.doc(window.db, 'habitaciones', String(i)), nuevaHab);
-                    }
-                }
-                await batch.commit();
-                habitaciones.sort((a,b) => a.id - b.id);
-            }
-            
-            console.log("Carga de datos completada.");
-            
-            const currentUser = sessionStorage.getItem('currentUser');
-            if (currentUser && empleados.find(e => e.nombre === currentUser)) {
-                await gestionarReseteoDatos(currentUser);
-                await gestionarReseteoDatos(currentUser, true);
-                mostrarPanelEmpleados(currentUser);
-                const datosFichaje = fichajes[currentUser];
-                if (datosFichaje && datosFichaje.fichado) {
-                    iniciarRelojFichaje(datosFichaje.inicio, datosFichaje.hoy, datosFichaje.semana, datosFichaje.total);
-                }
-            } else {
-                mostrarInicio();
-            }
+            const empleadosSnapshot = await getDocs(collection(db, 'empleados'));
 
-        } catch (error) {
-            console.error("FALLO CRÍTICO AL INICIALIZAR DESDE FIRESTORE:", error);
-            document.getElementById('contenido').innerHTML = `<div class="text-center text-red-500"><h1>Error de Conexión</h1><p>No se pudo conectar con la base de datos. Revisa la consola (F12) y la configuración de Firebase.</p></div>`;
-        }
-    });
-  </script>
-</body>
-</html>
+            empleados = [];
+
+            if (!empleadosSnapshot.empty) { empleadosSnapshot.forEach(doc => { empleados.push(doc.data()); }); }
+
+            else {
+
+                empleados = [ {nombre: 'tito giovanni', passHash: hashPassword('1234'), ultimoAnuncioVisto: 0}, {nombre: 'marta', passHash: hashPassword('1234'), ultimoAnuncioVisto: 0} ];
+
+                for (const emp of empleados) { await setDoc(doc(db, 'empleados', emp.nombre), emp); }
+
+                console.log("Empleados por defecto creados en Firestore.");
+
+            }
+
+            console.log("Empleados cargados desde Firestore:", empleados);
+
+        } catch (e) { console.error("Error al cargar empleados desde Firestore:", e); }
+
+    }
+
+
+
+    async function cargarTodosLosFichajes() {
+
+        try {
+
+            const fichajesSnapshot = await getDocs(collection(db, 'fichajes'));
+
+            fichajes = {}; fichajesSnapshot.forEach(doc => { fichajes[doc.id] = doc.data(); });
+
+            console.log("Fichajes cargados desde Firestore:", fichajes);
+
+        } catch (e) { console.error("Error al cargar fichajes desde Firestore:", e); fichajes = {}; }
+
+    }
+
+
+
+    async function cargarTodasLasVentas() {
+
+        try {
+
+            const ventasSnapshot = await getDocs(collection(db, 'ventas'));
+
+            ventas = {}; ventasSnapshot.forEach(doc => { ventas[doc.id] = doc.data(); });
+
+            console.log("Ventas cargadas desde Firestore:", ventas);
+
+        } catch (e) { console.error("Error al cargar ventas desde Firestore:", e); ventas = {}; }
+
+    }
+
+
+
+    async function cargarTodasLasHabitaciones() {
+
+        try {
+
+            const habitacionesSnapshot = await getDocs(collection(db, 'habitaciones'));
+
+            habitaciones = [];
+
+            if (!habitacionesSnapshot.empty) {
+
+                habitacionesSnapshot.forEach(doc => { habitaciones.push(doc.data()); });
+
+                if (habitaciones.length < 10) {
+
+                    for (let i = 1; i <= 10; i++) { if (!habitaciones.find(h => h.id === i)) { habitaciones.push({ id: i, nombre: `Habitación ${i}`, reservas: [] }); } }
+
+                }
+
+                habitaciones.sort((a, b) => a.id - b.id);
+
+            } else {
+
+                for (let i = 1; i <= 10; i++) {
+
+                    const nuevaHab = { id: i, nombre: `Habitación ${i}`, reservas: [] }; habitaciones.push(nuevaHab);
+
+                    await setDoc(doc(db, 'habitaciones', String(i)), nuevaHab);
+
+                }
+
+                console.log("Habitaciones por defecto creadas en Firestore.");
+
+            }
+
+            console.log("Habitaciones cargadas desde Firestore:", habitaciones);
+
+        } catch (e) { console.error("Error al cargar habitaciones desde Firestore:", e); }
+
+    }
+
+
+
+    async function cargarTodosLosAnuncios() {
+
+        try {
+
+            const anunciosQuery = query(collection(db, 'anuncios'), orderBy('id', 'desc'));
+
+            const anunciosSnapshot = await getDocs(anunciosQuery);
+
+            anuncios = []; anunciosSnapshot.forEach(doc => { anuncios.push(doc.data()); });
+
+            console.log("Anuncios cargados desde Firestore:", anuncios);
+
+        } catch (e) { console.error("Error al cargar anuncios desde Firestore:", e); anuncios = []; }
+
+    }
+
+
+
+    async function cargarLibroNegro() {
+
+        try {
+
+            const libroNegroSnapshot = await getDocs(collection(db, 'libroNegro'));
+
+            libroNegro = []; libroNegroSnapshot.forEach(doc => { libroNegro.push(doc.data()); });
+
+            console.log("Libro Negro cargado desde Firestore:", libroNegro);
+
+        } catch (e) { console.error("Error al cargar Libro Negro desde Firestore:", e); libroNegro = []; }
+
+    }
+
+
+
+    async function cargarListaNegra() {
+
+        try {
+
+            const listaNegraSnapshot = await getDocs(collection(db, 'listaNegra'));
+
+            listaNegra = []; listaNegraSnapshot.forEach(doc => { listaNegra.push(doc.data()); });
+
+            console.log("Lista Negra cargada desde Firestore:", listaNegra);
+
+        } catch (e) { console.error("Error al cargar Lista Negra desde Firestore:", e); listaNegra = []; }
+
+    }
+
+
+
+    // ===================================================================================
+
+    //  INICIALIZACIÓN PRINCIPAL - CARGA TODOS LOS DATOS AL INICIO
+
+    // ===================================================================================
+
+    document.addEventListener('DOMContentLoaded', async () => {
+
+        console.log("Iniciando carga de datos desde Firestore...");
+
+        await cargarTodosLosEmpleados();
+
+        await cargarTodosLosFichajes();
+
+        await cargarTodasLasVentas();
+
+        await cargarTodasLasHabitaciones();
+
+        await cargarTodosLosAnuncios();
+
+        await cargarLibroNegro();
+
+        await cargarListaNegra();
+
+        console.log("Carga de datos desde Firestore completada.");
+
+
+
+        const productos = [ { id: 'tito_griego', nombre: 'Tito Dios Griego', imagen: 'Tito.png' }, { id: 'la_tita', nombre: 'La Tita', imagen: 'Tita.png' }, { id: 'mascara_cat', nombre: 'Máscara Dominante “Cat Vanilla”', imagen: 'Mascara.png' }, { id: 'pinzas_led', nombre: 'Pinzas LED “Sweet Pain”', imagen: 'Pinzas.png' }, { id: 'preservativos', nombre: 'Preservativos “Espadas del Deseo”', imagen: 'condones.png' }, { id: 'dildo_doble', nombre: 'Dildo Doble “Fusión Morada”', imagen: 'Dildo.webp' }, { id: 'banana', nombre: 'Banana Pelada', imagen: 'banana.png' }, { id: 'magdalenas', nombre: 'Magdalenas con Glaseado Rosa', imagen: 'magdalenas.png' }, { id: 'berenjena', nombre: 'Berenjena Rellena', imagen: 'berenjena.png' }, { id: 'coctel', nombre: 'Cóctel Dulce', imagen: 'Coctel.png' }, { id: 'trago_afrutado', imagen: 'trago afrutado.png' }, { id: 'almejas', imagen: 'almejas.png' }];
+
+        
+
+        const currentUser = sessionStorage.getItem('currentUser');
+
+        if (currentUser && empleados.find(e => e.nombre === currentUser)) {
+
+            await gestionarReseteoDatos(currentUser);
+
+            await gestionarReseteoDatos(currentUser, true);
+
+            mostrarPanelEmpleados(currentUser);
+
+            const datosFichaje = fichajes[currentUser];
+
+            if (datosFichaje && datosFichaje.fichado) {
+
+                iniciarRelojFichaje(datosFichaje.inicio, datosFichaje.hoy, datosFichaje.semana, datosFichaje.total);
+
+            }
+
+        } else {
+
+            mostrarInicio();
+
+        }
+
+    });
+
+  </script></body></html>
