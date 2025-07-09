@@ -1,129 +1,1822 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
+
 <html lang="es">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Moore Club - La Tentación Empieza Aquí</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    body { font-family: 'Inter', sans-serif; background: url('mooreclub1.webp') center top no-repeat; background-size: cover; background-attachment: fixed; color: white; }
-    .bg-overlay { background-color: rgba(0, 0, 0, 0.85); }
-    .btn { background-color: #6b21a8; color: white; padding: 0.5rem 1rem; border-radius: 0.375rem; font-weight: 600; cursor: pointer; transition: background-color 0.3s; margin-right: 0.5rem; }
-    .btn:hover { background-color: #5b189b; }
-    .producto-card img { border-radius: 0.5rem; height: 96px; width: 96px; object-fit: cover; }
-    #contenido { min-height: 60vh; }
-    .notification-dot { height: 8px; width: 8px; background-color: #ef4444; border-radius: 50%; position: absolute; top: 0; right: 0; }
-    #chatbot-button { position: fixed; bottom: 20px; right: 20px; background-color: #6b21a8; width: 60px; height: 60px; border-radius: 50%; box-shadow: 0 4px 10px rgba(0,0,0,0.4); cursor: pointer; z-index: 1000; display: flex; justify-content: center; align-items: center; font-size: 24px; }
-    #chatbot-container { position: fixed; bottom: 90px; right: 20px; width: 350px; height: 500px; background-color: #1a1a2e; border-radius: 10px; box-shadow: 0 8px 20px rgba(0,0,0,0.5); display: flex; flex-direction: column; z-index: 999; border: 2px solid #6b21a8; display: none; }
-    #chatbot-header { background-color: #6b21a8; color: white; padding: 10px 15px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
-    #chatbot-close { background: none; border: none; color: white; font-size: 1.2em; cursor: pointer; }
-    #chatbot-messages { flex-grow: 1; padding: 15px; overflow-y: auto; background-color: #2a2a4a; }
-    .message { margin-bottom: 10px; padding: 8px 12px; border-radius: 15px; max-width: 80%; line-height: 1.4; }
-    .message.user { background-color: #a855f7; color: white; align-self: flex-end; margin-left: auto; border-bottom-right-radius: 2px; }
-    .message.bot { background-color: #4a4a6e; color: white; align-self: flex-start; margin-right: auto; border-bottom-left-radius: 2px; }
-    #chatbot-input-container { padding: 10px 15px; display: flex; gap: 10px; background-color: #1a1a2e; }
-    #chatbot-input { flex-grow: 1; padding: 10px; border-radius: 20px; border: 1px solid #6b21a8; background-color: #333355; color: white; font-size: 0.9em; }
-    #chatbot-send { background-color: #6b21a8; color: white; border: none; border-radius: 50%; width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 1.2em; transition: background-color 0.3s; }
-    #chatbot-send:hover { background-color: #5b189b; }
-  </style>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-    const firebaseConfig = {
-      apiKey: "AIzaSyAjSUwa9HtVsxBhY__73XdLbWXHmlcIyUE",
-      authDomain: "moore-club.firebaseapp.com",
-      projectId: "moore-club",
-      storageBucket: "moore-club.appspot.com",
-      messagingSenderId: "674972089844",
-      appId: "1:674972089844:web:9d6f9680bec8f6cff98da1"
-    };
-    const app = initializeApp(firebaseConfig);
-    window.db = getFirestore(app);
-  </script>
-</head>
+  <meta charset="UTF-8" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>Moore Club - La Tentación Empieza Aquí</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+
+    body {
+
+      font-family: 'Inter', sans-serif;
+
+      background: url('mooreclub1.webp') center top no-repeat;
+
+      background-size: cover;
+
+      background-attachment: fixed;
+
+      color: white;
+
+    }
+
+    .bg-overlay { background-color: rgba(0, 0, 0, 0.85); }
+
+    .btn {
+
+      background-color: #6b21a8; color: white; padding: 0.5rem 1rem;
+
+      border-radius: 0.375rem; font-weight: 600; cursor: pointer;
+
+      transition: background-color 0.3s; margin-right: 0.5rem;
+
+    }
+
+    .btn:hover { background-color: #5b189b; }
+
+    .producto-card img {
+
+      border-radius: 0.5rem; height: 96px; width: 96px;
+
+      object-fit: cover;
+
+    }
+
+    #contenido { min-height: 60vh; }
+
+    .notification-dot {
+
+        height: 8px; width: 8px; background-color: #ef4444;
+
+        border-radius: 50%; position: absolute; top: 0; right: 0;
+
+    }
+
+
+
+    /* Estilos para el Chatbot */
+
+    #chatbot-button {
+
+        position: fixed;
+
+        bottom: 150px; /* Más arriba, altura media */
+
+        right: 20px;
+
+        border-radius: 50%;
+
+        width: 100px; /* Más grande */
+
+        height: 100px; /* Más grande */
+
+        overflow: hidden; /* Para asegurar que la imagen se recorte en el círculo */
+
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+
+        cursor: pointer;
+
+        z-index: 1000;
+
+        transition: transform 0.3s ease;
+
+        animation: pulse 2s infinite;
+
+    }
+
+    #chatbot-button img {
+
+        width: 100%;
+
+        height: 100%;
+
+        object-fit: cover; /* Ajusta la imagen para que cubra el círculo, recortando si es necesario */
+
+        display: block;
+
+    }
+
+    #chatbot-button:hover {
+
+        transform: scale(1.05);
+
+    }
+
+    @keyframes pulse {
+
+        0% { transform: scale(1); }
+
+        50% { transform: scale(1.05); }
+
+        100% { transform: scale(1); }
+
+    }
+
+
+
+    #chatbot-container {
+
+        position: fixed;
+
+        bottom: 260px; /* Encima del botón más grande (150px + 100px + 10px margen) */
+
+        right: 20px;
+
+        width: 450px; /* Más grande */
+
+        height: 600px; /* Más grande */
+
+        background-color: #1a1a2e;
+
+        border-radius: 10px;
+
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+
+        display: flex;
+
+        flex-direction: column;
+
+        z-index: 999;
+
+        overflow: hidden;
+
+        border: 2px solid #6b21a8;
+
+        display: none; /* Oculto por defecto */
+
+    }
+
+    #chatbot-header {
+
+        background-color: #6b21a8;
+
+        color: white;
+
+        padding: 10px 15px;
+
+        font-weight: bold;
+
+        display: flex;
+
+        justify-content: space-between;
+
+        align-items: center;
+
+        border-top-left-radius: 8px;
+
+        border-top-right-radius: 8px;
+
+    }
+
+    #chatbot-close {
+
+        background: none;
+
+        border: none;
+
+        color: white;
+
+        font-size: 1.2em;
+
+        cursor: pointer;
+
+    }
+
+    /* Estilo para el nuevo botón de minimizar */
+
+    #chatbot-minimize {
+
+        background: none;
+
+        border: none;
+
+        color: white;
+
+        font-size: 1.5em; /* Un poco más grande para el icono de "-" */
+
+        cursor: pointer;
+
+        margin-right: 10px; /* Espacio entre minimizar y cerrar */
+
+    }
+
+    #chatbot-messages {
+
+        flex-grow: 1;
+
+        padding: 15px;
+
+        overflow-y: auto;
+
+        background-color: #2a2a4a;
+
+        border-bottom: 1px solid #4a4a6e;
+
+    }
+
+    .message {
+
+        margin-bottom: 10px;
+
+        padding: 8px 12px;
+
+        border-radius: 15px;
+
+        max-width: 80%;
+
+        line-height: 1.4;
+
+    }
+
+    .message.user {
+
+        background-color: #a855f7;
+
+        color: white;
+
+        align-self: flex-end;
+
+        margin-left: auto;
+
+        border-bottom-right-radius: 2px;
+
+    }
+
+    .message.bot {
+
+        background-color: #4a4a6e;
+
+        color: white;
+
+        align-self: flex-start;
+
+        margin-right: auto;
+
+        border-bottom-left-radius: 2px;
+
+    }
+
+    #chatbot-input-container {
+
+        padding: 10px 15px;
+
+        display: flex;
+
+        gap: 10px;
+
+        background-color: #1a1a2e;
+
+    }
+
+    #chatbot-input {
+
+        flex-grow: 1;
+
+        padding: 10px;
+
+        border-radius: 20px;
+
+        border: 1px solid #6b21a8;
+
+        background-color: #333355;
+
+        color: white;
+
+        font-size: 0.9em;
+
+    }
+
+    #chatbot-send {
+
+        background-color: #6b21a8;
+
+        color: white;
+
+        border: none;
+
+        border-radius: 50%;
+
+        width: 40px;
+
+        height: 40px;
+
+        display: flex;
+
+        justify-content: center;
+
+        align-items: center;
+
+        cursor: pointer;
+
+        font-size: 1.2em;
+
+        transition: background-color 0.3s;
+
+    }
+
+    #chatbot-send:hover {
+
+        background-color: #5b189b;
+
+    }
+
+  </style>
+
+
+
+  <script type="module">
+
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+    import { getFirestore, collection, getDocs, doc, setDoc, updateDoc, deleteDoc, getDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+
+
+    const firebaseConfig = {
+
+      apiKey: "AIzaSyAjSUwa9HtVsxBhY__73XdLbWXHmlcIyUE",
+
+      authDomain: "moore-club.firebaseapp.com",
+
+      projectId: "moore-club",
+
+      storageBucket: "moore-club.firebasestorage.app",
+
+      messagingSenderId: "674972089844",
+
+      appId: "1:674972089844:web:9d6f9680bec8f6cff98da1",
+
+      measurementId: "G-RSPNMJ466D"
+
+    };
+
+
+
+    const app = initializeApp(firebaseConfig);
+
+    const db = getFirestore(app);
+
+
+
+    window.db = db;
+
+    window.collection = collection;
+
+    window.getDocs = getDocs;
+
+    window.doc = doc;
+
+    window.setDoc = setDoc;
+
+    window.updateDoc = updateDoc;
+
+    window.deleteDoc = deleteDoc;
+
+    window.getDoc = getDoc;
+
+    window.query = query;
+
+    window.orderBy = orderBy;
+
+  </script>
+
+  </head>
+
 <body class="text-purple-200">
-  <div class="bg-overlay min-h-screen">
-    <nav class="bg-purple-900 text-white px-6 py-4 flex justify-between items-center">
-      <h1 class="text-xl font-bold cursor-pointer" onclick="mostrarInicio()">Moore Club</h1>
-      <ul class="flex space-x-6 text-sm">
-        <li><a href="#" onclick="mostrarInicio()" class="hover:underline">Inicio</a></li>
-        <li><a href="#" onclick="mostrarLoginVIP()" class="hover:underline">Empleados</a></li>
-        <li><a href="#" onclick="mostrarPanelProductos()" class="hover:underline">Productos</a></li>
-        <li><a href="#" onclick="mostrarPanelHabitaciones()" class="hover:underline">Habitaciones</a></li>
-      </ul>
-    </nav>
-    <main id="contenido" class="p-8"></main>
-  </div>
 
-  <div id="chatbot-button">💬</div>
-  <div id="chatbot-container">
-    <div id="chatbot-header">Asistente Moore Club <button id="chatbot-close" title="Cerrar">X</button></div>
-    <div id="chatbot-messages"></div>
-    <div id="chatbot-input-container">
-      <input type="text" id="chatbot-input" placeholder="Pregunta algo..." />
-      <button id="chatbot-send">▶</button>
-    </div>
-  </div>
+  <div class="bg-overlay min-h-screen">
 
-  <script type="module">
-    import { getFirestore, collection, getDocs, doc, setDoc, updateDoc, deleteDoc, getDoc, query, orderBy, writeBatch } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-    const db = window.db;
+    <nav class="bg-purple-900 text-white px-6 py-4 flex justify-between items-center">
 
-    // --- VARIABLES Y ESTADO ---
-    let empleados = [], fichajes = {}, ventas = {}, habitaciones = [], anuncios = [], libroNegro = [], listaNegra = [];
-    let fichajeInterval, habitacionesInterval, dashboardInterval;
-    const productos = [ { id: 'tito_griego', nombre: 'Tito Dios Griego', imagen: 'Tito.png' }, { id: 'la_tita', nombre: 'La Tita', imagen: 'Tita.png' }, { id: 'mascara_cat', nombre: 'Máscara Dominante “Cat Vanilla”', imagen: 'Mascara.png' }, { id: 'pinzas_led', nombre: 'Pinzas LED “Sweet Pain”', imagen: 'Pinzas.png' }, { id: 'preservativos', nombre: 'Preservativos “Espadas del Deseo”', imagen: 'condones.png' }, { id: 'dildo_doble', nombre: 'Dildo Doble “Fusión Morada”', imagen: 'Dildo.webp' }, { id: 'banana', nombre: 'Banana Pelada', imagen: 'banana.png' }, { id: 'magdalenas', nombre: 'Magdalenas con Glaseado Rosa', imagen: 'magdalenas.png' }, { id: 'berenjena', nombre: 'Berenjena Rellena', imagen: 'berenjena.png' }, { id: 'coctel', nombre: 'Cóctel Dulce', imagen: 'Coctel.png' }, { id: 'trago_afrutado', nombre: 'Trago Afrutado', imagen: 'trago afrutado.png' }, { id: 'almejas', nombre: 'Almejas Picantes', imagen: 'almejas.png' }];
-    
-    // --- FUNCIONES AUXILIARES ---
-    const hashPassword = (str) => { let hash = 0; if (typeof str !== 'string' || str.length === 0) return "hash_0"; for (let i = 0; i < str.length; i++) { const char = str.charCodeAt(i); hash = ((hash << 5) - hash) + char; hash |= 0; } return "hash_" + Math.abs(hash); };
-    const formatearTiempo = (ms) => { if (isNaN(ms) || ms < 0) ms = 0; const totalSegundos = Math.floor(ms / 1000); const horas = String(Math.floor(totalSegundos / 3600)).padStart(2, '0'); const minutos = String(Math.floor((totalSegundos % 3600) / 60)).padStart(2, '0'); const segundos = String(totalSegundos % 60).padStart(2, '0'); return `${horas}:${minutos}:${segundos}`; };
-    const getEstadoHabitacion = (hab) => { const ahora = Date.now(); if (!hab || !hab.reservas) return { estado: 'disponible', texto: 'Disponible', reservaActual: null }; const reservaActual = hab.reservas.find(r => ahora >= r.inicio && ahora < r.fin); if (reservaActual) { return { estado: 'ocupada', texto: 'Ocupada', reservaActual }; } return { estado: 'disponible', texto: 'Disponible', reservaActual: null }; };
-    const getWeekNumber = (d) => { d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())); d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7)); var yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1)); return Math.ceil((((d - yearStart) / 86400000) + 1)/7); };
-    
-    // ... más funciones auxiliares ...
-    const detenerRelojFichaje = () => { if (fichajeInterval) clearInterval(fichajeInterval); };
-    const detenerRelojHabitaciones = () => { if (habitacionesInterval) clearInterval(habitacionesInterval); };
-    const detenerDashboard = () => { if (dashboardInterval) clearInterval(dashboardInterval); };
+      <h1 class="text-xl font-bold cursor-pointer" onclick="mostrarInicio()">Moore Club</h1>
 
-    // --- ASIGNACIÓN DE FUNCIONES GLOBALES ---
-    // Todas las funciones que son llamadas por `onclick` en el HTML
-    Object.assign(window, {
-      mostrarInicio,
-      mostrarLoginVIP,
-      mostrarPanelProductos,
-      mostrarPanelHabitaciones,
-      mostrarLoginAdmin,
-      verificarAccesoAdmin,
-      verificarAccesoVIP,
-      anadirEmpleado,
-      cambiarContrasena,
-      eliminarEmpleado,
-      fichar,
-      desfichar,
-      cerrarSesion,
-      reservarHabitacion,
-      cancelarReserva,
-      ocuparHabitacionAhora,
-      anadirTiempoHabitacion,
-      liberarHabitacion,
-      publicarAnuncio,
-      mostrarAnuncios,
-      anadirAlLibroNegro,
-      eliminarDelLibro,
-      anadirAListaNegra,
-      eliminarDeListaNegra,
-      mostrarListaNegraPublica,
-      actualizarVentas
-    });
+      <ul class="flex space-x-6 text-sm">
 
-    // ... Y aquí el resto del código ...
-    
-    async function init() {
-      // ... el código de inicialización ...
+        <li><a href="#" onclick="mostrarInicio()" class="hover:underline">Inicio</a></li>
+
+        <li><a href="#" onclick="mostrarLoginVIP()" class="hover:underline">Empleados</a></li>
+
+        <li><a href="#" onclick="mostrarPanelProductos()" class="hover:underline">Productos</a></li>
+
+        <li><a href="#" onclick="mostrarPanelHabitaciones()" class="hover:underline">Habitaciones</a></li>
+
+      </ul>
+
+    </nav>
+
+    <main id="contenido" class="p-8"></main>
+
+  </div>
+
+
+
+  <div id="chatbot-button">
+
+      <img src="Luna.png" alt="Asistente de Chatbot" />
+
+  </div>
+
+
+
+  <div id="chatbot-container">
+
+    <div id="chatbot-header">
+
+      Asistente Moore Club
+
+      <div>
+
+          <button id="chatbot-minimize" title="Minimizar">_</button>
+
+          <button id="chatbot-close" title="Cerrar">X</button>
+
+      </div>
+
+    </div>
+
+    <div id="chatbot-messages">
+
+      </div>
+
+    <div id="chatbot-input-container">
+
+      <input type="text" id="chatbot-input" placeholder="Pregunta algo..." />
+
+      <button id="chatbot-send">▶</button>
+
+    </div>
+
+  </div>
+
+
+
+  <script>
+
+    // ===================================================================================
+
+    //  VARIABLES Y FUNCIONES AUXILIARES GLOBALES (accesibles por onclick)
+
+    // ===================================================================================
+
+    // Nota: Las funciones que se llaman directamente desde onclick en el HTML deben estar en el ámbito global.
+
+    // Por eso, se definen aquí, fuera del DOMContentLoaded.
+
+
+
+    let empleados = []; // Se poblará desde Firestore
+
+    let fichajes = {};   // Se poblará desde Firestore
+
+    let ventas = {};     // Se poblará desde Firestore
+
+    let habitaciones = []; // Se poblará desde Firestore
+
+    let anuncios = [];   // Se poblará desde Firestore
+
+    let libroNegro = []; // Se poblará desde Firestore
+
+    let listaNegra = []; // Se poblará desde Firestore
+
+
+
+    let fichajeInterval = null, habitacionesInterval = null, dashboardInterval = null;
+
+
+
+    // Funciones auxiliares usadas en múltiples sitios
+
+    window.hashPassword = (str) => {
+
+        let hash = 0; if (typeof str !== 'string' || str.length === 0) return "hash_0";
+
+        for (let i = 0; i < str.length; i++) { const char = str.charCodeAt(i); hash = ((hash << 5) - hash) + char; hash |= 0; }
+
+        return "hash_" + Math.abs(hash);
+
+    }
+
+    window.formatearTiempo = (ms) => {
+
+        if (isNaN(ms) || ms < 0) ms = 0; const totalSegundos = Math.floor(ms / 1000);
+
+        const horas = String(Math.floor(totalSegundos / 3600)).padStart(2, '0');
+
+        const minutos = String(Math.floor((totalSegundos % 3600) / 60)).padStart(2, '0');
+
+        const segundos = String(totalSegundos % 60).padStart(2, '0');
+
+        return `${horas}:${minutos}:${segundos}`;
+
+    }
+
+    window.getWeekNumber = (d) => {
+
+        d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+
+        d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7));
+
+        var yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
+
+        return Math.ceil((((d - yearStart) / 86400000) + 1)/7);
+
+    }
+
+    window.getEstadoHabitacion = (hab) => {
+
+        const ahora = Date.now();
+
+        if (!hab || !hab.reservas) return { estado: 'disponible', texto: 'Disponible', reservaActual: null };
+
+        const reservaActual = hab.reservas.find(r => ahora >= r.inicio && ahora < r.fin);
+
+        if (reservaActual) { return { estado: 'ocupada', texto: 'Ocupada', reservaActual }; }
+
+        return { estado: 'disponible', texto: 'Disponible', reservaActual: null };
+
+    }
+
+
+
+    // Funciones de control de intervalos
+
+    const detenerRelojFichaje = () => { if (fichajeInterval) { clearInterval(fichajeInterval); fichajeInterval = null; } }
+
+    const detenerRelojHabitaciones = () => { if(habitacionesInterval) { clearInterval(habitacionesInterval); habitacionesInterval = null; } }
+
+    const detenerDashboard = () => { if(dashboardInterval) { clearInterval(dashboardInterval); dashboardInterval = null; } }
+
+
+
+    // ===================================================================================
+
+    //  FUNCIONES DE INTERFAZ PRINCIP (Llamadas por onclick en HTML)
+
+    // ===================================================================================
+
+
+
+    window.mostrarInicio = () => {
+
+        detenerRelojFichaje(); detenerRelojHabitaciones(); detenerDashboard();
+
+        document.getElementById('contenido').innerHTML = `<div class="p-4 md:p-8 max-w-7xl mx-auto rounded-lg bg-purple-900 bg-opacity-90 shadow-lg"><header class="mb-8 text-center"><h1 class="text-5xl font-extrabold text-white drop-shadow-lg mb-2">Bienvenido a Moore Club</h1><p class="text-purple-300 text-lg">Donde la tentación y la elegancia se encuentran.</p></header><div class="flex flex-col md:flex-row items-center gap-8"><div class="md:w-5/12"><img src="Tito y Marta.png" alt="Tito y Marta" class="rounded-lg shadow-2xl w-full h-auto object-cover" /></div><div class="md:w-7/12 space-y-6"><div class="bg-purple-800 bg-opacity-50 p-4 rounded-lg"><h2 class="text-2xl font-bold text-white mb-2">Tito Giovanni</h2><p class="text-purple-200">El carismático maestro de ceremonias y corazón de Moore. Su elegancia y estilo inconfundible, siempre vestido de morado, garantizan una noche inolvidable. Es el anfitrión perfecto, el alma de la fiesta.</p></div><div class="bg-purple-800 bg-opacity-50 p-4 rounded-lg"><h2 class="text-2xl font-bold text-white mb-2">Marta</h2><p class="text-purple-200">La musa indiscutible del club. Con una actitud que cautiva y una sensualidad que desarma, Marta es la protagonista de los shows más aclamados. Su presencia en el escenario es pura magia y provocación.</p></div></div></div><div class="mt-10 flex justify-center gap-4"><button onclick="mostrarLoginVIP()" class="btn">Área Empleados</button><button onclick="mostrarLoginAdmin()" class="btn" style="background-color: #a855f7;">Tito Giovanni</button></div></div>`;
+
+    }
+
+
+
+    window.mostrarLoginVIP = () => {
+
+        detenerRelojFichaje(); detenerRelojHabitaciones(); detenerDashboard();
+
+        document.getElementById('contenido').innerHTML = `<div class="max-w-md mx-auto bg-black bg-opacity-30 p-8 rounded-lg shadow-lg"><h2 class="text-2xl font-bold mb-4 text-center">Acceso Empleados</h2><div class="mb-4"><label class="block mb-2">Nombre completo:</label><input id="nombreInput" type="text" class="w-full px-3 py-2 text-black rounded" placeholder="nombre y apellido en minúsculas" /></div><div class="mb-4"><label class="block mb-2">Contraseña:</label><input id="passInput" type="password" class="w-full px-3 py-2 text-black rounded" /></div><div class="flex justify-between mt-6"><button onclick="verificarAccesoVIP()" class="btn">Entrar</button><button onclick="mostrarInicio()" class="btn" style="background-color:#5b189b;">Volver</button></div></div>`;
+
+    }
+
+
+
+    window.mostrarPanelProductos = () => {
+
+        detenerRelojFichaje(); detenerRelojHabitaciones(); detenerDashboard();
+
+        document.getElementById('contenido').innerHTML = `<h2 class="text-2xl font-bold mb-6 text-center">Productos Moore Club</h2><div class="grid grid-cols-2 md:grid-cols-4 gap-6">${productos.map(p => crearTarjetaProducto(p, false)).join('')}</div><div class="text-center"><button onclick="mostrarInicio()" class="btn mt-8">Volver</button></div>`;
+
+    }
+
+
+
+    window.mostrarPanelHabitaciones = async () => { // Es async porque puede cargar habitaciones
+
+        detenerRelojFichaje(); detenerRelojHabitaciones(); detenerDashboard();
+
+
+
+        if (habitaciones.length === 0) { await cargarTodasLasHabitaciones(); } // Asegura datos
+
+
+
+        let html = `<div class="max-w-7xl mx-auto text-center"><h1 class="text-4xl font-bold mb-8">Nuestras Habitaciones</h1><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">`;
+
+        habitaciones.forEach(hab => {
+
+            const estadoActual = getEstadoHabitacion(hab);
+
+            html += `<div class="border-2 ${estadoActual.estado === 'disponible' ? 'border-purple-600' : 'border-gray-600'} p-4 rounded-lg bg-purple-900 bg-opacity-50 flex flex-col"><div class="flex-grow flex gap-4"><div class="w-1/3 bg-black/20 rounded"></div><div class="w-2/3 text-left"><h2 class="text-2xl font-bold">${hab.nombre}</h2><p class="text-lg ${estadoActual.estado === 'disponible' ? 'text-green-400' : 'text-red-400'}">${estadoActual.texto}</p><div class="mt-2 text-sm"><p class="font-bold mb-1">Reservas para hoy:</p><ul class="list-disc list-inside space-y-1 h-20 overflow-y-auto text-xs">${hab.reservas.filter(r => new Date(r.inicio).toDateString() === new Date().toDateString()).sort((a,b)=>a.inicio-b.inicio).map(r => `<li>${new Date(r.inicio).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})} - ${new Date(r.fin).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})} (${r.cliente})</li>`).join('') || '<li>Ninguna reserva hoy.</li>'}</ul></div></div></div><div id="form-hab-${hab.id}" class="mt-3 text-left border-t border-purple-800 pt-3"><h4 class="font-bold mb-2 text-center">Hacer una nueva reserva:</h4><input type="text" id="cliente-hab-${hab.id}" placeholder="Tu nombre" class="w-full p-2 rounded bg-gray-800 text-white mb-2 text-sm"><div class="flex gap-2"><input type="date" id="fecha-hab-${hab.id}" class="w-full p-2 rounded bg-gray-800 text-white mb-2 text-sm"><input type="time" id="hora-hab-${hab.id}" step="1800" class="w-full p-2 rounded bg-gray-800 text-white mb-2 text-sm"></div><select id="duracion-hab-${hab.id}" class="w-full p-2 rounded bg-gray-800 text-white mb-2 text-sm"><option value="1">1 Hora</option><option value="2">2 Horas</option><option value="3">3 Horas</option></select><button class="btn w-full mt-2" onclick="reservarHabitacion(${hab.id})">Confirmar Reserva</button></div></div>`;
+
+        });
+
+        html += `</div></div>`;
+
+        document.getElementById('contenido').innerHTML = html;
+
+        const hoy = new Date(); const unaSemana = new Date(hoy); unaSemana.setDate(hoy.getDate() + 7);
+
+        const minDate = hoy.toISOString().split('T')[0]; const maxDate = unaSemana.toISOString().split('T')[0];
+
+        document.querySelectorAll('input[type="date"]').forEach(input => { input.min = minDate; input.max = maxDate; input.value = minDate; });
+
+    }
+
+
+
+    window.mostrarLoginAdmin = () => {
+
+        detenerRelojFichaje(); detenerRelojHabitaciones(); detenerDashboard();
+
+        document.getElementById('contenido').innerHTML = `<div class="max-w-md mx-auto bg-black bg-opacity-50 p-8 rounded-lg shadow-lg border-2 border-purple-400"><h2 class="text-3xl font-bold mb-4 text-center text-purple-300">Acceso Privado - Tito Giovanni</h2><label class="block mb-2">Contraseña de Administrador:</label><input id="adminPassInput" type="password" class="w-full px-3 py-2 text-black rounded" /><div class="flex justify-between"><button onclick="verificarAccesoAdmin()" class="btn">Entrar</button><button onclick="mostrarInicio()" class="btn" style="background-color:#5b189b;">Volver</button></div></div>`;
+
+    }
+
+
+
+    window.cerrarSesion = () => {
+
+        detenerRelojFichaje(); detenerRelojHabitaciones(); detenerDashboard();
+
+        sessionStorage.removeItem('currentUser');
+
+        mostrarInicio();
+
+    }
+
+
+
+    // ===================================================================================
+
+    //  LÓGICA DEL CHATBOT (ahora fuera del DOMContentLoaded)
+
+    // ===================================================================================
+
+    const OPENAI_MODEL = "gpt-3.5-turbo";
+
+    const chatbotButton = document.getElementById('chatbot-button');
+
+    const chatbotContainer = document.getElementById('chatbot-container');
+
+    const chatbotCloseButton = document.getElementById('chatbot-close');
+
+    const chatbotMinimizeButton = document.getElementById('chatbot-minimize'); 
+
+    const chatbotMessages = document.getElementById('chatbot-messages');
+
+    const chatbotInput = document.getElementById('chatbot-input');
+
+    const chatbotSendButton = document.getElementById('chatbot-send');
+
+
+
+    // Muestra/Oculta el chatbot
+
+    if (chatbotButton) { // Asegura que el elemento existe antes de añadir listener
+
+        chatbotButton.addEventListener('click', () => {
+
+            chatbotContainer.style.display = chatbotContainer.style.display === 'flex' ? 'none' : 'flex';
+
+            if (chatbotContainer.style.display === 'flex') {
+
+                chatbotInput.focus();
+
+                chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+
+            }
+
+        });
+
+    }
+
+
+
+    if (chatbotCloseButton) { // Asegura que el elemento existe
+
+        chatbotCloseButton.addEventListener('click', () => {
+
+            chatbotContainer.style.display = 'none';
+
+            if (chatbotButton) chatbotButton.style.display = 'flex'; // Asegura que el botón de Luna se vea al cerrar
+
+        });
+
+    }
+
+
+
+    if (chatbotMinimizeButton) { // Asegura que el elemento existe
+
+        chatbotMinimizeButton.addEventListener('click', () => {
+
+            chatbotContainer.style.display = 'none';
+
+            if (chatbotButton) chatbotButton.style.display = 'flex'; // Asegura que el botón de Luna sea visible como "indicador"
+
+        });
+
+    }
+
+
+
+    if (chatbotSendButton) { // Asegura que el elemento existe
+
+        chatbotSendButton.addEventListener('click', () => {
+
+            const message = chatbotInput.value.trim();
+
+            if (message) {
+
+                sendMessageToOpenAI(message);
+
+            }
+
+        });
+
+    }
+
+
+
+    if (chatbotInput) { // Asegura que el elemento existe
+
+        chatbotInput.addEventListener('keypress', (e) => {
+
+            if (e.key === 'Enter') {
+
+                chatbotSendButton.click();
+
+            }
+
+        });
+
+    }
+
+
+
+    function addMessage(text, sender) {
+
+        const messageElement = document.createElement('div');
+
+        messageElement.classList.add('message', sender);
+
+        messageElement.textContent = text;
+
+        chatbotMessages.appendChild(messageElement);
+
+        chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+
+    }
+
+
+
+    async function sendMessageToOpenAI(message) {
+
+        addMessage(message, 'user');
+
+
+
+        try {
+
+            addMessage('Escribiendo...', 'bot');
+
+
+
+            const response = await fetch('/netlify/functions/openai-chat', {
+
+                method: 'POST',
+
+                headers: { 'Content-Type': 'application/json' },
+
+                body: JSON.stringify({
+
+                    model: OPENAI_MODEL,
+
+                    messages: [
+
+                        { role: "system", content: "Eres un asistente amable y servicial para el Moore Club. Tu nombre es Asistente Moore Club. No puedes realizar acciones en la página, solo responder preguntas. Sé conciso y elegante." },
+
+                        { role: "user", content: message }
+
+                    ],
+
+                    temperature: 0.7
+
+                })
+
+            });
+
+
+
+            const data = await response.json();
+
+            
+
+            if (chatbotMessages.lastChild && chatbotMessages.lastChild.textContent === 'Escribiendo...') {
+
+                chatbotMessages.removeChild(chatbotMessages.lastChild);
+
+            }
+
+
+
+            if (response.ok) {
+
+                const botResponse = data.result;
+
+                addMessage(botResponse, 'bot');
+
+            } else {
+
+                console.error('Error de la Netlify Function:', data);
+
+                addMessage(`Lo siento, hubo un error al procesar tu solicitud: ${data.error || 'Error desconocido'}`, 'bot');
+
+            }
+
+        } catch (error) {
+
+            if (chatbotMessages.lastChild && chatbotMessages.lastChild.textContent === 'Escribiendo...') {
+
+                chatbotMessages.removeChild(chatbotMessages.lastChild);
+
+            }
+
+            console.error('Error al conectar con la Netlify Function:', error);
+
+            addMessage('Lo siento, no pude conectar con el asistente en este momento. Inténtalo más tarde.', 'bot');
+
+        } finally {
+
+            chatbotInput.value = '';
+
+        }
+
+    }
+
+
+
+
+
+    // ===================================================================================
+
+    //  NUEVAS FUNCIONES DE CARGA ASÍNCRONA DESDE FIRESTORE
+
+    // ===================================================================================
+
+    // Nota: Estas funciones no se llaman directamente desde onclick, sino internamente.
+
+
+
+    async function cargarTodosLosEmpleados() {
+
+        try {
+
+            const empleadosSnapshot = await getDocs(collection(db, 'empleados'));
+
+            empleados = [];
+
+            if (!empleadosSnapshot.empty) { empleadosSnapshot.forEach(doc => { empleados.push(doc.data()); }); }
+
+            else {
+
+                empleados = [ {nombre: 'tito giovanni', passHash: hashPassword('1234'), ultimoAnuncioVisto: 0}, {nombre: 'marta', passHash: hashPassword('1234'), ultimoAnuncioVisto: 0} ];
+
+                for (const emp of empleados) { await setDoc(doc(db, 'empleados', emp.nombre), emp); }
+
+                console.log("Empleados por defecto creados en Firestore.");
+
+            }
+
+            console.log("Empleados cargados desde Firestore:", empleados);
+
+        } catch (e) { console.error("Error al cargar empleados desde Firestore:", e); }
+
+    }
+
+
+
+    async function cargarTodosLosFichajes() {
+
+        try {
+
+            const fichajesSnapshot = await getDocs(collection(db, 'fichajes'));
+
+            fichajes = {}; fichajesSnapshot.forEach(doc => { fichajes[doc.id] = doc.data(); });
+
+            console.log("Fichajes cargados desde Firestore:", fichajes);
+
+        } catch (e) { console.error("Error al cargar fichajes desde Firestore:", e); fichajes = {}; }
+
+    }
+
+
+
+    async function cargarTodasLasVentas() {
+
+        try {
+
+            const ventasSnapshot = await getDocs(collection(db, 'ventas'));
+
+            ventas = {}; ventasSnapshot.forEach(doc => { ventas[doc.id] = doc.data(); });
+
+            console.log("Ventas cargadas desde Firestore:", ventas);
+
+        } catch (e) { console.error("Error al cargar ventas desde Firestore:", e); ventas = {}; }
+
+    }
+
+
+
+    async function cargarTodasLasHabitaciones() {
+
+        try {
+
+            const habitacionesSnapshot = await getDocs(collection(db, 'habitaciones'));
+
+            habitaciones = [];
+
+            if (!habitacionesSnapshot.empty) {
+
+                habitacionesSnapshot.forEach(doc => { habitaciones.push(doc.data()); });
+
+                if (habitaciones.length < 10) { // Si hay menos de 10, crea las que faltan
+
+                    for (let i = 1; i <= 10; i++) { if (!habitaciones.find(h => h.id === i)) { habitaciones.push({ id: i, nombre: `Habitación ${i}`, reservas: [] }); } }
+
+                }
+
+                habitaciones.sort((a, b) => a.id - b.id); // Ordenar para consistencia
+
+            } else { // Si la colección está vacía, inicializa las 10 habitaciones por defecto
+
+                for (let i = 1; i <= 10; i++) {
+
+                    const nuevaHab = { id: i, nombre: `Habitación ${i}`, reservas: [] }; habitaciones.push(nuevaHab);
+
+                    await setDoc(doc(db, 'habitaciones', String(i)), nuevaHab);
+
+                }
+
+                console.log("Habitaciones por defecto creadas en Firestore.");
+
+            }
+
+            console.log("Habitaciones cargadas desde Firestore:", habitaciones);
+
+        } catch (e) { console.error("Error al cargar habitaciones desde Firestore:", e); }
+
+    }
+
+
+
+    async function cargarTodosLosAnuncios() {
+
+        try {
+
+            const anunciosQuery = query(collection(db, 'anuncios'), orderBy('id', 'desc')); // Ordena por ID (timestamp)
+
+            const anunciosSnapshot = await getDocs(anunciosQuery);
+
+            anuncios = []; anunciosSnapshot.forEach(doc => { anuncios.push(doc.data()); });
+
+            console.log("Anuncios cargados desde Firestore:", anuncios);
+
+        } catch (e) { console.error("Error al cargar anuncios desde Firestore:", e); anuncios = []; }
+
+    }
+
+
+
+    async function cargarLibroNegro() {
+
+        try {
+
+            const libroNegroSnapshot = await getDocs(collection(db, 'libroNegro'));
+
+            libroNegro = []; libroNegroSnapshot.forEach(doc => { libroNegro.push(doc.data()); });
+
+            console.log("Libro Negro cargado desde Firestore:", libroNegro);
+
+        } catch (e) { console.error("Error al cargar Libro Negro desde Firestore:", e); libroNegro = []; }
+
+    }
+
+
+
+    async function cargarListaNegra() {
+
+        try {
+
+            const listaNegraSnapshot = await getDocs(collection(db, 'listaNegra'));
+
+            listaNegra = []; listaNegraSnapshot.forEach(doc => { listaNegra.push(doc.data()); });
+
+            console.log("Lista Negra cargada desde Firestore:", listaNegra);
+
+        } catch (e) { console.error("Error al cargar Lista Negra desde Firestore:", e); listaNegra = []; }
+
+    }
+
+
+
+    // ===================================================================================
+
+    //  FUNCIONES DE LÓGICA DE NEGOCIO (Usan datos cargados)
+
+    // ===================================================================================
+
+    // Nota: Estas funciones pueden depender de 'empleados', 'fichajes', etc.
+
+
+
+    window.gestionarReseteoDatos = async (nombre, esVenta = false) => {
+
+        const ahora = new Date(); const hoyStr = `${ahora.getFullYear()}-${String(ahora.getMonth() + 1).padStart(2, '0')}-${String(ahora.getDate()).padStart(2, '0')}`;
+
+        const semanaNum = getWeekNumber(ahora);
+
+
+
+        if (esVenta) {
+
+            let datosVentaDoc = await getDoc(doc(db, 'ventas', nombre));
+
+            let datosV = datosVentaDoc.exists() ? datosVentaDoc.data() : { productos: {}, fecha: '' };
+
+            if (!datosV.productos) datosV.productos = {};
+
+            if (datosV.fecha !== hoyStr) { datosV.fecha = hoyStr; Object.keys(datosV.productos).forEach(key => { datosV.productos[key].hoy = 0; }); }
+
+            ventas[nombre] = datosV; return datosV;
+
+        } else {
+
+            let datosFichajeDoc = await getDoc(doc(db, 'fichajes', nombre));
+
+            let datosF = datosFichajeDoc.exists() ? datosFichajeDoc.data() : null;
+
+            if (!datosF || typeof datosF.total !== 'number') { datosF = { total: 0, hoy: 0, semana: 0, fecha: hoyStr, numSemana: semanaNum, fichado: false, inicio: null }; }
+
+            if (datosF.fecha !== hoyStr) { datosF.hoy = 0; datosF.fecha = hoyStr; }
+
+            if (datosF.numSemana !== semanaNum) { datosF.semana = 0; datosF.numSemana = semanaNum; }
+
+            fichajes[nombre] = datosF; return datosF;
+
+        }
+
+    }
+
+    window.crearTarjetaProducto = (producto, esPanelVenta = false, nombreEmpleado = '') => {
+
+        let totalVentasHoy = 0; let totalVentasHist = 0;
+
+        if (ventas[nombreEmpleado] && ventas[nombreEmpleado].productos && ventas[nombreEmpleado].productos[producto.id]) {
+
+            totalVentasHoy = ventas[nombreEmpleado].productos[producto.id].hoy || 0; totalVentasHist = ventas[nombreEmpleado].productos[producto.id].total || 0;
+
+        }
+
+        const desc = `Hoy: ${totalVentasHoy} | Total: ${totalVentasHist}`;
+
+        const inputVentasHTML = esPanelVenta ? `<div class="mt-2"><input type="number" min="0" value="0" id="input-${producto.id}" class="w-20 px-2 py-1 text-black rounded" onchange="actualizarVentas('${producto.id}', '${nombreEmpleado}')" /><p class="text-xs mt-1">${desc}</p></div>` : `<p class="text-purple-300 text-sm mt-2">${producto.descripcion || ''}</p>`;
+
+        return `<div class="producto-card bg-purple-800 rounded-lg p-2 text-center shadow-md flex flex-col justify-between text-sm"><div><img src="${producto.imagen}" alt="${producto.nombre}" class="mx-auto mb-2 w-20 h-20 object-cover rounded" /><h3 class="text-white font-semibold leading-tight">${producto.nombre}</h3></div><div>${inputVentasHTML}</div></div>`;
+
+    }
+
+    window.actualizarVentas = async (productoId, nombreEmpleado) => {
+
+        const cantidadInput = document.getElementById(`input-${productoId}`);
+
+        const cantidad = parseInt(cantidadInput.value);
+
+        if (isNaN(cantidad) || cantidad <= 0) { alert("Por favor, introduce una cantidad válida mayor que cero."); cantidadInput.value = '0'; return; }
+
+        try {
+
+            let datosVenta = ventas[nombreEmpleado] || { productos: {}, fecha: '' };
+
+            if (!datosVenta.productos[productoId]) { datosVenta.productos[productoId] = { hoy: 0, total: 0 }; }
+
+            datosVenta.productos[productoId].hoy += cantidad; datosVenta.productos[productoId].total += cantidad;
+
+            datosVenta.fecha = new Date().toISOString().split('T')[0];
+
+            ventas[nombreEmpleado] = datosVenta;
+
+            await setDoc(doc(db, 'ventas', nombreEmpleado), datosVenta);
+
+            cantidadInput.value = '0'; mostrarPanelEmpleados(nombreEmpleado);
+
+        } catch (e) { console.error("Error al actualizar ventas en Firestore:", e); alert("Error al registrar la venta. Por favor, inténtalo de nuevo."); }
+
+    }
+
+    window.fichar = async (nombre) => {
+
+        let datosFichaje = await gestionarReseteoDatos(nombre);
+
+        if (!datosFichaje.fichado) {
+
+            datosFichaje.fichado = true; datosFichaje.inicio = Date.now();
+
+            fichajes[nombre] = datosFichaje;
+
+            try {
+
+                await setDoc(doc(db, 'fichajes', nombre), datosFichaje);
+
+                mostrarPanelEmpleados(nombre); iniciarRelojFichaje(datosFichaje.inicio, datosFichaje.hoy, datosFichaje.semana, datosFichaje.total);
+
+            } catch (e) { console.error("Error al fichar entrada en Firestore:", e); alert("Error al registrar la entrada. Intenta de nuevo."); }
+
+        }
+
+    }
+
+    window.desfichar = async (nombre) => {
+
+        detenerRelojFichaje();
+
+        let datosFichaje = await gestionarReseteoDatos(nombre);
+
+        if (datosFichaje.fichado) {
+
+            const tiempoTrabajado = Date.now() - datosFichaje.inicio;
+
+            datosFichaje.hoy += tiempoTrabajado; datosFichaje.semana += tiempoTrabajado; datosFichaje.total += tiempoTrabajado;
+
+            datosFichaje.fichado = false; datosFichaje.inicio = null;
+
+            fichajes[nombre] = datosFichaje;
+
+            try {
+
+                await setDoc(doc(db, 'fichajes', nombre), datosFichaje);
+
+                mostrarPanelEmpleados(nombre);
+
+            } catch (e) { console.error("Error al fichar salida en Firestore:", e); alert("Error al registrar la salida. Intenta de nuevo."); }
+
+        }
+
+    }
+
+    window.reservarHabitacion = async (id) => {
+
+        const hab = habitaciones.find(h => h.id === id); if (!hab) return;
+
+        const cliente = document.getElementById(`cliente-hab-${id}`).value.trim();
+
+        const fecha = document.getElementById(`fecha-hab-${id}`).value;
+
+        const hora = document.getElementById(`hora-hab-${id}`).value;
+
+        const duracion = parseInt(document.getElementById(`duracion-hab-${id}`).value);
+
+
+
+        if (!cliente || !fecha || !hora || isNaN(duracion) || duracion <= 0) { alert("Por favor, rellena todos los campos y la duración."); return; }
+
+        const [h, m] = hora.split(':'); const inicioReserva = new Date(fecha); inicioReserva.setHours(parseInt(h), parseInt(m), 0, 0);
+
+        const finReserva = new Date(inicioReserva.getTime() + duracion * 60 * 60 * 1000);
+
+        const hayConflicto = hab.reservas.some(r => (inicioReserva.getTime() < r.fin) && (finReserva.getTime() > r.inicio));
+
+        if (hayConflicto) { alert("Conflicto de horario. La habitación ya está reservada en ese tramo."); return; }
+
+        hab.reservas.push({ id: Date.now(), cliente: cliente, inicio: inicioReserva.getTime(), fin: finReserva.getTime() });
+
+        try {
+
+            await setDoc(doc(db, 'habitaciones', String(hab.id)), hab);
+
+            alert(`¡Reserva confirmada para ${cliente} en ${hab.nombre}!`); mostrarPanelHabitaciones();
+
+        } catch (e) { console.error("Error al reservar habitación en Firestore:", e); alert("Error al confirmar la reserva. Por favor, inténtalo de nuevo."); }
+
+    }
+
+    window.cancelarReserva = async (habId, reservaId, nombreEmpleado) => {
+
+        const hab = habitaciones.find(h => h.id === habId); if (!hab) return;
+
+        const reservaIndex = hab.reservas.findIndex(r => r.id === reservaId);
+
+        if (reservaIndex > -1) {
+
+            if (confirm(`¿Seguro que quieres cancelar la reserva de '${hab.reservas[reservaIndex].cliente}'?`)) {
+
+                hab.reservas.splice(reservaIndex, 1);
+
+                try {
+
+                    await setDoc(doc(db, 'habitaciones', String(hab.id)), hab);
+
+                    alert("Reserva cancelada."); mostrarPanelEmpleados(nombreEmpleado);
+
+                } catch (e) { console.error("Error al cancelar reserva en Firestore:", e); alert("Error al cancelar la reserva. Por favor, inténtalo de nuevo."); }
+
+            }
+
+        }
+
+    }
+
+    window.ocuparHabitacionAhora = async (id, nombreEmpleado) => {
+
+        const hab = habitaciones.find(h => h.id === id);
+
+        if (hab && getEstadoHabitacion(hab).estado === 'disponible') {
+
+            const ahora = Date.now();
+
+            const nuevaReserva = { id: ahora, cliente: 'Ocupación Directa', inicio: ahora, fin: ahora + 30 * 60 * 1000 };
+
+            hab.reservas.push(nuevaReserva);
+
+            try {
+
+                await setDoc(doc(db, 'habitaciones', String(hab.id)), hab);
+
+                alert(`Habitación ${hab.nombre} ocupada directamente.`); mostrarPanelEmpleados(nombreEmpleado);
+
+            } catch (e) { console.error("Error al ocupar habitación en Firestore:", e); alert("Error al ocupar la habitación. Por favor, inténtalo de nuevo."); }
+
+        }
+
+    }
+
+    window.anadirTiempoHabitacion = async (id, nombreEmpleado) => {
+
+        const hab = habitaciones.find(h => h.id === id);
+
+        const ahora = Date.now();
+
+        const reservaActual = hab.reservas.find(r => ahora >= r.inicio && ahora < r.fin);
+
+        if (hab && reservaActual) {
+
+            reservaActual.fin += 30 * 60 * 1000;
+
+            try {
+
+                await setDoc(doc(db, 'habitaciones', String(hab.id)), hab);
+
+                alert(`Tiempo añadido a la habitación ${hab.nombre}.`); mostrarPanelEmpleados(nombreEmpleado);
+
+            } catch (e) { console.error("Error al añadir tiempo a habitación en Firestore:", e); alert("Error al añadir tiempo. Por favor, inténtalo de nuevo."); }
+
+        }
+
+    }
+
+    window.liberarHabitacion = async (id, nombreEmpleado) => {
+
+        const hab = habitaciones.find(h => h.id === id);
+
+        const ahora = Date.now();
+
+        const reservaActualIndex = hab.reservas.findIndex(r => ahora >= r.inicio && ahora < r.fin);
+
+        if (reservaActualIndex > -1) {
+
+            if (confirm(`¿Seguro que quieres liberar la habitación y finalizar la sesión de '${hab.reservas[reservaActualIndex].cliente}'?`)) {
+
+                hab.reservas.splice(reservaActualIndex, 1);
+
+                try {
+
+                    await setDoc(doc(db, 'habitaciones', String(hab.id)), hab);
+
+                    alert(`Habitación ${hab.nombre} liberada.`); mostrarPanelEmpleados(nombreEmpleado);
+
+                } catch (e) { console.error("Error al liberar habitación en Firestore:", e); alert("Error al liberar la habitación. Por favor, inténtalo de nuevo."); }
+
+            }
+
+        } else { alert("Esta habitación no tiene una ocupación activa para liberar."); }
+
+    }
+
+    window.publicarAnuncio = async () => {
+
+        const texto = document.getElementById('anuncioTexto').value.trim();
+
+        if (texto) {
+
+            const nuevoAnuncio = { id: Date.now(), texto: texto };
+
+            try {
+
+                await setDoc(doc(db, 'anuncios', String(nuevoAnuncio.id)), nuevoAnuncio);
+
+                anuncios.unshift(nuevoAnuncio); document.getElementById('anuncioTexto').value = '';
+
+                alert('Anuncio publicado.'); mostrarPanelAdmin();
+
+            } catch (e) { console.error("Error al publicar anuncio en Firestore:", e); alert("Error al publicar el anuncio. Por favor, inténtalo de nuevo."); }
+
+        }
+
+    }
+
+    window.mostrarAnuncios = async (nombre) => {
+
+        await cargarTodosLosAnuncios();
+
+        let mensaje = "Últimos Anuncios:\n\n";
+
+        if (anuncios.length === 0) { mensaje = "No hay anuncios recientes."; }
+
+        else { anuncios.sort((a, b) => b.id - a.id).slice(0, 5).forEach(anuncio => { mensaje += `- ${anuncio.texto}\n`; }); }
+
+        alert(mensaje); marcarAnunciosComoVistos(nombre);
+
+    }
+
+    window.marcarAnunciosComoVistos = async (nombre) => {
+
+        const empleado = empleados.find(e => e.nombre === nombre);
+
+        if (empleado && anuncios.length > 0) {
+
+            empleado.ultimoAnuncioVisto = anuncios[0].id;
+
+            try { await setDoc(doc(db, 'empleados', nombre), empleado); mostrarPanelEmpleados(nombre); }
+
+            catch (e) { console.error("Error al marcar anuncio visto en Firestore:", e); }
+
+        }
+
+    }
+
+    window.comprobarNuevosAnuncios = async (nombre) => {
+
+        const empleado = empleados.find(e => e.nombre === nombre); if (!empleado) return false;
+
+        await cargarTodosLosAnuncios();
+
+        if (anuncios.length === 0) return false; const ultimoAnuncioId = anuncios[0].id;
+
+        return empleado.ultimoAnuncioVisto !== ultimoAnuncioId;
+
+    }
+
+    window.anadirAlLibroNegro = async () => {
+
+        const nombre = document.getElementById('libroNombre').value.trim();
+
+        const relacion = document.getElementById('libroRelacion').value;
+
+        const notas = document.getElementById('libroNotas').value.trim();
+
+        if (!nombre) { alert("El nombre del contacto es obligatorio."); return; }
+
+        const nuevoContacto = { id: Date.now(), nombre, relacion, notas };
+
+        try {
+
+            await setDoc(doc(collection(db, 'libroNegro')), nuevoContacto);
+
+            libroNegro.push(nuevoContacto); actualizarLibroNegro();
+
+            document.getElementById('libroNombre').value = ''; document.getElementById('libroNotas').value = '';
+
+        } catch (e) { console.error("Error al añadir al Libro Negro en Firestore:", e); alert("Error al añadir el contacto. Por favor, inténtalo de nuevo."); }
+
+    }
+
+    window.eliminarDelLibro = async (id) => {
+
+        try {
+
+            await deleteDoc(doc(db, 'libroNegro', String(id)));
+
+            libroNegro = libroNegro.filter(c => c.id !== id); actualizarLibroNegro();
+
+        } catch (e) { console.error("Error al eliminar del Libro Negro en Firestore:", e); alert("Error al eliminar el contacto. Por favor, inténtalo de nuevo."); }
+
+    }
+
+    window.actualizarLibroNegro = () => {
+
+        const lista = document.getElementById('listaLibroNegro'); if (!lista) return;
+
+        lista.innerHTML = ''; libroNegro.forEach(contacto => { lista.innerHTML += `<li class="flex justify-between items-center p-2 bg-purple-800 rounded"><span><strong class="capitalize">${contacto.nombre}</strong> (${contacto.relacion}) - ${contacto.notas}</span><button onclick="eliminarDelLibro(${contacto.id})" class="text-red-500 font-bold px-2">X</button></li>`; });
+
+    }
+
+    window.anadirAListaNegra = async () => {
+
+        const nombre = document.getElementById('vetadoNombre').value.trim();
+
+        const motivo = document.getElementById('vetadoMotivo').value.trim();
+
+        if (!nombre || !motivo) { alert("El nombre y el motivo son obligatorios."); return; }
+
+        const nuevaPersona = { id: Date.now(), nombre, motivo };
+
+        try {
+
+            await setDoc(doc(collection(db, 'listaNegra')), nuevaPersona);
+
+            listaNegra.push(nuevaPersona); actualizarListaNegra();
+
+            document.getElementById('vetadoNombre').value = ''; document.getElementById('vetadoMotivo').value = '';
+
+        } catch (e) { console.error("Error al añadir a la Lista Negra en Firestore:", e); alert("Error al añadir a la lista. Por favor, inténtalo de nuevo."); }
+
+    }
+
+    window.eliminarDeListaNegra = async (id) => {
+
+        try {
+
+            await deleteDoc(doc(db, 'listaNegra', String(id)));
+
+            listaNegra = listaNegra.filter(p => p.id !== id); actualizarListaNegra();
+
+        } catch (e) { console.error("Error al eliminar de la Lista Negra en Firestore:", e); alert("Error al eliminar. Por favor, inténtalo de nuevo."); }
+
+    }
+
+    window.actualizarListaNegra = () => {
+
+        const lista = document.getElementById('listaDeVetados'); if (!lista) return;
+
+        lista.innerHTML = ''; listaNegra.forEach(persona => { lista.innerHTML += `<li class="flex justify-between items-center p-2 bg-red-900 bg-opacity-50 rounded"><span><strong class="capitalize">${persona.nombre}</strong> - ${persona.motivo}</span><button onclick="eliminarDeListaNegra(${persona.id})" class="text-white font-bold px-2">X</button></li>`; });
+
+    }
+
+    window.mostrarListaNegraPublica = async () => {
+
+        await cargarListaNegra();
+
+        let mensaje = "--- LISTA NEGRA ---\nPersonas con acceso denegado al local:\n\n";
+
+        if (listaNegra.length === 0) { mensaje += "Actualmente no hay nadie en la lista negra."; }
+
+        else { listaNegra.forEach(p => { mensaje += `- ${p.nombre} (Motivo: ${p.motivo})\n`; }); }
+
+        alert(mensaje);
+
+    }
+
+    window.verificarAccesoAdmin = async () => {
+
+        const adminPassInput = document.getElementById('adminPassInput');
+
+        if (adminPassInput?.value === "D.VaSong11") {
+
+            await cargarTodosLosEmpleados(); await cargarTodosLosFichajes(); await cargarTodosLosAnuncios();
+
+            await cargarLibroNegro(); await cargarListaNegra(); await cargarTodasLasVentas(); await cargarTodasLasHabitaciones();
+
+            mostrarPanelAdmin();
+
+        } else { alert('Contraseña incorrecta.'); }
+
+    }
+
+    window.verificarAccesoVIP = async () => {
+
+        const nombre = document.getElementById('nombreInput')?.value.trim().toLowerCase();
+
+        const pass = document.getElementById('passInput')?.value;
+
+        const empleadoDoc = await getDoc(doc(db, 'empleados', nombre));
+
+        const empleado = empleadoDoc.exists() ? empleadoDoc.data() : null;
+
+        if (empleado && hashPassword(pass) === empleado.passHash) {
+
+            sessionStorage.setItem('currentUser', nombre);
+
+            await gestionarReseteoDatos(nombre); await gestionarReseteoDatos(nombre, true);
+
+            mostrarPanelEmpleados(nombre);
+
+            const datosFichaje = fichajes[nombre];
+
+            if (datosFichaje && datosFichaje.fichado) { iniciarRelojFichaje(datosFichaje.inicio, datosFichaje.hoy, datosFichaje.semana, datosFichaje.total); }
+
+        } else { alert('Nombre de usuario o contraseña incorrectos.'); }
+
+    }
+
+    window.anadirEmpleado = async () => {
+
+        const inputNombre = document.getElementById('newEmployeeName');
+
+        const inputPass = document.getElementById('newEmployeePass');
+
+        const nombre = inputNombre.value.trim().toLowerCase();
+
+        const pass = inputPass.value;
+
+        if (!nombre || !pass) { alert('El nombre y la contraseña son obligatorios.'); return; }
+
+        const empleadoExistente = await getDoc(doc(db, 'empleados', nombre));
+
+        if (empleadoExistente.exists()) { alert('Este empleado ya existe.'); return; }
+
+        const nuevoEmpleado = { nombre: nombre, passHash: hashPassword(pass), ultimoAnuncioVisto: 0 };
+
+        try {
+
+            await setDoc(doc(db, 'empleados', nombre), nuevoEmpleado);
+
+            empleados.push(nuevoEmpleado);
+
+            fichajes[nombre] = { total: 0, hoy: 0, semana: 0, fecha: new Date().toISOString().split('T')[0], numSemana: getWeekNumber(new Date()), fichado: false, inicio: null };
+
+            ventas[nombre] = { productos: {}, fecha: '' };
+
+            alert(`Empleado ${nombre} añadido con éxito.`); mostrarPanelAdmin();
+
+        } catch (e) { console.error("Error al añadir empleado a Firestore:", e); alert("Error al añadir el empleado. Por favor, inténtalo de nuevo."); }
+
+    }
+
+    window.cambiarContrasena = async (nombre) => {
+
+        const nuevaPass = prompt(`Introduce la nueva contraseña para ${nombre}:`);
+
+        if (nuevaPass) {
+
+            try {
+
+                const empleadoRef = doc(db, 'empleados', nombre);
+
+                await updateDoc(empleadoRef, { passHash: hashPassword(nuevaPass) });
+
+                const empleadoLocal = empleados.find(e => e.nombre === nombre);
+
+                if (empleadoLocal) { empleadoLocal.passHash = hashPassword(nuevaPass); }
+
+                alert(`Contraseña de ${nombre} actualizada.`); mostrarPanelAdmin();
+
+            } catch (e) { console.error("Error al cambiar contraseña en Firestore:", e); alert("Error al cambiar la contraseña. Por favor, inténtalo de nuevo."); }
+
+        }
+
+    }
+
+    window.eliminarEmpleado = async (nombre) => {
+
+        if (nombre === 'tito giovanni') { alert('No se puede eliminar al administrador principal.'); return; }
+
+        if (confirm(`¿Estás seguro de que quieres eliminar a ${nombre}?\nEsta acción es permanente y borrará todos sus datos de empleados, fichajes y ventas.`)) {
+
+            try {
+
+                await deleteDoc(doc(db, 'empleados', nombre)); await deleteDoc(doc(db, 'fichajes', nombre)); await deleteDoc(doc(db, 'ventas', nombre));
+
+                empleados = empleados.filter(e => e.nombre !== nombre); delete fichajes[nombre]; delete ventas[nombre];
+
+                alert(`Empleado ${nombre} y sus datos asociados eliminados.`); mostrarPanelAdmin();
+
+            } catch (e) { console.error("Error al eliminar empleado de Firestore:", e); alert("Error al eliminar el empleado. Por favor, inténtalo de nuevo."); }
+
+        }
+
+    }
+
+    const iniciarRelojFichaje = (horaInicio, baseHoy, baseSemana, baseTotal) => {
+
+        detenerRelojFichaje();
+
+        fichajeInterval = setInterval(() => {
+
+            const tiempoSesion = Date.now() - horaInicio;
+
+            document.getElementById('tiempoHoy').textContent = formatearTiempo(baseHoy + tiempoSesion);
+
+            document.getElementById('tiempoSemana').textContent = formatearTiempo(baseSemana + tiempoSesion);
+
+            document.getElementById('tiempoTotal').textContent = formatearTiempo(baseTotal + tiempoSesion);
+
+            document.getElementById('tiempoSesion').textContent = formatearTiempo(tiempoSesion);
+
+        }, 1000);
+
+    }
+
+    const iniciarRelojHabitaciones = () => {
+
+        detenerRelojHabitaciones();
+
+        habitacionesInterval = setInterval(() => {
+
+            habitaciones.forEach(hab => {
+
+                const estadoActual = getEstadoHabitacion(hab);
+
+                let tiempoRestanteElem = document.getElementById(`timer-hab-${hab.id}`);
+
+                if (tiempoRestanteElem) {
+
+                    if (estadoActual.estado === 'ocupada') {
+
+                        const restante = estadoActual.reservaActual.fin - Date.now();
+
+                        if (restante > 0) {
+
+                            tiempoRestanteElem.textContent = formatearTiempo(restante);
+
+                        } else {
+
+                            tiempoRestanteElem.textContent = "¡TIEMPO AGOTADO!";
+
+                            tiempoRestanteElem.classList.add('text-red-500');
+
+                        }
+
+                    } else {
+
+                        tiempoRestanteElem.textContent = "--:--:--";
+
+                        tiempoRestanteElem.classList.remove('text-red-500');
+
+                    }
+
+                }
+
+            });
+
+        }, 1000);
+
+    }
+
+    const iniciarDashboard = () => { detenerDashboard(); dashboardInterval = setInterval(actualizarDashboard, 5000); }
+
+    const actualizarDashboard = () => {
+
+        const empleadosActivosElem = document.getElementById('dashboard-empleados');
+
+        const habitacionesOcupadasElem = document.getElementById('dashboard-habitaciones');
+
+        if (!empleadosActivosElem || !habitacionesOcupadasElem) return;
+
+
+
+        empleadosActivosElem.innerHTML = '';
+
+        Object.keys(fichajes).forEach(nombre => {
+
+            if (fichajes[nombre].fichado) {
+
+                const tiempoSesion = formatearTiempo(Date.now() - fichajes[nombre].inicio);
+
+                empleadosActivosElem.innerHTML += `<li class="capitalize">${nombre} (Sesión: ${tiempoSesion})</li>`;
+
+            }
+
+        });
+
+        if (empleadosActivosElem.innerHTML === '') empleadosActivosElem.innerHTML = '<li>Ningún empleado fichado.</li>';
+
+
+
+        habitacionesOcupadasElem.innerHTML = '';
+
+        habitaciones.forEach(hab => {
+
+            const estado = getEstadoHabitacion(hab);
+
+            if (estado.estado === 'ocupada') {
+
+                const tiempoRestante = formatearTiempo(estado.reservaActual.fin - Date.now());
+
+                habitacionesOcupadasElem.innerHTML += `<li>${hab.nombre} (${estado.reservaActual.cliente}) - Restante: ${tiempoRestante}</li>`;
+
+            }
+
+        });
+
+        if (habitacionesOcupadasElem.innerHTML === '') habitacionesOcupadasElem.innerHTML = '<li>Ninguna habitación ocupada.</li>';
+
+    }
+
+
+
+
+
+   // ===================================================================================
+    //  NUEVAS FUNCIONES DE CARGA ASÍNCRONA DESDE FIRESTORE
+    // ===================================================================================
+    async function cargarDatosDeFirestore(nombreColeccion) {
+        try {
+            const snapshot = await window.getDocs(window.collection(window.db, nombreColeccion));
+            const lista = [];
+            snapshot.forEach(doc => {
+                // Para 'libroNegro' y 'listaNegra' que no usan el nombre como ID, guardamos el ID del documento
+                const data = doc.data();
+                if (nombreColeccion === 'libroNegro' || nombreColeccion === 'listaNegra') {
+                    data.docId = doc.id; 
+                }
+                lista.push(data);
+            });
+            console.log(`${nombreColeccion} cargados desde Firestore:`, lista);
+            return lista;
+        } catch (e) {
+            console.error(`Error al cargar ${nombreColeccion} desde Firestore:`, e);
+            return []; // Devuelve array vacío en caso de error
+        }
     }
-    
-    init();
+
+    async function cargarDatosDeFirestoreComoObjeto(nombreColeccion) {
+        try {
+            const snapshot = await window.getDocs(window.collection(window.db, nombreColeccion));
+            const objeto = {};
+            snapshot.forEach(doc => {
+                objeto[doc.id] = doc.data();
+            });
+            console.log(`${nombreColeccion} cargados desde Firestore:`, objeto);
+            return objeto;
+        } catch (e) {
+            console.error(`Error al cargar ${nombreColeccion} desde Firestore:`, e);
+            return {}; // Devuelve objeto vacío en caso de error
+        }
+    }
+
+
+    // ===================================================================================
+    //  INICIALIZACIÓN PRINCIPAL - CARGA TODOS LOS DATOS AL INICIO
+    // ===================================================================================
+    document.addEventListener('DOMContentLoaded', async () => {
+        console.log("Iniciando carga de datos desde Firestore...");
+        try {
+            // Carga todos los datos en paralelo
+            const [empleadosData, fichajesData, ventasData, habitacionesData, anunciosData, libroNegroData, listaNegraData] = await Promise.all([
+                cargarDatosDeFirestore('empleados'),
+                cargarDatosDeFirestoreComoObjeto('fichajes'),
+                cargarDatosDeFirestoreComoObjeto('ventas'),
+                cargarDatosDeFirestore('habitaciones'),
+                cargarDatosDeFirestore('anuncios'),
+                cargarDatosDeFirestore('libroNegro'),
+                cargarDatosDeFirestore('listaNegra')
+            ]);
+
+            empleados = empleadosData;
+            fichajes = fichajesData;
+            ventas = ventasData;
+            habitaciones = habitacionesData.sort((a, b) => a.id - b.id);
+            anuncios = anunciosData.sort((a, b) => b.id - a.id);
+            libroNegro = libroNegroData;
+            listaNegra = listaNegraData;
+
+            // Comprueba si hay que crear datos por defecto
+            if (empleados.length === 0) {
+                console.log("No se encontraron empleados, creando los de por defecto...");
+                empleados = [ {nombre: 'tito giovanni', passHash: hashPassword('1234'), ultimoAnuncioVisto: 0}, {nombre: 'marta', passHash: hashPassword('1234'), ultimoAnuncioVisto: 0} ];
+                const batch = window.fb.writeBatch(window.db);
+                empleados.forEach(emp => batch.set(window.doc(window.db, 'empleados', emp.nombre), emp));
+                await batch.commit();
+            }
+
+            if (habitaciones.length < 10) {
+                console.log("No se encontraron todas las habitaciones, creando las que faltan...");
+                const batch = window.fb.writeBatch(window.db);
+                for (let i = 1; i <= 10; i++) {
+                    if (!habitaciones.find(h => h.id === i)) {
+                        const nuevaHab = { id: i, nombre: `Habitación ${i}`, reservas: [] };
+                        habitaciones.push(nuevaHab);
+                        batch.set(window.doc(window.db, 'habitaciones', String(i)), nuevaHab);
+                    }
+                }
+                await batch.commit();
+                habitaciones.sort((a,b) => a.id - b.id);
+            }
+            
+            console.log("Carga de datos completada.");
+            
+            const currentUser = sessionStorage.getItem('currentUser');
+            if (currentUser && empleados.find(e => e.nombre === currentUser)) {
+                await gestionarReseteoDatos(currentUser);
+                await gestionarReseteoDatos(currentUser, true);
+                mostrarPanelEmpleados(currentUser);
+                const datosFichaje = fichajes[currentUser];
+                if (datosFichaje && datosFichaje.fichado) {
+                    iniciarRelojFichaje(datosFichaje.inicio, datosFichaje.hoy, datosFichaje.semana, datosFichaje.total);
+                }
+            } else {
+                mostrarInicio();
+            }
+
+        } catch (error) {
+            console.error("FALLO CRÍTICO AL INICIALIZAR DESDE FIRESTORE:", error);
+            document.getElementById('contenido').innerHTML = `<div class="text-center text-red-500"><h1>Error de Conexión</h1><p>No se pudo conectar con la base de datos. Revisa la consola (F12) y la configuración de Firebase.</p></div>`;
+        }
+    });
   </script>
 </body>
 </html>
