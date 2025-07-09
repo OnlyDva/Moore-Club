@@ -237,56 +237,144 @@
             chatbotMessages.scrollTop = chatbotMessages.scrollHeight; // Auto-scroll hacia abajo
         }
 
-        // 3. Función para enviar el mensaje al "cerebro" (Netlify Function)
-        async function handleSendMessage() {
-            const messageText = chatbotInput.value.trim();
-            if (!messageText) return;
+// 3. Función para enviar el mensaje al "cerebro" (Netlify Function)
+async function handleSendMessage() {
+    const messageText = chatbotInput.value.trim();
+    if (!messageText) return;
 
-            addMessageToChat(messageText, 'user');
-            chatbotInput.value = '';
+    addMessageToChat(messageText, 'user');
+    chatbotInput.value = '';
 
-            addMessageToChat('Escribiendo...', 'bot');
+    addMessageToChat('Escribiendo...', 'bot');
 
-            try {
-                const response = await fetch('/.netlify/functions/openai-chat', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: messageText })
-                });
+    try {
+        const response = await fetch('/.netlify/functions/openai-chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: messageText })
+        });
 
-                if (chatbotMessages.lastChild && chatbotMessages.lastChild.textContent === 'Escribiendo...') {
-                    chatbotMessages.removeChild(chatbotMessages.lastChild);
+        if (chatbotMessages.lastChild && chatbotMessages.lastChild.textContent === 'Escribiendo...') {
+            chatbotMessages.removeChild(chatbotMessages.lastChild);
+        }
+
+        if (!response.ok) {
+            throw new Error(`Error del servidor: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        const botReply = data.reply;
+
+        // --- ¡LA MAGIA DE LA INTERACCIÓN COMIENZA AQUÍ! ---
+
+        // Primero, procesamos los comandos GOTO que no deben mostrarse como mensaje de Luna
+        if (botReply.includes('GOTO_EMPLOYEES')) {
+            addMessageToChat("Claro que sí, cielo. Abriendo el portal de empleados...", 'bot');
+            mostrarLoginVIP();
+            return; // Salimos de la función después de ejecutar un comando GOTO
+        } else if (botReply.includes('GOTO_PRODUCTS')) {
+            addMessageToChat("¡Marchando un vistazo a nuestros tesoros! Atento...", 'bot');
+            mostrarPanelProductos();
+            return; // Salimos
+        } else if (botReply.includes('GOTO_ROOMS')) {
+            addMessageToChat("Te enseño nuestras suites del placer, bombón...", 'bot');
+            mostrarPanelHabitaciones();
+            return; // Salimos
+        }
+
+        // Si no es un comando GOTO, mostramos el mensaje de Luna normalmente
+        addMessageToChat(botReply, 'bot');
+
+        // --- Lógica para la interacción de Luna con la web (después de mostrar el mensaje) ---
+
+        // IMPORTANTE: Tu Netlify Function debe responder con estas frases clave.
+
+        // 1. Interacción con "Fichar" (Entrada/Salida)
+        // Frases clave que Luna diría: "Fichaje de entrada registrado, [NombreEmpleado]!" o "Fichaje de salida realizado, [NombreEmpleado]!"
+        if (botReply.toLowerCase().includes('fichaje de entrada registrado') || botReply.toLowerCase().includes('fichaje de salida realizado')) {
+            const currentEmployee = sessionStorage.getItem('currentUser'); // Obtenemos el empleado logeado
+            if (currentEmployee) {
+                if (botReply.toLowerCase().includes('fichaje de entrada registrado')) {
+                    if (typeof window.fichar === 'function') {
+                        await window.fichar(currentEmployee);
+                        console.log(`Luna activó el fichaje de entrada para ${currentEmployee}.`);
+                        addMessageToChat('¡El sistema ha registrado tu entrada!', 'bot'); // Confirmación extra de Luna
+                    } else {
+                        console.warn("La función 'window.fichar' no está disponible.");
+                        addMessageToChat('Hubo un problema al registrar tu entrada. Por favor, inténtalo manualmente.', 'bot');
+                    }
+                } else if (botReply.toLowerCase().includes('fichaje de salida realizado')) {
+                    if (typeof window.desfichar === 'function') {
+                        await window.desfichar(currentEmployee);
+                        console.log(`Luna activó el fichaje de salida para ${currentEmployee}.`);
+                        addMessageToChat('¡El sistema ha registrado tu salida!', 'bot'); // Confirmación extra de Luna
+                    } else {
+                        console.warn("La función 'window.desfichar' no está disponible.");
+                        addMessageToChat('Hubo un problema al registrar tu salida. Por favor, inténtalo manualmente.', 'bot');
+                    }
                 }
-
-                if (!response.ok) {
-                    throw new Error(`Error del servidor: ${response.statusText}`);
-                }
-
-                const data = await response.json();
-                const botReply = data.reply;
-
-                // --- ¡LA MAGIA MEJORADA! ---
-                if (botReply.includes('GOTO_EMPLOYEES')) {
-                    addMessageToChat("Claro que sí, cielo. Abriendo el portal de empleados...", 'bot');
-                    mostrarLoginVIP();
-                } else if (botReply.includes('GOTO_PRODUCTS')) {
-                    addMessageToChat("¡Marchando un vistazo a nuestros tesoros! Atento...", 'bot');
-                    mostrarPanelProductos();
-                } else if (botReply.includes('GOTO_ROOMS')) {
-                    addMessageToChat("Te enseño nuestras suites del placer, bombón...", 'bot');
-                    mostrarPanelHabitaciones();
-                } else {
-                    addMessageToChat(botReply, 'bot');
-                }
-
-            } catch (error) {
-                console.error("Error al enviar mensaje:", error);
-                if (chatbotMessages.lastChild && chatbotMessages.lastChild.textContent === 'Escribiendo...') {
-                    chatbotMessages.removeChild(chatbotMessages.lastChild);
-                }
-                addMessageToChat('Lo siento, algo salió mal. Inténtalo de nuevo.', 'bot');
+            } else {
+                addMessageToChat('Para registrar el fichaje, por favor, asegúrate de haber iniciado sesión como empleado.', 'bot');
             }
         }
+
+        // 2. Interacción para "Aumentar Peluches Vendidos"
+        // Frases clave que Luna diría: "Venta de peluche registrada. Producto: [ID_PRODUCTO]. Cantidad: [CANTIDAD]."
+        if (botReply.toLowerCase().includes('venta de peluche registrada')) {
+            const currentEmployee = sessionStorage.getItem('currentUser');
+            if (currentEmployee) {
+                const productoIdMatch = botReply.match(/producto:\s*([a-zA-Z0-9_]+)/i); // Extrae el ID del producto
+                const cantidadMatch = botReply.match(/cantidad:\s*(\d+)/i); // Extrae la cantidad
+
+                const productoId = productoIdMatch && productoIdMatch[1] ? productoIdMatch[1] : null;
+                const cantidad = cantidadMatch && cantidadMatch[1] ? parseInt(cantidadMatch[1]) : 1; // Por defecto 1 si no se especifica
+
+                if (productoId && !isNaN(cantidad) && cantidad > 0) {
+                    // Crea un input temporal para simular la interacción que espera actualizarVentas
+                    const tempInput = document.createElement('input');
+                    tempInput.type = 'number';
+                    tempInput.value = cantidad.toString();
+                    tempInput.id = `input-${productoId}`; // ID que 'actualizarVentas' buscará
+                    document.body.appendChild(tempInput); // Lo añadimos temporalmente al DOM
+
+                    if (typeof window.actualizarVentas === 'function') {
+                        await window.actualizarVentas(productoId, currentEmployee);
+                        addMessageToChat(`¡Confirmado! ${cantidad} unidad(es) de ${productoId} registrada(s).`, 'bot');
+                    } else {
+                        console.warn("La función 'window.actualizarVentas' no está disponible.");
+                        addMessageToChat('No pude registrar la venta directamente. Por favor, hazlo manualmente.', 'bot');
+                    }
+                    document.body.removeChild(tempInput); // Eliminamos el input temporal
+                } else {
+                    addMessageToChat('Para registrar la venta, Luna necesita el ID del producto y la cantidad (ej. "Producto: tito_griego. Cantidad: 1").', 'bot');
+                }
+            } else {
+                addMessageToChat('Para registrar ventas, por favor, inicia sesión como empleado.', 'bot');
+            }
+        }
+
+        // 3. Interacción con "Alquilar Habitaciones" (Redirección o apertura de formulario)
+        // Frases clave que Luna diría: "Te llevo a las habitaciones." o "Abriendo formulario de reserva."
+        if (botReply.toLowerCase().includes('te llevo a las habitaciones') || botReply.toLowerCase().includes('abriendo formulario de reserva')) {
+            if (typeof window.mostrarPanelHabitaciones === 'function') {
+                await window.mostrarPanelHabitaciones();
+                addMessageToChat('¡Aquí tienes el panel de habitaciones para que hagas tu reserva!', 'bot');
+            } else {
+                console.warn("La función 'window.mostrarPanelHabitaciones' no está disponible.");
+                addMessageToChat('No pude redirigirte a las habitaciones. ¿Quieres que te explique cómo llegar?', 'bot');
+            }
+        }
+
+        // --- FIN DE LA LÓGICA DE INTERACCIÓN ---
+
+    } catch (error) {
+        console.error("Error al enviar mensaje:", error);
+        if (chatbotMessages.lastChild && chatbotMessages.lastChild.textContent === 'Escribiendo...') {
+            chatbotMessages.removeChild(chatbotMessages.lastChild);
+        }
+        addMessageToChat('Lo siento, algo salió mal. Inténtalo de nuevo.', 'bot');
+    }
+}
 
         // 4. Event Listeners para hacer que los botones funcionen
         chatbotButton.addEventListener('click', () => {
