@@ -29,7 +29,7 @@
         height: 8px; width: 8px; background-color: #ef4444;
         border-radius: 50%; position: absolute; top: 0; right: 0;
     }
-    /* === ESTILOS PARA EL CHATBOT === */
+/* === ESTILOS PARA EL CHATBOT === */
 #chatbot-button {
     position: fixed;
     bottom: 150px;
@@ -61,16 +61,17 @@
     position: fixed;
     bottom: 260px;
     right: 20px;
-    width: 450px;
-    height: 600px;
+    width: 450px; /* Asegura el ancho fijo */
+    height: 600px; /* Asegura el alto fijo */
     background-color: #1a1a2e;
     border-radius: 10px;
     box-shadow: 0 8px 20px rgba(0,0,0,0.5);
     display: flex;
     flex-direction: column;
     z-index: 999;
-    overflow: hidden;
+    overflow: hidden; /* Muy importante para que no se desborde el contenido */
     border: 2px solid #6b21a8;
+    box-sizing: border-box; /* Incluye padding y border en el width/height */
 }
 #chatbot-header {
     background-color: #6b21a8;
@@ -80,6 +81,9 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-shrink: 0; /* Asegura que no se encoja */
+    box-sizing: border-box;
+    width: 100%; /* Asegura que ocupe todo el ancho */
 }
 #chatbot-close, #chatbot-minimize {
     background: none;
@@ -88,14 +92,18 @@
     font-size: 1.2em;
     cursor: pointer;
     margin-left: 10px;
+    padding: 0; /* Asegura que no tengan padding extra */
+    line-height: 1; /* Para centrar el texto si es necesario */
 }
 #chatbot-messages {
-    flex-grow: 1;
+    flex-grow: 1; /* Permite que ocupe todo el espacio vertical disponible */
     padding: 15px;
-    overflow-y: auto;
+    overflow-y: auto; /* IMPORTANTE: Para que aparezca una barra de scroll vertical si los mensajes exceden el espacio */
     background-color: #2a2a4a;
     display: flex;
     flex-direction: column;
+    min-height: 0; /* Permite que se encoja si es necesario */
+    box-sizing: border-box;
 }
 .message {
     margin-bottom: 10px;
@@ -103,6 +111,8 @@
     border-radius: 15px;
     max-width: 80%;
     line-height: 1.4;
+    word-wrap: break-word; /* Para que las palabras largas no se salgan del contenedor */
+    box-sizing: border-box;
 }
 .message.user {
     background-color: #a855f7;
@@ -119,6 +129,9 @@
     display: flex;
     gap: 10px;
     background-color: #1a1a2e;
+    flex-shrink: 0; /* Asegura que no se encoja */
+    box-sizing: border-box;
+    width: 100%; /* Asegura que ocupe todo el ancho */
 }
 #chatbot-input {
     flex-grow: 1;
@@ -127,6 +140,8 @@
     border: 1px solid #6b21a8;
     background-color: #333355;
     color: white;
+    box-sizing: border-box;
+    min-width: 0; /* Permite que el input se encoja correctamente en flexbox */
 }
 #chatbot-send {
     background-color: #6b21a8;
@@ -141,6 +156,7 @@
     cursor: pointer;
     font-size: 1.2em;
     transition: background-color 0.3s;
+    flex-shrink: 0; /* Asegura que no se encoja */
 }
 #chatbot-send:hover { background-color: #5b189b; }
   </style>
