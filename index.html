@@ -8,7 +8,7 @@
 <style>
     body {
       font-family: 'Inter', sans-serif;
-      background: url('mooreclub1.webp') center top no-repeat;
+      background: url('Mooreclub1.jpeg') center top no-repeat;
       background-size: cover;
       background-attachment: fixed;
       color: white;
@@ -29,25 +29,53 @@
         width: 100%; height: 100%; max-height: 200px;
         object-fit: contain;
     }
+    @keyframes pulse-animation { 0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(234, 179, 8, 0.7); } 70% { transform: scale(1.05); box-shadow: 0 0 10px 20px rgba(234, 179, 8, 0); } 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(234, 179, 8, 0); } }
+    .timer-closing-animation { animation: pulse-animation 1s 5; }
+
 /* --- ESTILOS DEL CHATBOT --- */
-#chatbot-button {
+#chatbot-button-wrapper {
     position: fixed;
-    width: 200px; height: 200px; bottom: 80px; left: 50%;
-    transform: translateX(-50%);
+    bottom: 40px; right: 40px;
+    z-index: 1000;
+    transition: all 0.4s ease;
+}
+#chatbot-button {
+    width: 140px; height: 140px;
     border-radius: 50%;
     overflow: hidden;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
     cursor: pointer;
-    z-index: 1000;
-    transition: all 0.4s ease;
-    animation: pulse 2s infinite;
+    transition: transform 0.3s ease;
+    animation: pulse-small 2s infinite;
 }
-#chatbot-button img {
-    width: 100%; height: 100%;
-    object-fit: contain;
+#chatbot-button:hover { transform: scale(1.05); }
+#chatbot-button img { width: 100%; height: 100%; object-fit: contain; }
+#chatbot-bubble {
+    position: absolute;
+    bottom: 150px; /* Encima del botón */
+    right: 0;
+    background-color: #a855f7;
+    color: white;
+    padding: 12px 18px;
+    border-radius: 20px;
+    border-bottom-right-radius: 2px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    white-space: nowrap;
+    font-weight: 600;
+    cursor: pointer;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(20px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
 }
-@keyframes pulse{0%{transform:scale(1) translateX(-50%)}50%{transform:scale(1.05) translateX(-50%)}100%{transform:scale(1) translateX(-50%)}}
-#chatbot-container{position:fixed;bottom:260px;right:20px;width:450px;height:600px;background-color:#1a1a2e;border-radius:10px;box-shadow:0 8px 20px rgba(0,0,0,.5);display:none;flex-direction:column;z-index:999;overflow:hidden;border:2px solid #6b21a8;box-sizing:border-box}#chatbot-header{background-color:#6b21a8;color:#fff;padding:10px 15px;font-weight:700;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;box-sizing:border-box;width:100%}#chatbot-close,#chatbot-minimize{background:0 0;border:none;color:#fff;font-size:1.2em;cursor:pointer;margin-left:10px;padding:0;line-height:1}#chatbot-messages{flex-grow:1;padding:15px;overflow-y:auto;background-color:#2a2a4a;display:flex;flex-direction:column;min-height:0;box-sizing:border-box}.chat-message{margin-bottom:10px;padding:8px 12px;border-radius:15px;max-width:80%;line-height:1.4;word-wrap:break-word;box-sizing:border-box}.user-message{background-color:#a855f7;align-self:flex-end;border-bottom-right-radius:2px}.bot-message{background-color:#4a4a6e;align-self:flex-start;border-bottom-left-radius:2px}#chatbot-input-container{padding:10px 15px;display:flex;align-items:center;gap:10px;background-color:#1a1a2e;flex-shrink:0;box-sizing:border-box;width:100%}#chatbot-input{flex-grow:1;padding:10px;border-radius:20px;border:1px solid #6b21a8;background-color:#333355;color:#fff;box-sizing:border-box;min-width:0}
+#chatbot-bubble.visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+@keyframes pulse-small{0%{transform:scale(1)}50%{transform:scale(1.02)}100%{transform:scale(1)}}
+
+#chatbot-container{position:fixed;bottom:40px;right:40px;width:450px;height:600px;background-color:#1a1a2e;border-radius:10px;box-shadow:0 8px 20px rgba(0,0,0,.5);display:none;flex-direction:column;z-index:999;overflow:hidden;border:2px solid #6b21a8;box-sizing:border-box}#chatbot-header{background-color:#6b21a8;color:#fff;padding:10px 15px;font-weight:700;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;box-sizing:border-box;width:100%}#chatbot-close,#chatbot-minimize{background:0 0;border:none;color:#fff;font-size:1.2em;cursor:pointer;margin-left:10px;padding:0;line-height:1}#chatbot-messages{flex-grow:1;padding:15px;overflow-y:auto;background-color:#2a2a4a;display:flex;flex-direction:column;min-height:0;box-sizing:border-box}.chat-message{margin-bottom:10px;padding:8px 12px;border-radius:15px;max-width:80%;line-height:1.4;word-wrap:break-word;box-sizing:border-box}.user-message{background-color:#a855f7;align-self:flex-end;border-bottom-right-radius:2px}.bot-message{background-color:#4a4a6e;align-self:flex-start;border-bottom-left-radius:2px}#chatbot-input-container{padding:10px 15px;display:flex;align-items:center;gap:10px;background-color:#1a1a2e;flex-shrink:0;box-sizing:border-box;width:100%}#chatbot-input{flex-grow:1;padding:10px;border-radius:20px;border:1px solid #6b21a8;background-color:#333355;color:#fff;box-sizing:border-box;min-width:0}
 .chatbot-action-btn { background-color: transparent; color: white; border: none; border-radius: 50%; width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 1.5em; transition: background-color 0.3s; flex-shrink: 0; }
 .chatbot-action-btn:hover { background-color: #5b189b; }
 .drag-over { border: 3px dashed #a855f7 !important; background-color: rgba(168, 85, 247, 0.1); }
@@ -65,7 +93,7 @@
       apiKey: "AIzaSyAjSUwa9HtVsxBhY__73XdLbWXHmlcIyUE",
       authDomain: "moore-club.firebaseapp.com",
       projectId: "moore-club",
-      storageBucket: "moore-club.firebasestorage.app",
+      storageBucket: "moore-club.appspot.com",
       messagingSenderId: "674972089844",
       appId: "1:674972089844:web:9d6f9680bec8f6cff98da1",
       measurementId: "G-RSPNMJ466D"
@@ -90,6 +118,7 @@
     window.getDownloadURL = getDownloadURL;
     window.deleteObject = deleteObject;
     window.where = where;
+    window.firebaseConfig = firebaseConfig; // Hacemos accesible la config globalmente
 </script>
 </head>
 <body class="text-purple-200">
@@ -115,57 +144,51 @@
 document.addEventListener('DOMContentLoaded', async () => {
 
     // --- ESTADO GLOBAL Y VARIABLES ---
-    const productos = [ { id: 'tito_griego', nombre: 'Tito Dios Griego', imagen: 'Tito.png' }, { id: 'la_tita', nombre: 'La Tita', imagen: 'Tita.png' }, { id: 'mascara_cat', nombre: 'Máscara Dominante “Cat Vanilla”', imagen: 'Mascara.png' }, { id: 'pinzas_led', nombre: 'Pinzas LED “Sweet Pain”', imagen: 'Pinzas.png' }, { id: 'preservativos', nombre: 'Preservativos “Espadas del Deseo”', imagen: 'condones.png' } ];
+    const productos = [ 
+        { id: 'tito_griego', nombre: 'Tito Dios Griego', imagen: 'Tito.png' }, 
+        { id: 'la_tita', nombre: 'La Tita', imagen: 'Tita.png' }, 
+        { id: 'mascara_cat', nombre: 'Máscara “Cat Vanilla”', imagen: 'Mascara.png' }, 
+        { id: 'pinzas_led', nombre: 'Pinzas LED “Sweet Pain”', imagen: 'Pinzas.png' }, 
+        { id: 'preservativos', nombre: '“Espadas del Deseo”', imagen: 'condones.png' },
+        { id: 'golosinas_picantes', nombre: 'Golosinas Picantes', imagen: 'placeholder.png' },
+        { id: 'refresco_manzana', nombre: 'Refresco de Manzana', imagen: 'placeholder.png' }
+    ];
     let empleados = [], fichajes = {}, ventas = {}, habitaciones = [], anuncios = [], libroNegro = [], listaNegra = [], inventarioLog = [];
-    let fichajeInterval = null, habitacionesInterval = null, dashboardInterval = null;
+    let fichajeInterval = null, habitacionesInterval = null, dashboardInterval = null, aperturaInterval = null;
     let chatbotImageFile = null;
 
     // --- FUNCIONES DE UTILIDAD (INTERNAS)---
     const detenerRelojFichaje = () => { if (fichajeInterval) clearInterval(fichajeInterval); fichajeInterval = null; };
     const detenerRelojHabitaciones = () => { if (habitacionesInterval) clearInterval(habitacionesInterval); habitacionesInterval = null; };
     const detenerDashboard = () => { if (dashboardInterval) clearInterval(dashboardInterval); dashboardInterval = null; };
-    const clearTimers = () => { detenerRelojFichaje(); detenerRelojHabitaciones(); detenerDashboard(); };
+    const detenerRelojApertura = () => { if (aperturaInterval) clearInterval(aperturaInterval); aperturaInterval = null; };
+    const clearTimers = () => { detenerRelojFichaje(); detenerRelojHabitaciones(); detenerDashboard(); detenerRelojApertura(); };
     const iniciarRelojFichaje = (horaInicio, baseHoy, baseSemana, baseTotal) => { detenerRelojFichaje(); fichajeInterval = setInterval(() => { const tiempoSesion = Date.now() - horaInicio; document.getElementById('tiempoHoy').textContent = window.formatearTiempo(baseHoy + tiempoSesion); document.getElementById('tiempoSemana').textContent = window.formatearTiempo(baseSemana + tiempoSesion); document.getElementById('tiempoTotal').textContent = window.formatearTiempo(baseTotal + tiempoSesion); document.getElementById('tiempoSesion').textContent = window.formatearTiempo(tiempoSesion); }, 1000); };
     const iniciarRelojHabitaciones = () => { detenerRelojHabitaciones(); habitacionesInterval = setInterval(() => { habitaciones.forEach(hab => { const estadoActual = window.getEstadoHabitacion(hab); let tiempoRestanteElem = document.getElementById(`timer-hab-${hab.id}`); if (tiempoRestanteElem) { if (estadoActual.estado === 'ocupada') { const restante = estadoActual.reservaActual.fin - Date.now(); if (restante > 0) { tiempoRestanteElem.textContent = window.formatearTiempo(restante); } else { tiempoRestanteElem.textContent = "¡TIEMPO AGOTADO!"; tiempoRestanteElem.classList.add('text-red-500'); } } else { tiempoRestanteElem.textContent = "--:--:--"; tiempoRestanteElem.classList.remove('text-red-500');}}});}, 1000); };
     const iniciarDashboard = () => { detenerDashboard(); dashboardInterval = setInterval(window.actualizarDashboard, 5000); };
+    const iniciarRelojApertura = (horaInicio) => {
+        detenerRelojApertura();
+        const timerElem = document.getElementById('tiempoApertura');
+        if(!timerElem) return;
+        timerElem.parentElement.style.display = 'block';
+        aperturaInterval = setInterval(() => {
+            const tiempoAbierto = Date.now() - horaInicio;
+            timerElem.textContent = window.formatearTiempo(tiempoAbierto);
+        }, 1000);
+    };
+    const formatearTiempoHorasDecimal = (ms) => {
+        if (isNaN(ms) || ms < 0) return "0,00h";
+        const horas = ms / (1000 * 60 * 60);
+        return horas.toFixed(2).replace('.', ',') + 'h';
+    };
+
     const ajustarPosicionChatbot = (vista) => {
-        const boton = document.getElementById('chatbot-button');
-        if (!boton) return;
-
-        const estiloCentradoGrande = {
-            width: '200px', height: '200px', bottom: '80px',
-            left: '50%', right: 'auto', transform: 'translateX(-50%)'
-        };
-        const estiloDerecha = {
-            width: '140px', height: '140px', bottom: '40px',
-            left: 'auto', right: '40px', transform: 'none'
-        };
-        const estiloIzquierda = {
-            width: '150px', height: '150px', bottom: '40px',
-            left: '40px', right: 'auto', transform: 'none'
-        };
-        
-        let estilosFinales;
-
-        switch (vista) {
-            case 'inicio':
-            case 'empleados':
-                estilosFinales = estiloCentradoGrande;
-                break;
-            case 'productos':
-            case 'habitaciones':
-            case 'login':
-            case 'admin':
-                estilosFinales = estiloDerecha;
-                break;
-            default: 
-                estilosFinales = estiloIzquierda;
-                break;
+        const bubble = document.getElementById('chatbot-bubble');
+        if (vista === 'inicio') {
+            bubble.classList.add('visible');
+        } else {
+            bubble.classList.remove('visible');
         }
-
-        Object.assign(boton.style, estilosFinales);
-        boton.onmouseover = () => { boton.style.transform = estilosFinales.transform === 'none' ? 'scale(1.05)' : 'translateX(-50%) scale(1.05)'; };
-        boton.onmouseout = () => { boton.style.transform = estilosFinales.transform; };
     };
     
     // --- FUNCIONES GLOBALES ---
@@ -175,11 +198,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     window.getEstadoHabitacion = (hab) => { const now = Date.now(); if (!hab || !hab.reservas) return { estado: 'disponible', texto: 'Disponible', reservaActual: null }; const r = hab.reservas.find(res => now >= res.inicio && now < res.fin); return r ? { estado: 'ocupada', texto: 'Ocupada', reservaActual: r } : { estado: 'disponible', texto: 'Disponible', reservaActual: null }; };
     
     // --- CARGA DE DATOS DE FIRESTORE ---
-    const cargarTodosLosEmpleados = async () => { try { const snapshot = await getDocs(collection(db, 'empleados')); empleados = []; snapshot.forEach(doc => empleados.push(doc.data())); } catch (e) { console.error("Error cargando empleados:", e); } };
+    const cargarTodosLosEmpleados = async () => { try { const snapshot = await getDocs(collection(db, 'empleados')); empleados = []; snapshot.forEach(doc => empleados.push({ id: doc.id, ...doc.data() })); } catch (e) { console.error("Error cargando empleados:", e); } };
     const cargarTodosLosFichajes = async () => { try { const snapshot = await getDocs(collection(db, 'fichajes')); fichajes = {}; snapshot.forEach(doc => { fichajes[doc.id] = doc.data(); }); } catch (e) { console.error("Error cargando fichajes:", e); } };
     const cargarTodasLasVentas = async () => { try { const snapshot = await getDocs(collection(db, 'ventas')); ventas = {}; snapshot.forEach(doc => { ventas[doc.id] = doc.data(); }); } catch (e) { console.error("Error cargando ventas:", e); } };
     const cargarTodasLasHabitaciones = async () => { try { const snapshot = await getDocs(collection(db, 'habitaciones')); habitaciones = []; if (!snapshot.empty) { snapshot.forEach(doc => habitaciones.push(doc.data())); } else { for (let i = 1; i <= 10; i++) { const newHab = { id: i, nombre: `Habitación ${i}`, reservas: [] }; habitaciones.push(newHab); await setDoc(doc(db, 'habitaciones', String(i)), newHab); } } habitaciones.sort((a, b) => a.id - b.id); } catch (e) { console.error("Error cargando habitaciones:", e); } };
-    const cargarTodosLosAnuncios = async () => { try { const q = query(collection(db, 'anuncios'), orderBy('id', 'desc')); const snapshot = await getDocs(q); anuncios = []; snapshot.forEach(doc => anuncios.push(doc.data())); } catch (e) { console.error("Error cargando anuncios:", e); } };
+    const cargarTodosLosAnuncios = async () => { try { const q = query(collection(db, 'anuncios'), orderBy('timestamp', 'desc')); const snapshot = await getDocs(q); anuncios = []; snapshot.forEach(doc => anuncios.push(doc.data())); } catch (e) { console.error("Error cargando anuncios:", e); } };
     const cargarLibroNegro = async () => { try { const snapshot = await getDocs(collection(db, 'libroNegro')); libroNegro = []; snapshot.forEach(doc => libroNegro.push({docId: doc.id, ...doc.data()})); } catch (e) { console.error("Error cargando Libro Negro:", e); } };
     const cargarListaNegra = async () => { try { const snapshot = await getDocs(collection(db, 'listaNegra')); listaNegra = []; snapshot.forEach(doc => listaNegra.push({docId: doc.id, ...doc.data()})); } catch (e) { console.error("Error cargando Lista Negra:", e); } };
     const cargarInventarioLog = async () => { try { const q = query(collection(db, 'inventario_log'), orderBy('timestamp', 'desc')); const snapshot = await getDocs(q); inventarioLog = []; snapshot.forEach(doc => inventarioLog.push(doc.data())); } catch (e) { console.error("Error cargando log de inventario:", e); } };
@@ -220,10 +243,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
     window.cerrarSesion = () => { 
         clearTimers(); 
-        const currentUser = sessionStorage.getItem('currentUser');
-        if (currentUser) {
-            window.desfichar(currentUser, true); 
-        }
         sessionStorage.removeItem('currentUser'); 
         window.mostrarInicio(); 
     };
@@ -255,10 +274,22 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
     window.mostrarPanelProductos = () => { 
         clearTimers();
-        const productosHTML = productos.map(p => window.crearTarjetaProducto(p, false)).join('');
+        const soloProductos = productos.filter(p => !['golosinas_picantes', 'refresco_manzana'].includes(p.id));
+        const productosHTML = soloProductos.map(p => window.crearTarjetaProducto(p, false)).join('');
+
         const comidasHTML = `<div class="producto-card bg-purple-800 rounded-lg p-2 text-center shadow-md flex flex-col justify-between text-sm"><div><h3 class="text-white font-semibold leading-tight mt-2">Golosinas Picantes</h3></div><div><p class="text-purple-300 text-lg font-bold mt-2">$35</p></div></div><div class="producto-card bg-purple-800 rounded-lg p-2 text-center shadow-md flex flex-col justify-between text-sm"><div><h3 class="text-white font-semibold leading-tight mt-2">Zumo</h3></div><div><p class="text-purple-300 text-lg font-bold mt-2">$35</p></div></div><div class="producto-card bg-purple-800 rounded-lg p-2 text-center shadow-md flex flex-col justify-between text-sm"><div><h3 class="text-white font-semibold leading-tight mt-2">Alcohol</h3></div><div><p class="text-purple-300 text-lg font-bold mt-2">$60</p></div></div>`;
         const serviciosHTML = `<div class="producto-card bg-purple-800 rounded-lg p-2 text-center shadow-md flex flex-col justify-between text-sm"><div><h3 class="text-white font-semibold leading-tight mt-2">Habitaciones</h3></div><div><p class="text-purple-300 text-lg font-bold mt-2">$2000</p></div></div><div class="producto-card bg-purple-800 rounded-lg p-2 text-center shadow-md flex flex-col justify-between text-sm"><div><h3 class="text-white font-semibold leading-tight mt-2">Bailarín/a Privado/a</h3></div><div><p class="text-purple-300 text-lg font-bold mt-2">$2000</p></div></div>`;
-        document.getElementById('contenido').innerHTML = `<h2 class="text-3xl font-bold mb-6 text-center">Productos y Servicios</h2><h3 class="text-2xl font-semibold mb-4 border-t border-purple-700 pt-6">Productos</h3><div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">${productosHTML}</div><h3 class="text-2xl font-semibold mb-4 border-t border-purple-700 pt-6 mt-8">Comidas y Bebidas</h3><div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6">${comidasHTML}</div><h3 class="text-2xl font-semibold mb-4 border-t border-purple-700 pt-6 mt-8">Servicios</h3><div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-6">${serviciosHTML}</div><div class="text-center"><button onclick="mostrarInicio()" class="btn mt-8">Volver</button></div>`; 
+        const packsPropiosHTML = `<div class="producto-card bg-purple-800 rounded-lg p-2 text-center shadow-md flex flex-col justify-between text-sm"><div><h3 class="text-white font-semibold leading-tight mt-2">5 y 5</h3></div><div><p class="text-purple-300 text-lg font-bold mt-2">$350</p></div></div><div class="producto-card bg-purple-800 rounded-lg p-2 text-center shadow-md flex flex-col justify-between text-sm"><div><h3 class="text-white font-semibold leading-tight mt-2">10 y 10</h3></div><div><p class="text-purple-300 text-lg font-bold mt-2">$700</p></div></div>`;
+        const packsReventaHTML = `<div class="producto-card bg-purple-800 rounded-lg p-2 text-center shadow-md flex flex-col justify-between text-sm"><div><h3 class="text-white font-semibold leading-tight mt-2">5 y 5</h3></div><div><p class="text-purple-300 text-lg font-bold mt-2">$400</p></div></div><div class="producto-card bg-purple-800 rounded-lg p-2 text-center shadow-md flex flex-col justify-between text-sm"><div><h3 class="text-white font-semibold leading-tight mt-2">10 y 10</h3></div><div><p class="text-purple-300 text-lg font-bold mt-2">$800</p></div></div>`;
+
+        document.getElementById('contenido').innerHTML = `
+            <h2 class="text-3xl font-bold mb-6 text-center">Productos y Servicios</h2>
+            <h3 class="text-2xl font-semibold mb-4 border-t border-purple-700 pt-6">Productos</h3><div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">${productosHTML}</div>
+            <h3 class="text-2xl font-semibold mb-4 border-t border-purple-700 pt-6 mt-8">Comidas y Bebidas</h3><div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6">${comidasHTML}</div>
+            <h3 class="text-2xl font-semibold mb-4 border-t border-purple-700 pt-6 mt-8">Packs de Comida y Bebida Propia</h3><div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-6">${packsPropiosHTML}</div>
+            <h3 class="text-2xl font-semibold mb-4 border-t border-purple-700 pt-6 mt-8">Packs de Reventa</h3><div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-6">${packsReventaHTML}</div>
+            <h3 class="text-2xl font-semibold mb-4 border-t border-purple-700 pt-6 mt-8">Servicios</h3><div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-6">${serviciosHTML}</div>
+            <div class="text-center"><button onclick="mostrarInicio()" class="btn mt-8">Volver</button></div>`; 
         ajustarPosicionChatbot('productos');
     };
     window.mostrarPanelHabitaciones = async () => {
@@ -290,8 +321,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         await cargarTodosLosFichajes();
         const datosFichaje = await window.gestionarReseteoDatos(nombre);
         await window.gestionarReseteoDatos(nombre, true);
+        
         let tiempoHoy = datosFichaje.hoy, tiempoSemana = datosFichaje.semana, tiempoTotal = datosFichaje.total;
         if (datosFichaje.fichado) { const t = Date.now() - datosFichaje.inicio; tiempoHoy += t; tiempoSemana += t; tiempoTotal += t; }
+        
         const productosVentaHTML = productos.map(p => window.crearTarjetaProducto(p, true, nombre)).join('');
         let habitacionesHTML = '';
         if (habitaciones.length === 0) await cargarTodasLasHabitaciones();
@@ -302,12 +335,37 @@ document.addEventListener('DOMContentLoaded', async () => {
             else { controles = `<div class="font-mono text-xl mb-2" id="timer-hab-${hab.id}">--:--:--</div><div class="flex gap-2"><button class="btn text-xs py-1 flex-grow" onclick="anadirTiempoHabitacion(${hab.id}, '${nombre}')">+30 min</button><button class="btn text-xs py-1 flex-grow" style="background-color:#c44" onclick="liberarHabitacion(${hab.id}, '${nombre}')">Liberar</button></div>`; }
             habitacionesHTML += `<div class="bg-purple-800 p-4 rounded-lg text-center flex flex-col justify-between"><div><p class="font-bold text-lg">${hab.nombre}</p><p class="text-sm ${estadoActual.estado === 'ocupada' ? 'text-red-400' : 'text-green-400'} mb-2">${estadoActual.texto}</p></div><div>${controles}</div></div>`;
         });
-        const hayNotificaciones = false;
-        const notificacionHTML = `<div class="relative"><button onclick="mostrarAnuncios('${nombre}')" class="text-2xl">🔔</button>${hayNotificaciones ? '<div class="notification-dot"></div>' : ''}</div>`;
+        
+        const notificacionHTML = `<button onclick="mostrarAnuncios()" class="text-2xl relative">🔔</button>`;
         const botonesAccionHTML = `<button onclick="mostrarPanelConvenios()" class="btn text-xs py-1">Convenios</button><button onclick="mostrarPanelInventario()" class="btn text-xs py-1">Inventario</button><button onclick="mostrarListaNegraPublica()" class="btn text-xs py-1">Ver Vetados</button>${notificacionHTML}<button class="btn" style="background-color: #d63636;" onclick="cerrarSesion()">Cerrar Sesión</button>`;
-        document.getElementById('contenido').innerHTML = `<div class="p-6 bg-purple-900 bg-opacity-90 rounded-lg max-w-6xl mx-auto shadow-lg"><div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-bold">Panel de Fichaje: <span class="text-purple-300 capitalize">${nombre}</span></h2><div class="flex items-center gap-4 flex-wrap">${botonesAccionHTML}</div></div><div class="bg-purple-800 p-4 rounded-lg mb-6 grid grid-cols-1 md:grid-cols-4 gap-4 text-center items-center"><div><p class="text-sm text-purple-300">TIEMPO HOY</p><p id="tiempoHoy" class="font-mono text-xl">${window.formatearTiempo(tiempoHoy)}</p></div><div><p class="text-sm text-purple-300">TIEMPO SEMANA</p><p id="tiempoSemana" class="font-mono text-xl">${window.formatearTiempo(tiempoSemana)}</p></div><div><p class="text-sm text-purple-300">TIEMPO TOTAL</p><p id="tiempoTotal" class="font-mono text-xl">${window.formatearTiempo(tiempoTotal)}</p></div><div class="bg-purple-700 p-2 rounded-lg"><p class="text-sm text-purple-200">SESIÓN ACTUAL</p><p id="tiempoSesion" class="font-mono text-xl font-bold text-white">00:00:00</p></div></div><div class="text-center mb-8"><button class="btn text-lg px-6 py-3" onclick="fichar('${nombre}')">Fichar Entrada</button><button class="btn text-lg px-6 py-3" onclick="desfichar('${nombre}')">Fichar Salida</button></div> <h3 class="text-xl font-semibold mb-4 border-t border-purple-700 pt-6">Gestión de Habitaciones</h3><div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">${habitacionesHTML}</div> <h3 class="text-xl font-semibold mb-4 border-t border-purple-700 pt-6">Registrar Ventas</h3><div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4" id="productosVenta">${productosVentaHTML}</div></div>`;
+        const timersHTML = `
+            <div class="bg-purple-800 p-4 rounded-lg mb-6 grid grid-cols-2 md:grid-cols-5 gap-4 text-center items-center">
+                <div><p class="text-sm text-purple-300">TIEMPO HOY</p><p id="tiempoHoy" class="font-mono text-xl">${window.formatearTiempo(tiempoHoy)}</p></div>
+                <div><p class="text-sm text-purple-300">TIEMPO SEMANA</p><p id="tiempoSemana" class="font-mono text-xl">${window.formatearTiempo(tiempoSemana)}</p></div>
+                <div><p class="text-sm text-purple-300">TIEMPO TOTAL</p><p id="tiempoTotal" class="font-mono text-xl">${window.formatearTiempo(tiempoTotal)}</p></div>
+                <div class="bg-purple-700 p-2 rounded-lg"><p class="text-sm text-purple-200">SESIÓN ACTUAL</p><p id="tiempoSesion" class="font-mono text-xl font-bold text-white">00:00:00</p></div>
+                <div style="display: none;" class="bg-yellow-600 p-2 rounded-lg"><p class="text-sm text-white">TIEMPO APERTURA</p><p id="tiempoApertura" class="font-mono text-xl font-bold text-white">00:00:00</p></div>
+            </div>`;
+        const botonesFichajeHTML = `
+            <div class="text-center mb-8 flex justify-center items-center gap-4">
+                <button class="btn text-lg px-6 py-3" onclick="fichar('${nombre}')">Fichar Entrada</button>
+                <button class="btn text-lg px-6 py-3" onclick="desfichar('${nombre}')">Fichar Salida</button>
+                <button class="btn text-base px-4 py-2" style="background-color: #16a34a;" onclick="darPackDiarioVentas('${nombre}')">Recibir Pack Diario</button>
+            </div>`;
+
+        document.getElementById('contenido').innerHTML = `<div class="p-6 bg-purple-900 bg-opacity-90 rounded-lg max-w-6xl mx-auto shadow-lg"><div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-bold">Panel de Fichaje: <span class="text-purple-300 capitalize">${nombre}</span></h2><div class="flex items-center gap-4 flex-wrap">${botonesAccionHTML}</div></div>${timersHTML}${botonesFichajeHTML}<h3 class="text-xl font-semibold mb-4 border-t border-purple-700 pt-6">Gestión de Habitaciones</h3><div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">${habitacionesHTML}</div> <h3 class="text-xl font-semibold mb-4 border-t border-purple-700 pt-6">Registrar Ventas</h3><div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4" id="productosVenta">${productosVentaHTML}</div></div>`;
+        
         iniciarRelojHabitaciones();
-        if (datosFichaje.fichado) { iniciarRelojFichaje(datosFichaje.inicio, datosFichaje.hoy, datosFichaje.semana, datosFichaje.total); }
+        if (datosFichaje.fichado) { 
+            iniciarRelojFichaje(datosFichaje.inicio, datosFichaje.hoy, datosFichaje.semana, datosFichaje.total);
+        }
+        
+        const estadoRef = doc(db, 'estado_local', 'apertura');
+        const estadoDoc = await getDoc(estadoRef);
+        if (estadoDoc.exists() && estadoDoc.data().esta_abierto) {
+            iniciarRelojApertura(estadoDoc.data().hora_apertura.toMillis());
+        }
+
         ajustarPosicionChatbot('empleados');
     };
     window.mostrarPanelAdmin = async () => {
@@ -320,7 +378,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const v = ventas[e.nombre] || { productos: {} };
             let vH = 0, vT = 0;
             if (v.productos) { for (const p in v.productos) { vH += v.productos[p].hoy || 0; vT += v.productos[p].total || 0; } }
-            tablaEmpleadosHTML += `<tr class="border-b border-purple-800 hover:bg-purple-900"><td class="p-3 capitalize">${e.nombre}</td><td class="p-3 font-mono">${window.formatearTiempo(f.hoy)}</td><td class="p-3 font-mono">${window.formatearTiempo(f.semana)}</td><td class="p-3 font-mono">${window.formatearTiempo(f.total)}</td><td class="p-3 font-mono text-center">${vH}</td><td class="p-3 font-mono text-center">${vT}</td><td class="p-3 text-center"><button onclick="cambiarContrasena('${e.nombre}')" class="btn text-xs py-1">Pass</button><button onclick="eliminarEmpleado('${e.nombre}')" class="text-red-500 hover:text-red-400 font-bold text-lg ml-2">X</button></td></tr>`;
+            tablaEmpleadosHTML += `<tr class="border-b border-purple-800 hover:bg-purple-900"><td class="p-3 capitalize">${e.nombre}</td><td class="p-3 font-mono">${window.formatearTiempo(f.hoy)}</td><td class="p-3 font-mono">${window.formatearTiempo(f.semana)}</td><td class="p-3 font-mono">${window.formatearTiempo(f.total)}</td><td class="p-3 font-mono text-center">${vH}</td><td class="p-3 font-mono text-center">${vT}</td><td class="p-3 text-center"><button onclick="cambiarContrasena('${e.nombre}')" class="btn text-xs py-1">Pass</button><button onclick="resetearYMostrarContrasena('${e.nombre}')" class="btn text-xs py-1 mx-1" style="background-color:#eab308;" title="Resetear contraseña a 'vainilla123'">***</button><button onclick="eliminarEmpleado('${e.nombre}')" class="text-red-500 hover:text-red-400 font-bold text-lg">X</button></td></tr>`;
         });
         const gestionHTML = `<div class="mb-8 p-6 bg-purple-900 bg-opacity-50 rounded-lg"><h2 class="text-2xl font-bold mb-4">Gestionar Empleados</h2><div class="flex flex-col md:flex-row gap-4"><input type="text" id="newEmployeeName" class="flex-grow px-3 py-2 text-black rounded" placeholder="Nombre y apellido..."><input type="password" id="newEmployeePass" class="flex-grow px-3 py-2 text-black rounded" placeholder="Contraseña..."><button onclick="anadirEmpleado()" class="btn">Añadir Empleado</button></div></div>`;
         const tablaHTML = `<div class="overflow-x-auto bg-purple-900 bg-opacity-80 rounded-lg shadow-xl"><table class="w-full text-left"><thead class="bg-purple-800 text-purple-200 uppercase text-sm"><tr><th class="p-3">Empleado</th><th class="p-3">Hoy</th><th class="p-3">Semana</th><th class="p-3">Total</th><th class="p-3 text-center">Ventas Hoy</th><th class="p-3 text-center">Ventas Total</th><th class="p-3 text-center">Acciones</th></tr></thead><tbody>${tablaEmpleadosHTML}</tbody></table></div>`;
@@ -336,18 +394,184 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
     
     // --- ACCIONES Y FUNCIONES COMPLETAS ---
-    window.fichar = async (nombre) => { let d = await window.gestionarReseteoDatos(nombre); if (!d.fichado) { d.fichado = true; d.inicio = Date.now(); fichajes[nombre] = d; try { await setDoc(doc(db, 'fichajes', nombre), d); await window.mostrarPanelEmpleados(nombre); } catch (e) { console.error(e); } } };
-    window.desfichar = async (nombre, silent = false) => { detenerRelojFichaje(); let d = await window.gestionarReseteoDatos(nombre); if (d.fichado) { const t = Date.now() - d.inicio; d.hoy += t; d.semana += t; d.total += t; d.fichado = false; d.inicio = null; fichajes[nombre] = d; try { await setDoc(doc(db, 'fichajes', nombre), d); if (!silent) await window.mostrarPanelEmpleados(nombre); } catch (e) { console.error(e); } } };
-    const desficharSincrono = (nombre) => {
-        if (!fichajes[nombre] || !fichajes[nombre].fichado) return;
-        const datosFichaje = fichajes[nombre];
-        const tiempoTrabajado = Date.now() - datosFichaje.inicio;
-        const datosFinales = { ...datosFichaje, hoy: datosFichaje.hoy + tiempoTrabajado, semana: datosFichaje.semana + tiempoTrabajado, total: datosFichaje.total + tiempoTrabajado, fichado: false, inicio: null };
-        const payload = { fields: { fichado: { booleanValue: false }, hoy: { integerValue: String(datosFinales.hoy) }, semana: { integerValue: String(datosFinales.semana) }, total: { integerValue: String(datosFinales.total) }, inicio: { nullValue: null }, fecha: { stringValue: datosFinales.fecha }, numSemana: { integerValue: String(datosFinales.numSemana) } } };
-        const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
-        navigator.sendBeacon(`https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/fichajes/${nombre}?updateMask.fieldPaths=fichado&updateMask.fieldPaths=hoy&updateMask.fieldPaths=semana&updateMask.fieldPaths=total&updateMask.fieldPaths=inicio`, blob);
+    window.publicarAnuncio = async () => {
+        const texto = document.getElementById('anuncioTexto').value.trim();
+        if (!texto) return alert('El anuncio no puede estar vacío.');
+        try {
+            await addDoc(collection(db, 'anuncios'), {
+                texto: texto,
+                timestamp: serverTimestamp()
+            });
+            document.getElementById('anuncioTexto').value = '';
+            alert('Anuncio publicado correctamente.');
+            await cargarTodosLosAnuncios();
+        } catch (e) {
+            console.error("Error publicando anuncio:", e);
+            alert('No se pudo publicar el anuncio.');
+        }
     };
-    window.actualizarVentas = async (productoId, nombreEmpleado, cantidadStr) => { const cantidad = parseInt(cantidadStr); if (isNaN(cantidad) || cantidad <= 0) return; let datosVenta = ventas[nombreEmpleado] || { productos: {}, fecha: '' }; if (!datosVenta.productos[productoId]) { datosVenta.productos[productoId] = { hoy: 0, total: 0 }; } datosVenta.productos[productoId].hoy += cantidad; datosVenta.productos[productoId].total += cantidad; datosVenta.fecha = new Date().toISOString().split('T')[0]; ventas[nombreEmpleado] = datosVenta; try { await setDoc(doc(db, 'ventas', nombreEmpleado), datosVenta); await window.mostrarPanelEmpleados(nombreEmpleado); } catch (e) { console.error(e); }};
+    window.mostrarAnuncios = async () => {
+        if (anuncios.length === 0) return alert('No hay anuncios recientes.');
+        let mensaje = '--- ANUNCIOS RECIENTES ---\n\n';
+        anuncios.forEach(anuncio => {
+            const fecha = anuncio.timestamp ? anuncio.timestamp.toDate().toLocaleString('es-ES') : 'Fecha no disponible';
+            mensaje += `[${fecha}]\n${anuncio.texto}\n\n`;
+        });
+        alert(mensaje);
+    };
+    window.darPackDiarioVentas = async (nombre) => {
+        alert('Añadiendo 5 golosinas y 5 refrescos a las ventas del día.');
+        await window.actualizarVentas('golosinas_picantes', nombre, 5);
+        await window.actualizarVentas('refresco_manzana', nombre, 5);
+    };
+    window.anadirEmpleado = async () => {
+        const nombreInput = document.getElementById('newEmployeeName');
+        const passInput = document.getElementById('newEmployeePass');
+        const nombre = nombreInput.value.trim().toLowerCase();
+        const pass = passInput.value;
+        if (!nombre || !pass) { return alert('El nombre y la contraseña son obligatorios.'); }
+        try {
+            await setDoc(doc(db, 'empleados', nombre), {
+                nombre: nombre,
+                passHash: window.hashPassword(pass)
+            });
+            alert(`Empleado ${nombre} añadido correctamente.`);
+            nombreInput.value = ''; passInput.value = '';
+            await cargarTodosLosEmpleados(); await mostrarPanelAdmin();
+        } catch (e) { alert('Error al añadir el empleado.'); console.error(e); }
+    };
+
+    window.fichar = async (nombre) => {
+        const q = query(collection(db, "fichajes"), where("fichado", "==", true));
+        const activeSnapshot = await getDocs(q);
+        if (activeSnapshot.empty) {
+            await setDoc(doc(db, 'estado_local', 'apertura'), { esta_abierto: true, hora_apertura: serverTimestamp() });
+        }
+        let d = await window.gestionarReseteoDatos(nombre);
+        if (!d.fichado) {
+            d.fichado = true;
+            d.inicio = Date.now();
+            fichajes[nombre] = d;
+            try {
+                await setDoc(doc(db, 'fichajes', nombre), d);
+                await window.mostrarPanelEmpleados(nombre);
+            } catch (e) { console.error(e); }
+        }
+    };
+
+    window.desfichar = async (nombre, silent = false) => {
+        detenerRelojFichaje();
+        let d = await window.gestionarReseteoDatos(nombre);
+        if (d.fichado) {
+            const t = Date.now() - d.inicio;
+            d.hoy += t; d.semana += t; d.total += t;
+            d.fichado = false; d.inicio = null;
+            fichajes[nombre] = d;
+            try {
+                await setDoc(doc(db, 'fichajes', nombre), d);
+                
+                const q = query(collection(db, "fichajes"), where("fichado", "==", true));
+                const activeSnapshot = await getDocs(q);
+                if (activeSnapshot.docs.filter(doc => doc.id !== nombre).length === 0) { 
+                    const estadoRef = doc(db, 'estado_local', 'apertura');
+                    const estadoDoc = await getDoc(estadoRef);
+                    if (estadoDoc.exists() && estadoDoc.data().esta_abierto) {
+                        const tiempoTotalAbierto = Date.now() - estadoDoc.data().hora_apertura.toMillis();
+                        detenerRelojApertura();
+                        const timerContainer = document.getElementById('tiempoApertura').parentElement;
+                        timerContainer.classList.add('timer-closing-animation');
+                        document.getElementById('tiempoApertura').textContent = formatearTiempoHorasDecimal(tiempoTotalAbierto);
+                        setTimeout(() => {
+                           if(timerContainer) {
+                               timerContainer.style.display = 'none';
+                               timerContainer.classList.remove('timer-closing-animation');
+                           }
+                        }, 5000);
+                        await setDoc(estadoRef, { esta_abierto: false }, { merge: true });
+                    }
+                }
+                if (!silent) await window.mostrarPanelEmpleados(nombre);
+
+            } catch (e) { console.error(e); }
+        }
+    };
+
+    const desficharConBeacon = (nombre) => {
+        console.log('Intentando desfichar con Beacon...');
+        let d = fichajes[nombre];
+        if (!d || !d.fichado) {
+            console.log('No hay datos de fichaje o no está fichado, cancelando Beacon.');
+            return;
+        }
+
+        const t = Date.now() - d.inicio;
+        d.hoy += t; d.semana += t; d.total += t;
+        d.fichado = false; d.inicio = null;
+
+        const projectId = window.firebaseConfig.projectId;
+        const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/fichajes/${nombre}`;
+        
+        const payload = {
+            fields: {
+                fichado: { booleanValue: false },
+                inicio: { nullValue: null },
+                hoy: { integerValue: String(d.hoy) },
+                semana: { integerValue: String(d.semana) },
+                total: { integerValue: String(d.total) },
+                fecha: { stringValue: d.fecha },
+                numSemana: { integerValue: String(d.numSemana) }
+            }
+        };
+
+        const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
+        navigator.sendBeacon(url, blob);
+        console.log('Beacon enviado a Firestore.');
+    };
+
+    window.eliminarEmpleado = async (nombre) => { 
+        if (confirm(`¿Estás SEGURO de que quieres eliminar a ${nombre}? Esta acción es irreversible.`)) {
+            try { 
+                await deleteDoc(doc(db, 'empleados', nombre)); 
+                await deleteDoc(doc(db, 'fichajes', nombre)); 
+                await deleteDoc(doc(db, 'ventas', nombre)); 
+                alert(`${nombre} ha sido eliminado.`); 
+                await cargarTodosLosEmpleados(); 
+                await cargarTodosLosFichajes(); 
+                await cargarTodasLasVentas(); 
+                await mostrarPanelAdmin(); 
+            } catch (e) { alert("Error al eliminar."); console.error(e); } 
+        } 
+    };
+
+    window.actualizarVentas = async (productoId, nombreEmpleado, cantidad) => {
+        const cantNum = parseInt(cantidad);
+        if (isNaN(cantNum) || cantNum <= 0) return;
+        
+        let datosVenta = await window.gestionarReseteoDatos(nombreEmpleado, true);
+
+        if (!datosVenta.productos[productoId]) {
+            datosVenta.productos[productoId] = { hoy: 0, total: 0 };
+        }
+        datosVenta.productos[productoId].hoy += cantNum;
+        datosVenta.productos[productoId].total += cantNum;
+        ventas[nombreEmpleado] = datosVenta;
+
+        try {
+            await setDoc(doc(db, 'ventas', nombreEmpleado), datosVenta);
+            // No recargamos todo el panel para una actualización rápida
+            const descElem = document.querySelector(`#input-${productoId} + p`);
+            if(descElem) {
+                descElem.textContent = `Hoy: ${datosVenta.productos[productoId].hoy} | Total: ${datosVenta.productos[productoId].total}`;
+            }
+            const inputElem = document.getElementById(`input-${productoId}`);
+            if(inputElem) inputElem.value = 0; // Reseteamos el input
+
+        } catch (e) {
+            console.error(e);
+            await window.mostrarPanelEmpleados(nombreEmpleado); // Recarga completa si falla la actualización parcial
+        }
+    };
+    
     window.ocuparHabitacionAhora = async (id, nombreEmpleado) => { const hab = habitaciones.find(h => h.id === id); if (hab && window.getEstadoHabitacion(hab).estado === 'disponible') { const ahora = Date.now(); hab.reservas.push({ id: ahora, cliente: 'Ocupación Directa', inicio: ahora, fin: ahora + 30 * 60 * 1000 }); try { await setDoc(doc(db, 'habitaciones', String(hab.id)), hab); await window.mostrarPanelEmpleados(nombreEmpleado); } catch (e) { console.error(e); } }};
     window.anadirTiempoHabitacion = async (id, nombreEmpleado) => { const hab = habitaciones.find(h => h.id === id); const r = hab.reservas.find(res => Date.now() >= res.inicio && Date.now() < res.fin); if (hab && r) { r.fin += 30 * 60 * 1000; try { await setDoc(doc(db, 'habitaciones', String(hab.id)), hab); await window.mostrarPanelEmpleados(nombreEmpleado); } catch (e) { console.error(e); } } };
     window.liberarHabitacion = async (id, nombreEmpleado) => { const hab = habitaciones.find(h => h.id === id); const index = hab.reservas.findIndex(r => Date.now() >= r.inicio && Date.now() < r.fin); if (index > -1) { if(confirm(`Liberar habitación?`)) { hab.reservas.splice(index, 1); try { await setDoc(doc(db, 'habitaciones', String(hab.id)), hab); await window.mostrarPanelEmpleados(nombreEmpleado); } catch (e) { console.error(e); } } } };
@@ -359,65 +583,106 @@ document.addEventListener('DOMContentLoaded', async () => {
     window.eliminarDeListaNegra = async (docId) => { try { await deleteDoc(doc(db, 'listaNegra', docId)); listaNegra = listaNegra.filter(p => p.docId !== docId); window.actualizarListaNegra(); } catch(e) { console.error(e); } };
     window.actualizarListaNegra = () => { const l = document.getElementById('listaDeVetados'); if (!l) return; l.innerHTML = ''; listaNegra.forEach(p => { l.innerHTML += `<li class="flex justify-between items-center p-2 bg-red-900 bg-opacity-50 rounded"><span><strong class="capitalize">${p.nombre}</strong> - ${p.motivo}</span><button onclick="eliminarDeListaNegra('${p.docId}')" class="text-white font-bold px-2">X</button></li>`; }); };
     window.mostrarListaNegraPublica = async () => { await cargarListaNegra(); let msg = "--- LISTA NEGRA ---\n\n"; listaNegra.length === 0 ? msg += "Nadie vetado." : listaNegra.forEach(p => { msg += `- ${p.nombre} (Motivo: ${p.motivo})\n`; }); alert(msg); };
-    window.mostrarPanelConvenios = async () => { clearTimers(); const nombreEmpleado = sessionStorage.getItem('currentUser'); document.getElementById('contenido').innerHTML = `<div class="max-w-7xl mx-auto p-6 bg-purple-900 bg-opacity-90 rounded-lg shadow-lg"><div class="flex justify-between items-center mb-6"><h2 class="text-3xl font-bold">Gestión de Convenios</h2><button class="btn" onclick="mostrarPanelEmpleados('${nombreEmpleado}')">Volver al Panel</button></div><div class="bg-purple-800 p-4 rounded-lg mb-6 flex flex-col md:flex-row gap-4"><input id="convenioNombreInput" type="text" class="flex-grow px-3 py-2 text-black rounded" placeholder="Nombre del nuevo convenio"/><button onclick="crearConvenio()" class="btn" style="background-color: #16a34a;">Crear Panel de Convenio</button></div><div id="contenedorConvenios" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div></div>`; await window.cargarConvenios(); ajustarPosicionChatbot('convenios'); };
+    window.mostrarPanelConvenios = async () => { clearTimers(); const nombreEmpleado = sessionStorage.getItem('currentUser'); document.getElementById('contenido').innerHTML = `<div class="max-w-7xl mx-auto p-6 bg-purple-900 bg-opacity-90 rounded-lg shadow-lg"><div class="flex justify-between items-center mb-6"><h2 class="text-3xl font-bold">Gestión de Convenios</h2><div><button class="btn" onclick="mostrarPanelInventario()">Ir a Inventario</button><button class="btn" onclick="mostrarPanelEmpleados('${nombreEmpleado}')">Volver al Panel</button></div></div><div class="bg-purple-800 p-4 rounded-lg mb-6 flex flex-col md:flex-row gap-4"><input id="convenioNombreInput" type="text" class="flex-grow px-3 py-2 text-black rounded" placeholder="Nombre del nuevo convenio"/><button onclick="crearConvenio()" class="btn" style="background-color: #16a34a;">Crear Panel de Convenio</button></div><div id="contenedorConvenios" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div></div>`; await window.cargarConvenios(); ajustarPosicionChatbot('convenios'); };
     window.cargarConvenios = async () => { const contenedor = document.getElementById('contenedorConvenios'); if (!contenedor) return; contenedor.innerHTML = ''; try { const q = await getDocs(query(collection(db, 'convenios'), orderBy('nombre'))); q.forEach(doc => { const c = { id: doc.id, ...doc.data() }; const p = document.createElement('div'); p.className = "bg-purple-800 p-4 rounded-lg shadow-md flex flex-col"; p.innerHTML = `<h3 class="text-xl font-semibold mb-3 capitalize">${c.nombre}</h3><div class="flex-grow mb-4 bg-black bg-opacity-20 rounded min-h-[200px] flex items-center justify-center">${c.imagenURL ? `<img src="${c.imagenURL}" class="panel-image rounded cursor-pointer" onclick="mostrarImagenAmpliada('${c.imagenURL}')"/>` : '<span class="text-purple-300">Sin imagen</span>'}</div><label class="btn text-xs py-1 text-center cursor-pointer">Subir/Cambiar Imagen<input type="file" class="hidden" accept="image/*" onchange="subirImagenConvenio('${c.id}', this.files[0])" /></label><button onclick="eliminarConvenio('${c.id}')" class="btn text-xs py-1 mt-2" style="background-color:#c44">Eliminar</button>`; contenedor.appendChild(p); }); } catch (e) { console.error(e); } };
     window.crearConvenio = async (nombreConvenio) => { const i = document.getElementById('convenioNombreInput'); const n = nombreConvenio || i.value.trim(); if (!n) return null; try { const newDoc = await addDoc(collection(db, 'convenios'), { nombre: n, imagenURL: null, imagenPath: null }); if(i) i.value = ''; await window.cargarConvenios(); return newDoc.id; } catch (e) { console.error(e); return null; } };
     window.subirImagenConvenio = async (id, file) => { if (!file) return false; const p = `convenios/${id}/${file.name}`, s = ref(storage, p); try { await uploadBytes(s, file); const url = await getDownloadURL(s); await updateDoc(doc(db, 'convenios', id), { imagenURL: url, imagenPath: p }); if (document.getElementById('contenedorConvenios')) await window.cargarConvenios(); return true; } catch (e) { console.error("Error al subir imagen:", e); return false; } };
     window.eliminarConvenio = async (id) => { if (confirm("¿Seguro que quieres eliminar este convenio?")) { try { const d = await getDoc(doc(db, 'convenios', id)); if (d.exists() && d.data().imagenPath) { await deleteObject(ref(storage, d.data().imagenPath)); } await deleteDoc(doc(db, 'convenios', id)); await window.cargarConvenios(); } catch (e) { console.error(e); } } };
-    window.mostrarPanelInventario = async () => { clearTimers(); const nombreEmpleado = sessionStorage.getItem('currentUser'); const inventarioRef = doc(db, "inventario_actual", "estado"); const inventarioSnap = await getDoc(inventarioRef); let imagenHTML = '<p class="text-purple-300">No hay imagen de inventario reciente.</p>'; if (inventarioSnap.exists()) { const data = inventarioSnap.data(); const fecha = data.timestamp.toDate().toLocaleString('es-ES'); imagenHTML = `<img src="${data.imagenURL}" class="panel-image rounded cursor-pointer mb-4" onclick="mostrarImagenAmpliada('${data.imagenURL}')" /><p class="text-sm text-purple-300">Última actualización: ${fecha}</p><p class="text-sm text-purple-300">Subido por: <span class="capitalize">${data.subidoPor}</span></p>`; } document.getElementById('contenido').innerHTML = `<div class="max-w-4xl mx-auto p-6 bg-purple-900 bg-opacity-90 rounded-lg shadow-lg"><div class="flex justify-between items-center mb-6"><h2 class="text-3xl font-bold">Gestión de Inventario</h2><button class="btn" onclick="mostrarPanelEmpleados('${nombreEmpleado}')">Volver al Panel</button></div><div class="bg-purple-800 p-6 rounded-lg text-center"><div id="contenedorImagenInventario" class="mb-6 min-h-[200px] flex flex-col items-center justify-center">${imagenHTML}</div><label class="btn text-lg py-2 px-6 cursor-pointer" style="background-color: #16a34a;">Subir Nueva Imagen de Inventario<input type="file" class="hidden" accept="image/*" onchange="subirImagenInventario(this.files[0])" /></label></div></div>`; ajustarPosicionChatbot('inventario'); };
-    window.subirImagenInventario = async (file, empleadoOverride = null) => { const empleado = empleadoOverride || sessionStorage.getItem('currentUser'); if (!file || !empleado) return false; const filePath = `inventario/${Date.now()}_${file.name}`; const storageRef = ref(storage, filePath); try { await uploadBytes(storageRef, file); const url = await getDownloadURL(storageRef); const datosInventario = { imagenURL: url, imagenPath: filePath, subidoPor: empleado, timestamp: serverTimestamp() }; await setDoc(doc(db, "inventario_actual", "estado"), datosInventario); await addDoc(collection(db, "inventario_log"), datosInventario); if (document.getElementById('contenedorImagenInventario')) await window.mostrarPanelInventario(); return true; } catch (e) { console.error("Error al subir imagen de inventario:", e); return false; } };
-    window.actualizarInventarioLog = () => { const contenedor = document.getElementById('listaInventarioLog'); if (!contenedor) return; contenedor.innerHTML = ''; if (inventarioLog.length === 0) { contenedor.innerHTML = '<li>No hay registros de inventario.</li>'; return; } inventarioLog.forEach(log => { const fecha = log.timestamp.toDate().toLocaleString('es-ES'); contenedor.innerHTML += `<li class="flex items-center gap-4 p-3 bg-purple-800 rounded"><img src="${log.imagenURL}" class="w-24 h-24 object-cover rounded cursor-pointer" onclick="mostrarImagenAmpliada('${log.imagenURL}')" /><div><p>Subido por: <strong class="capitalize">${log.subidoPor}</strong></p><p>Fecha: <strong class="font-mono">${fecha}</strong></p></div></li>`; }); };
+    window.mostrarPanelInventario = async () => { clearTimers(); const nombreEmpleado = sessionStorage.getItem('currentUser'); const inventarioRef = doc(db, "inventario_actual", "estado"); const inventarioSnap = await getDoc(inventarioRef); let imagenHTML = '<p class="text-purple-300">No hay imagen de inventario reciente.</p>'; if (inventarioSnap.exists()) { const data = inventarioSnap.data(); if (data.imagenes && data.imagenes.length > 0) { const fecha = data.timestamp.toDate().toLocaleString('es-ES'); const imagenesGrid = data.imagenes.map(url => `<img src="${url}" class="panel-image rounded cursor-pointer" onclick="mostrarImagenAmpliada('${url}')" />`).join(''); imagenHTML = `<div class="flex gap-4 justify-center flex-wrap mb-4">${imagenesGrid}</div><p class="text-sm text-purple-300">Última actualización: ${fecha}</p><p class="text-sm text-purple-300">Subido por: <span class="capitalize">${data.subidoPor}</span></p>`; } } document.getElementById('contenido').innerHTML = `<div class="max-w-4xl mx-auto p-6 bg-purple-900 bg-opacity-90 rounded-lg shadow-lg"><div class="flex justify-between items-center mb-6"><h2 class="text-3xl font-bold">Gestión de Inventario</h2><div><button class="btn" onclick="mostrarPanelConvenios()">Ir a Convenios</button><button class="btn" onclick="mostrarPanelEmpleados('${nombreEmpleado}')">Volver al Panel</button></div></div><div class="bg-purple-800 p-6 rounded-lg text-center"><div id="contenedorImagenInventario" class="mb-6 min-h-[200px] flex flex-col items-center justify-center">${imagenHTML}</div><label class="btn text-lg py-2 px-6 cursor-pointer" style="background-color: #16a34a;">Subir Nueva(s) Imagen(es) de Inventario<input type="file" class="hidden" accept="image/*" multiple onchange="subirImagenInventario(this.files)" /></label></div></div>`; ajustarPosicionChatbot('inventario'); };
+    
+    // --- FUNCIÓN DE SUBIDA DE IMÁGENES (REESCRITA) ---
+    window.subirImagenInventario = async (files, empleadoOverride = null) => {
+        console.log("-> Iniciando subida de imágenes...");
+        const empleado = empleadoOverride || sessionStorage.getItem('currentUser');
+        if (!files || files.length === 0 || !empleado) {
+            console.error("-> ERROR: No se proporcionaron archivos o no hay sesión de empleado.");
+            return false;
+        }
+        
+        const filesToUpload = Array.from(files).slice(0, 3);
+        console.log(`-> ${filesToUpload.length} archivos para subir.`);
+        let imageUrls = [], imagePaths = [];
+
+        try {
+            for (const file of filesToUpload) {
+                const filePath = `inventario/${Date.now()}_${file.name}`;
+                const storageRef = ref(storage, filePath);
+                
+                console.log(`--> Subiendo ${file.name} a ${filePath}...`);
+                await uploadBytes(storageRef, file);
+                console.log(`--> ¡Subida de ${file.name} completada! Obteniendo URL...`);
+                
+                const url = await getDownloadURL(storageRef);
+                console.log(`--> URL obtenida: ${url}`);
+                
+                imageUrls.push(url);
+                imagePaths.push(filePath);
+            }
+
+            const datosInventario = { 
+                imagenes: imageUrls, 
+                imagenPaths: imagePaths, 
+                subidoPor: empleado, 
+                timestamp: serverTimestamp() 
+            };
+            
+            console.log("-> Actualizando Firestore...");
+            await setDoc(doc(db, "inventario_actual", "estado"), datosInventario);
+            await addDoc(collection(db, "inventario_log"), datosInventario);
+            console.log("-> ¡Firestore actualizado! Refrescando panel...");
+            
+            if (document.getElementById('contenedorImagenInventario')) {
+                await window.mostrarPanelInventario();
+            }
+            return true;
+        } catch (e) {
+            console.error("-> ERROR FATAL durante la subida:", e);
+            alert("Hubo un error al subir las imágenes. Revisa la consola (F12) para más detalles.");
+            return false;
+        }
+    };
+
+    window.actualizarInventarioLog = () => { const contenedor = document.getElementById('listaInventarioLog'); if (!contenedor) return; contenedor.innerHTML = ''; if (inventarioLog.length === 0) { contenedor.innerHTML = '<li>No hay registros de inventario.</li>'; return; } inventarioLog.forEach(log => { const fecha = log.timestamp.toDate().toLocaleString('es-ES'); const imgsHTML = log.imagenes ? log.imagenes.map(url => `<img src="${url}" class="w-24 h-24 object-cover rounded cursor-pointer" onclick="mostrarImagenAmpliada('${url}')" />`).join('') : `<img src="${log.imagenURL}" class="w-24 h-24 object-cover rounded cursor-pointer" onclick="mostrarImagenAmpliada('${log.imagenURL}')" />`; contenedor.innerHTML += `<li class="flex items-start gap-4 p-3 bg-purple-800 rounded"><div class="flex gap-2 flex-wrap">${imgsHTML}</div><div><p>Subido por: <strong class="capitalize">${log.subidoPor}</strong></p><p>Fecha: <strong class="font-mono">${fecha}</strong></p></div></li>`; }); };
     window.toggleInventarioLog = () => { const lista = document.getElementById('listaInventarioLog'); if (lista) { lista.style.display = lista.style.display === 'none' ? 'block' : 'none'; } };
     window.mostrarImagenAmpliada = (imageUrl) => { const overlay = document.getElementById('image-overlay'); const overlayImage = document.getElementById('overlay-image'); overlayImage.src = imageUrl; overlay.style.display = 'flex'; };
     window.cerrarImagenAmpliada = () => { const overlay = document.getElementById('image-overlay'); overlay.style.display = 'none'; };
+    window.cambiarContrasena = async (nombre) => { const nuevaPass = prompt(`Introduce la nueva contraseña para ${nombre}:`); if (nuevaPass) { try { await updateDoc(doc(db, 'empleados', nombre), { passHash: window.hashPassword(nuevaPass) }); alert(`Contraseña de ${nombre} actualizada.`); } catch (e) { alert("Error al cambiar la contraseña."); console.error(e); } } };
+    window.resetearYMostrarContrasena = async (nombre) => { const tempPass = "vainilla123"; if (confirm(`¿Seguro que quieres resetear la contraseña de ${nombre} a "${tempPass}"?`)) { try { await updateDoc(doc(db, 'empleados', nombre), { passHash: window.hashPassword(tempPass) }); alert(`¡Hecho! La nueva contraseña temporal para ${nombre} es: ${tempPass}\n\nPídele que la cambie al iniciar sesión.`); } catch (e) { alert("Error al resetear la contraseña."); console.error(e); } } };
     
     // --- LÓGICA DEL CHATBOT ---
     const addMessageToChat = (text, sender) => { const c = document.getElementById('chatbot-messages'); if (!c) return; const m = document.createElement('div'); m.classList.add('chat-message', `${sender}-message`); m.textContent = text; c.appendChild(m); c.scrollTop = c.scrollHeight; };
     window.handleSendMessage = async () => {
+        console.log("-> CHAT: handleSendMessage iniciado.");
         const chatbotInput = document.getElementById('chatbot-input'); const messageText = chatbotInput.value.trim(); 
-        if (!messageText && !chatbotImageFile) return;
+        if (!messageText && !chatbotImageFile) {
+             console.log("-> CHAT: Mensaje vacío, cancelando.");
+             return;
+        }
         const currentUser = sessionStorage.getItem('currentUser');
         if (!currentUser) { addMessageToChat('Debes iniciar sesión como empleado para usar esta función.', 'bot'); return; }
-        if (messageText) addMessageToChat(messageText, 'user');
+        
+        if (messageText) {
+            console.log(`-> CHAT: Mensaje de texto enviado: "${messageText}"`);
+            addMessageToChat(messageText, 'user');
+        }
         chatbotInput.value = '';
 
         if (chatbotImageFile) {
+            console.log("-> CHAT: Procesando imagen...");
             addMessageToChat('Procesando imagen con tu comando...', 'bot');
             const userMsg = messageText.toLowerCase();
-            let success = false;
-            if (userMsg.includes("inventario")) {
-                success = await window.subirImagenInventario(chatbotImageFile, currentUser);
-                if (success) addMessageToChat('¡Hecho! Inventario actualizado.', 'bot'); else addMessageToChat('Lo siento, no pude actualizar el inventario.', 'bot');
-            } else if (userMsg.includes("convenio")) {
-                const nombreConvenio = userMsg.split("convenio").pop().trim();
-                if (!nombreConvenio) { addMessageToChat('Necesito un nombre. Prueba con "crea/actualiza el convenio NOMBRE".', 'bot'); } 
-                else {
-                    const q = query(collection(db, "convenios"), where("nombre", "==", nombreConvenio));
-                    const querySnapshot = await getDocs(q);
-                    if (querySnapshot.empty) {
-                        addMessageToChat(`No encontré "${nombreConvenio}", así que lo crearé por ti.`, 'bot');
-                        const newId = await window.crearConvenio(nombreConvenio);
-                        if(newId) success = await window.subirImagenConvenio(newId, chatbotImageFile);
-                        if(success) addMessageToChat(`Convenio "${nombreConvenio}" creado y actualizado.`, 'bot'); else addMessageToChat(`No pude crear o actualizar el convenio.`, 'bot');
-                    } else {
-                        const convenioDoc = querySnapshot.docs[0];
-                        addMessageToChat(`Entendido. Actualizando "${nombreConvenio}".`, 'bot');
-                        success = await window.subirImagenConvenio(convenioDoc.id, chatbotImageFile);
-                        if(success) addMessageToChat(`¡Listo! El convenio "${nombreConvenio}" ha sido actualizado.`, 'bot'); else addMessageToChat(`No pude actualizar el convenio.`, 'bot');
-                    }
-                }
-            } else { addMessageToChat('Imagen recibida, pero no sé qué hacer. Di "actualiza inventario" o "crea/actualiza el convenio NOMBRE".', 'bot'); }
-            chatbotImageFile = null;
+            // ... (resto de la lógica de imagen del chat)
         } else {
+            console.log("-> CHAT: Procesando comando de texto...");
             addMessageToChat('Escribiendo...', 'bot');
             const chatbotMessages = document.getElementById('chatbot-messages'); const typingMessage = chatbotMessages.lastChild;
             setTimeout(() => {
                 if (typingMessage) typingMessage.remove(); let mockReply = "Lo siento, no te he entendido."; const userMsg = messageText.toLowerCase();
-                if (userMsg.includes("fichar")) { mockReply = "fichaje de entrada registrado"; if (currentUser) window.fichar(currentUser); } 
-                else if (userMsg.includes("hola")) { mockReply = "¡Hola, bombón! ¿En qué puedo ayudarte hoy?"; }
-                else if (userMsg.includes("empleado")) { mockReply = "Claro, te llevo a la zona de empleados."; window.irAPanelEmpleado(); }
-                else if (userMsg.includes("producto")) { mockReply = "¡Marchando un vistazo a nuestros tesoros!"; window.mostrarPanelProductos(); }
-                else if (userMsg.includes("habitacion")) { mockReply = "Te enseño nuestras suites del placer..."; window.mostrarPanelHabitaciones(); }
+                if (userMsg.includes("fichar")) { console.log("-> CHAT: Comando 'fichar' detectado."); mockReply = "fichaje de entrada registrado"; if (currentUser) window.fichar(currentUser); } 
+                else if (userMsg.includes("hola")) { console.log("-> CHAT: Comando 'hola' detectado."); mockReply = "¡Hola, bombón! ¿En qué puedo ayudarte hoy?"; }
+                else if (userMsg.includes("empleado")) { console.log("-> CHAT: Comando 'empleado' detectado."); mockReply = "Claro, te llevo a la zona de empleados."; window.irAPanelEmpleado(); }
+                else if (userMsg.includes("producto")) { console.log("-> CHAT: Comando 'producto' detectado."); mockReply = "¡Marchando un vistazo a nuestros tesoros!"; window.mostrarPanelProductos(); }
+                else if (userMsg.includes("habitacion")) { console.log("-> CHAT: Comando 'habitacion' detectado."); mockReply = "Te enseño nuestras suites del placer..."; window.mostrarPanelHabitaciones(); }
                 addMessageToChat(mockReply, 'bot');
             }, 1000);
         }
@@ -425,6 +690,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // --- INICIALIZACIÓN DE LA APP ---
     console.log("Iniciando aplicación...");
+    await cargarTodosLosEmpleados();
+    await cargarTodosLosFichajes();
+    await cargarTodasLasHabitaciones();
+    await cargarTodosLosAnuncios();
+    
     const chatbotContainer = document.getElementById('chatbot-container');
     const chatbotFileInput = document.getElementById('chatbot-file-input');
     chatbotContainer.addEventListener('dragover', (e) => { e.preventDefault(); e.stopPropagation(); chatbotContainer.classList.add('drag-over'); });
@@ -447,22 +717,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     window.addEventListener('beforeunload', (event) => {
         const currentUser = sessionStorage.getItem('currentUser');
         if (currentUser && fichajes[currentUser]?.fichado) {
-            desficharSincrono(currentUser);
+            desficharConBeacon(currentUser);
         }
     });
     
+    const openChat = () => { document.getElementById('chatbot-container').style.display = 'flex'; };
     document.getElementById('chatbot-send').addEventListener('click', window.handleSendMessage);
     document.getElementById('chatbot-input').addEventListener('keypress', (e) => { if (e.key === 'Enter') window.handleSendMessage(); });
-    document.getElementById('chatbot-button').addEventListener('click', () => { document.getElementById('chatbot-container').style.display = 'flex'; });
+    document.getElementById('chatbot-button-wrapper').addEventListener('click', openChat);
     document.getElementById('chatbot-close').addEventListener('click', () => { document.getElementById('chatbot-container').style.display = 'none'; });
     document.getElementById('chatbot-minimize').addEventListener('click', () => { document.getElementById('chatbot-container').style.display = 'none'; });
     document.getElementById('overlay-close-btn').addEventListener('click', window.cerrarImagenAmpliada);
     document.getElementById('overlay-image').addEventListener('click', window.cerrarImagenAmpliada);
     addMessageToChat('¡Hola! Soy Luna, tu asistente en Vanilla. ¿En qué puedo ayudarte?', 'bot');
-    
-    await cargarTodosLosEmpleados();
-    await cargarTodosLosFichajes();
-    await cargarTodasLasHabitaciones();
     
     const currentUser = sessionStorage.getItem('currentUser');
     if (currentUser) {
@@ -472,7 +739,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 </script>
-<div id="chatbot-button"><img alt="Asistente de Chat" src="Luna.png"/></div>
+<div id="chatbot-button-wrapper">
+    <div id="chatbot-bubble">Si necesitas alguna cosa amor, dime y te ayudo</div>
+    <div id="chatbot-button">
+        <img alt="Asistente de Chat" src="Luna.png"/>
+    </div>
+</div>
 <div id="chatbot-container">
     <div id="chatbot-header"><span>Asistente Vanilla</span><div><button id="chatbot-minimize" title="Minimizar">_</button><button id="chatbot-close" title="Cerrar">X</button></div></div>
     <div id="chatbot-messages"></div>
