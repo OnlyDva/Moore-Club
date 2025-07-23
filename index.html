@@ -1,759 +1,371 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="utf-8"/>
+<meta charset="UTF-8"/>
 <meta content="width=device-width, initial-scale=1" name="viewport"/>
 <title>Vanilla - La Tentación Empieza Aquí</title>
 <script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
 <style>
-    body {
-      font-family: 'Inter', sans-serif;
-      background: url('Mooreclub1.jpeg') center top no-repeat;
-      background-size: cover;
-      background-attachment: fixed;
-      color: white;
-    }
+    body { font-family: 'Inter', sans-serif; background: url('Mooreclub1.jpeg') center top no-repeat; background-size: cover; background-attachment: fixed; color: white; }
     .bg-overlay { background-color: rgba(0, 0, 0, 0.85); }
-    .btn {
-      background-color: #6b21a8; color: white; padding: 0.5rem 1rem;
-      border-radius: 0.375rem; font-weight: 600; cursor: pointer;
-      transition: background-color 0.3s; margin-right: 0.5rem;
-    }
+    .btn { background-color: #6b21a8; color: white; padding: 0.5rem 1rem; border-radius: 0.375rem; font-weight: 600; cursor: pointer; transition: background-color 0.3s; margin-right: 0.5rem; }
     .btn:hover { background-color: #5b189b; }
-    .producto-card img {
-      border-radius: 0.5rem; height: 96px; width: 96px;
-      object-fit: cover;
-    }
+    .btn:disabled { background-color: #3b0764; cursor: not-allowed; }
+    .producto-card img, .producto-card svg { border-radius: 0.5rem; height: 96px; width: 96px; object-fit: cover; margin: auto; }
     #contenido { min-height: 60vh; }
-    .panel-image {
-        width: 100%; height: 100%; max-height: 200px;
-        object-fit: contain;
-    }
-    @keyframes pulse-animation { 0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(234, 179, 8, 0.7); } 70% { transform: scale(1.05); box-shadow: 0 0 10px 20px rgba(234, 179, 8, 0); } 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(234, 179, 8, 0); } }
-    .timer-closing-animation { animation: pulse-animation 1s 5; }
-
-/* --- ESTILOS DEL CHATBOT --- */
-#chatbot-button-wrapper {
-    position: fixed;
-    bottom: 40px; right: 40px;
-    z-index: 1000;
-    transition: all 0.4s ease;
-}
-#chatbot-button {
-    width: 140px; height: 140px;
-    border-radius: 50%;
-    overflow: hidden;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
-    cursor: pointer;
-    transition: transform 0.3s ease;
-    animation: pulse-small 2s infinite;
-}
-#chatbot-button:hover { transform: scale(1.05); }
-#chatbot-button img { width: 100%; height: 100%; object-fit: contain; }
-#chatbot-bubble {
-    position: absolute;
-    bottom: 150px; /* Encima del botón */
-    right: 0;
-    background-color: #a855f7;
-    color: white;
-    padding: 12px 18px;
-    border-radius: 20px;
-    border-bottom-right-radius: 2px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-    white-space: nowrap;
-    font-weight: 600;
-    cursor: pointer;
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(20px);
-    transition: opacity 0.4s ease, transform 0.4s ease;
-}
-#chatbot-bubble.visible {
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0);
-}
-@keyframes pulse-small{0%{transform:scale(1)}50%{transform:scale(1.02)}100%{transform:scale(1)}}
-
-#chatbot-container{position:fixed;bottom:40px;right:40px;width:450px;height:600px;background-color:#1a1a2e;border-radius:10px;box-shadow:0 8px 20px rgba(0,0,0,.5);display:none;flex-direction:column;z-index:999;overflow:hidden;border:2px solid #6b21a8;box-sizing:border-box}#chatbot-header{background-color:#6b21a8;color:#fff;padding:10px 15px;font-weight:700;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;box-sizing:border-box;width:100%}#chatbot-close,#chatbot-minimize{background:0 0;border:none;color:#fff;font-size:1.2em;cursor:pointer;margin-left:10px;padding:0;line-height:1}#chatbot-messages{flex-grow:1;padding:15px;overflow-y:auto;background-color:#2a2a4a;display:flex;flex-direction:column;min-height:0;box-sizing:border-box}.chat-message{margin-bottom:10px;padding:8px 12px;border-radius:15px;max-width:80%;line-height:1.4;word-wrap:break-word;box-sizing:border-box}.user-message{background-color:#a855f7;align-self:flex-end;border-bottom-right-radius:2px}.bot-message{background-color:#4a4a6e;align-self:flex-start;border-bottom-left-radius:2px}#chatbot-input-container{padding:10px 15px;display:flex;align-items:center;gap:10px;background-color:#1a1a2e;flex-shrink:0;box-sizing:border-box;width:100%}#chatbot-input{flex-grow:1;padding:10px;border-radius:20px;border:1px solid #6b21a8;background-color:#333355;color:#fff;box-sizing:border-box;min-width:0}
-.chatbot-action-btn { background-color: transparent; color: white; border: none; border-radius: 50%; width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 1.5em; transition: background-color 0.3s; flex-shrink: 0; }
-.chatbot-action-btn:hover { background-color: #5b189b; }
-.drag-over { border: 3px dashed #a855f7 !important; background-color: rgba(168, 85, 247, 0.1); }
-#image-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.85); display: none; justify-content: center; align-items: center; z-index: 2000; }
-#overlay-image { max-width: 90%; max-height: 90%; object-fit: contain; cursor: pointer; }
-#overlay-close-btn { position: absolute; top: 20px; right: 35px; font-size: 45px; color: white; cursor: pointer; line-height: 1; }
+    .panel-image { width: 100%; height: 100%; max-height: 200px; object-fit: contain; }
+    .status-indicator { width: 20px; height: 20px; border-radius: 50%; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
+    .status-indicator:hover { transform: scale(1.1); }
+    .status-indicator.active { box-shadow: 0 0 0 3px white; }
+    .habitacion-img { width: 100%; height: 120px; object-fit: cover; border-radius: 0.375rem; }
+    .inventory-upload-box { width: 100%; height: 180px; background-color: rgba(0,0,0,0.2); border: 2px dashed #5b189b; border-radius: 0.5rem; display: flex; justify-content: center; align-items: center; cursor: pointer; position: relative; overflow: hidden; }
+    .inventory-upload-box:hover { background-color: rgba(0,0,0,0.4); }
+    .inventory-upload-box img { width: 100%; height: 100%; object-fit: cover; }
+    .inventory-upload-box .remove-btn { position: absolute; top: 5px; right: 5px; background-color: rgba(0,0,0,0.7); color: white; border: none; border-radius: 50%; width: 24px; height: 24px; font-weight: bold; line-height: 24px; text-align: center; cursor: pointer; display: none; }
+    .inventory-upload-box.has-image .remove-btn { display: block; }
+    .inventory-upload-box.has-image .placeholder-text { display: none; }
+    #chatbot-button-wrapper { position: fixed; bottom: 40px; right: 40px; z-index: 1000; }
+    #chatbot-button { width: 140px; height: 140px; border-radius: 50%; overflow: hidden; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4); cursor: pointer; transition: transform 0.3s ease; animation: pulse-small 2s infinite; }
+    #chatbot-button:hover { transform: scale(1.05); }
+    #chatbot-button img { width: 100%; height: 100%; object-fit: contain; z-index: 1001; position: relative; }
+    @keyframes pulse-small{0%{transform:scale(1)}50%{transform:scale(1.02)}100%{transform:scale(1)}}
+    #chatbot-bubble{position:absolute;bottom:150px;right:0;background-color:#a855f7;color:#fff;padding:12px 18px;border-radius:20px;border-bottom-right-radius:2px;box-shadow:0 4px 8px rgba(0,0,0,.3);white-space:nowrap;font-weight:600;cursor:pointer;opacity:0;visibility:hidden;transform:translateY(20px);transition:opacity .4s ease,transform .4s ease}#chatbot-bubble.visible{opacity:1;visibility:visible;transform:translateY(0)}
+    #chatbot-container{position:fixed;bottom:40px;right:40px;width:450px;height:600px;background-color:#1a1a2e;border-radius:10px;box-shadow:0 8px 20px rgba(0,0,0,.5);display:none;flex-direction:column;z-index:999;overflow:hidden;border:2px solid #6b21a8;box-sizing:border-box}#chatbot-header{background-color:#6b21a8;color:#fff;padding:10px 15px;font-weight:700;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;box-sizing:border-box;width:100%}#chatbot-close,#chatbot-minimize{background:0 0;border:none;color:#fff;font-size:1.2em;cursor:pointer;margin-left:10px;padding:0;line-height:1}#chatbot-messages{flex-grow:1;padding:15px;overflow-y:auto;background-color:#2a2a4a;display:flex;flex-direction:column;min-height:0;box-sizing:border-box}.chat-message{margin-bottom:10px;padding:8px 12px;border-radius:15px;max-width:80%;line-height:1.4;word-wrap:break-word;box-sizing:border-box}.user-message{background-color:#a855f7;align-self:flex-end;border-bottom-right-radius:2px}.bot-message{background-color:#4a4a6e;align-self:flex-start;border-bottom-left-radius:2px}#chatbot-input-container{padding:10px 15px;display:flex;align-items:center;gap:10px;background-color:#1a1a2e;flex-shrink:0;box-sizing:border-box;width:100%; position: relative; z-index: 1002;}
+    #chatbot-input{flex-grow:1;padding:10px;border-radius:20px;border:1px solid #6b21a8;background-color:#333355;color:#fff;box-sizing:border-box;min-width:0}
+    .chatbot-action-btn{background-color:transparent;color:#fff;border:none;border-radius:50%;width:40px;height:40px;display:flex;justify-content:center;align-items:center;cursor:pointer;font-size:1.5em;transition:background-color .3s;flex-shrink:0}.chatbot-action-btn:hover{background-color:#5b189b}
+    #image-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background-color:rgba(0,0,0,.85);display:none;justify-content:center;align-items:center;z-index:2000}#overlay-image{max-width:90%;max-height:90%;object-fit:contain;cursor:pointer}#overlay-close-btn{position:absolute;top:20px;right:35px;font-size:45px;color:#fff;cursor:pointer;line-height:1}
 </style>
 <script type="module">
-    // Importaciones de Firebase
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getFirestore, collection, getDocs, doc, setDoc, updateDoc, deleteDoc, getDoc, query, orderBy, addDoc, serverTimestamp, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, doc, setDoc, updateDoc, deleteDoc, getDoc, query, orderBy, addDoc, serverTimestamp, where, writeBatch } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
     import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
-    // Configuración de Firebase
+    
     const firebaseConfig = {
       apiKey: "AIzaSyAjSUwa9HtVsxBhY__73XdLbWXHmlcIyUE",
       authDomain: "moore-club.firebaseapp.com",
       projectId: "moore-club",
-      storageBucket: "moore-club.appspot.com",
+      storageBucket: "moore-club.firebasestorage.app", // CORREGIDO
       messagingSenderId: "674972089844",
       appId: "1:674972089844:web:9d6f9680bec8f6cff98da1",
       measurementId: "G-RSPNMJ466D"
     };
-    // Inicialización y exportación global de Firebase
-    const app = initializeApp(firebaseConfig);
-    window.db = getFirestore(app);
-    window.storage = getStorage(app);
-    window.collection = collection;
-    window.getDocs = getDocs;
-    window.doc = doc;
-    window.setDoc = setDoc;
-    window.updateDoc = updateDoc;
-    window.deleteDoc = deleteDoc;
-    window.getDoc = getDoc;
-    window.query = query;
-    window.orderBy = orderBy;
-    window.addDoc = addDoc;
-    window.serverTimestamp = serverTimestamp;
-    window.ref = ref;
-    window.uploadBytes = uploadBytes;
-    window.getDownloadURL = getDownloadURL;
-    window.deleteObject = deleteObject;
-    window.where = where;
-    window.firebaseConfig = firebaseConfig; // Hacemos accesible la config globalmente
+    
+    const firebaseApp = initializeApp(firebaseConfig);
+    window.db = getFirestore(firebaseApp);
+    window.storage = getStorage(firebaseApp);
+    window.Firebase = {
+        collection, getDocs, doc, setDoc, updateDoc, deleteDoc, getDoc, query, orderBy, addDoc, serverTimestamp, where, writeBatch,
+        ref, uploadBytes, getDownloadURL, deleteObject
+    };
 </script>
 </head>
 <body class="text-purple-200">
+<div id="anuncio-container" style="display: none;"></div>
 <div class="bg-overlay min-h-screen">
 <nav class="bg-purple-900 text-white px-6 py-4 flex justify-between items-center">
-<h1 class="text-xl font-bold cursor-pointer" onclick="mostrarInicio()">Vanilla</h1>
+<h1 class="text-xl font-bold cursor-pointer" onclick="VanillaApp.mostrarInicio()">Vanilla</h1>
 <ul class="flex space-x-6 text-sm">
-<li><a class="hover:underline" href="#" onclick="mostrarInicio()">Inicio</a></li>
-<li><a class="hover:underline" href="#" onclick="irAPanelEmpleado()">Empleados</a></li>
-<li><a class="hover:underline" href="#" onclick="mostrarPanelProductos()">Productos</a></li>
-<li><a class="hover:underline" href="#" onclick="mostrarPanelHabitaciones()">Habitaciones</a></li>
+<li><a class="hover:underline" href="#" onclick="VanillaApp.mostrarInicio()">Inicio</a></li>
+<li><a class="hover:underline" href="#" onclick="VanillaApp.irAPanelEmpleado()">Empleados</a></li>
+<li><a class="hover:underline" href="#" onclick="VanillaApp.mostrarPanelProductos()">Productos</a></li>
+<li><a class="hover:underline" href="#" onclick="VanillaApp.mostrarPanelHabitaciones()">Habitaciones</a></li>
 </ul>
 </nav>
 <main class="p-8" id="contenido"></main>
 </div>
 
-<div id="image-overlay">
-    <span id="overlay-close-btn">&times;</span>
-    <img id="overlay-image" src="" alt="Imagen ampliada">
-</div>
+<div id="image-overlay"><span id="overlay-close-btn">&times;</span><img id="overlay-image" src="" alt="Imagen ampliada"></div>
+<div id="chatbot-button-wrapper"><div id="chatbot-bubble">Si necesitas alguna cosa amor, dime y te ayudo</div><div id="chatbot-button"><img alt="Asistente de Chat" src="Luna.png"/></div></div>
+<div id="chatbot-container"><div id="chatbot-header"><span>Asistente Vanilla</span><div><button id="chatbot-minimize" title="Minimizar">_</button><button id="chatbot-close" title="Cerrar">X</button></div></div><div id="chatbot-messages"></div><div id="chatbot-input-container"><label for="chatbot-file-input" class="chatbot-action-btn" title="Subir imagen">+</label><input type="file" id="chatbot-file-input" accept="image/*" style="display: none;" /><input id="chatbot-input" placeholder="Escribe tu mensaje..." type="text"/><button id="chatbot-send" class="chatbot-action-btn">➤</button></div></div>
 
 <script>
-document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener('DOMContentLoaded', () => {
 
-    // --- ESTADO GLOBAL Y VARIABLES ---
-    const productos = [ 
-        { id: 'tito_griego', nombre: 'Tito Dios Griego', imagen: 'Tito.png' }, 
-        { id: 'la_tita', nombre: 'La Tita', imagen: 'Tita.png' }, 
-        { id: 'mascara_cat', nombre: 'Máscara “Cat Vanilla”', imagen: 'Mascara.png' }, 
-        { id: 'pinzas_led', nombre: 'Pinzas LED “Sweet Pain”', imagen: 'Pinzas.png' }, 
-        { id: 'preservativos', nombre: '“Espadas del Deseo”', imagen: 'condones.png' },
-        { id: 'golosinas_picantes', nombre: 'Golosinas Picantes', imagen: 'placeholder.png' },
-        { id: 'refresco_manzana', nombre: 'Refresco de Manzana', imagen: 'placeholder.png' }
-    ];
-    let empleados = [], fichajes = {}, ventas = {}, habitaciones = [], anuncios = [], libroNegro = [], listaNegra = [], inventarioLog = [];
-    let fichajeInterval = null, habitacionesInterval = null, dashboardInterval = null, aperturaInterval = null;
-    let chatbotImageFile = null;
+    const VanillaApp = {
 
-    // --- FUNCIONES DE UTILIDAD (INTERNAS)---
-    const detenerRelojFichaje = () => { if (fichajeInterval) clearInterval(fichajeInterval); fichajeInterval = null; };
-    const detenerRelojHabitaciones = () => { if (habitacionesInterval) clearInterval(habitacionesInterval); habitacionesInterval = null; };
-    const detenerDashboard = () => { if (dashboardInterval) clearInterval(dashboardInterval); dashboardInterval = null; };
-    const detenerRelojApertura = () => { if (aperturaInterval) clearInterval(aperturaInterval); aperturaInterval = null; };
-    const clearTimers = () => { detenerRelojFichaje(); detenerRelojHabitaciones(); detenerDashboard(); detenerRelojApertura(); };
-    const iniciarRelojFichaje = (horaInicio, baseHoy, baseSemana, baseTotal) => { detenerRelojFichaje(); fichajeInterval = setInterval(() => { const tiempoSesion = Date.now() - horaInicio; document.getElementById('tiempoHoy').textContent = window.formatearTiempo(baseHoy + tiempoSesion); document.getElementById('tiempoSemana').textContent = window.formatearTiempo(baseSemana + tiempoSesion); document.getElementById('tiempoTotal').textContent = window.formatearTiempo(baseTotal + tiempoSesion); document.getElementById('tiempoSesion').textContent = window.formatearTiempo(tiempoSesion); }, 1000); };
-    const iniciarRelojHabitaciones = () => { detenerRelojHabitaciones(); habitacionesInterval = setInterval(() => { habitaciones.forEach(hab => { const estadoActual = window.getEstadoHabitacion(hab); let tiempoRestanteElem = document.getElementById(`timer-hab-${hab.id}`); if (tiempoRestanteElem) { if (estadoActual.estado === 'ocupada') { const restante = estadoActual.reservaActual.fin - Date.now(); if (restante > 0) { tiempoRestanteElem.textContent = window.formatearTiempo(restante); } else { tiempoRestanteElem.textContent = "¡TIEMPO AGOTADO!"; tiempoRestanteElem.classList.add('text-red-500'); } } else { tiempoRestanteElem.textContent = "--:--:--"; tiempoRestanteElem.classList.remove('text-red-500');}}});}, 1000); };
-    const iniciarDashboard = () => { detenerDashboard(); dashboardInterval = setInterval(window.actualizarDashboard, 5000); };
-    const iniciarRelojApertura = (horaInicio) => {
-        detenerRelojApertura();
-        const timerElem = document.getElementById('tiempoApertura');
-        if(!timerElem) return;
-        timerElem.parentElement.style.display = 'block';
-        aperturaInterval = setInterval(() => {
-            const tiempoAbierto = Date.now() - horaInicio;
-            timerElem.textContent = window.formatearTiempo(tiempoAbierto);
-        }, 1000);
-    };
-    const formatearTiempoHorasDecimal = (ms) => {
-        if (isNaN(ms) || ms < 0) return "0,00h";
-        const horas = ms / (1000 * 60 * 60);
-        return horas.toFixed(2).replace('.', ',') + 'h';
-    };
+        // --- 1. ESTADO DE LA APP ---
+        state: {
+            productos: [ 
+                { id: 'tito_griego', nombre: 'Tito Dios Griego', imagen: 'Tito.png' }, { id: 'la_tita', nombre: 'La Tita', imagen: 'Tita.png' }, { id: 'mascara_cat', nombre: 'Máscara “Cat Vanilla”', imagen: 'Mascara.png' }, { id: 'pinzas_led', nombre: 'Pinzas LED “Sweet Pain”', imagen: 'Pinzas.png' }, { id: 'preservativos', nombre: '“Espadas del Deseo”', imagen: 'condones.png' },
+                { id: 'golosinas_picantes', nombre: 'Golosinas Picantes', imagen: 'Golosinas.png' },{ id: 'refresco_manzana', nombre: 'Refresco de Manzana', imagen: 'Refresco.png' },{ id: 'comida_reventa', nombre: 'Comida (Reventa)', imagen: 'comida reventa.png' },{ id: 'alcohol_reventa', nombre: 'Alcohol (Reventa)', imagen: 'alcohol de reventa.png' }
+            ],
+            datosHabitacionesBase: [
+                { id: 1, nombre: 'Habitacion Roja', imagen: 'habitacion roja.jpg' }, { id: 2, nombre: 'Habitacion Casino', imagen: 'Casino.jpg' }, { id: 3, nombre: 'Habitacion Gamer', imagen: 'gamer.jpg' },
+                { id: 4, nombre: 'Habitacion Japonesa', imagen: 'japonesa.jpg' }, { id: 5, nombre: 'Habitacion Cowboy', imagen: 'oeste.jpg' }, { id: 6, nombre: 'Habitacion Cueva', imagen: 'Cueva.jpg' },
+                { id: 7, nombre: 'Habitacion Egipcia', imagen: 'Egipcia.jpg' }, { id: 8, nombre: 'Habitación 8', imagen: 'placeholder.png' }, { id: 9, nombre: 'Habitación 9', imagen: 'placeholder.png' },{ id: 10, nombre: 'Habitación 10', imagen: 'placeholder.png' },
+            ],
+            empleados: [], fichajes: {}, ventas: {}, habitaciones: [], inventarioLog: [], libroNegro: [], listaNegra: [],
+            timers: { fichaje: null, habitaciones: null, dashboard: null, localOpen: null },
+            inventoryFiles: [null, null, null]
+        },
 
-    const ajustarPosicionChatbot = (vista) => {
-        const bubble = document.getElementById('chatbot-bubble');
-        if (vista === 'inicio') {
-            bubble.classList.add('visible');
-        } else {
-            bubble.classList.remove('visible');
-        }
-    };
-    
-    // --- FUNCIONES GLOBALES ---
-    window.hashPassword = (str) => { let hash = 0; if (typeof str !== 'string' || str.length === 0) return "hash_0"; for (let i = 0; i < str.length; i++) { const char = str.charCodeAt(i); hash = ((hash << 5) - hash) + char; hash |= 0; } return "hash_" + Math.abs(hash); };
-    window.formatearTiempo = (ms) => { if (isNaN(ms) || ms < 0) ms = 0; const s = Math.floor(ms / 1000), h = String(Math.floor(s / 3600)).padStart(2, '0'), m = String(Math.floor((s % 3600) / 60)).padStart(2, '0'), sec = String(s % 60).padStart(2, '0'); return `${h}:${m}:${sec}`; };
-    window.getWeekNumber = (d) => { d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())); d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7)); var yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1)); return Math.ceil((((d - yearStart) / 86400000) + 1)/7); };
-    window.getEstadoHabitacion = (hab) => { const now = Date.now(); if (!hab || !hab.reservas) return { estado: 'disponible', texto: 'Disponible', reservaActual: null }; const r = hab.reservas.find(res => now >= res.inicio && now < res.fin); return r ? { estado: 'ocupada', texto: 'Ocupada', reservaActual: r } : { estado: 'disponible', texto: 'Disponible', reservaActual: null }; };
-    
-    // --- CARGA DE DATOS DE FIRESTORE ---
-    const cargarTodosLosEmpleados = async () => { try { const snapshot = await getDocs(collection(db, 'empleados')); empleados = []; snapshot.forEach(doc => empleados.push({ id: doc.id, ...doc.data() })); } catch (e) { console.error("Error cargando empleados:", e); } };
-    const cargarTodosLosFichajes = async () => { try { const snapshot = await getDocs(collection(db, 'fichajes')); fichajes = {}; snapshot.forEach(doc => { fichajes[doc.id] = doc.data(); }); } catch (e) { console.error("Error cargando fichajes:", e); } };
-    const cargarTodasLasVentas = async () => { try { const snapshot = await getDocs(collection(db, 'ventas')); ventas = {}; snapshot.forEach(doc => { ventas[doc.id] = doc.data(); }); } catch (e) { console.error("Error cargando ventas:", e); } };
-    const cargarTodasLasHabitaciones = async () => { try { const snapshot = await getDocs(collection(db, 'habitaciones')); habitaciones = []; if (!snapshot.empty) { snapshot.forEach(doc => habitaciones.push(doc.data())); } else { for (let i = 1; i <= 10; i++) { const newHab = { id: i, nombre: `Habitación ${i}`, reservas: [] }; habitaciones.push(newHab); await setDoc(doc(db, 'habitaciones', String(i)), newHab); } } habitaciones.sort((a, b) => a.id - b.id); } catch (e) { console.error("Error cargando habitaciones:", e); } };
-    const cargarTodosLosAnuncios = async () => { try { const q = query(collection(db, 'anuncios'), orderBy('timestamp', 'desc')); const snapshot = await getDocs(q); anuncios = []; snapshot.forEach(doc => anuncios.push(doc.data())); } catch (e) { console.error("Error cargando anuncios:", e); } };
-    const cargarLibroNegro = async () => { try { const snapshot = await getDocs(collection(db, 'libroNegro')); libroNegro = []; snapshot.forEach(doc => libroNegro.push({docId: doc.id, ...doc.data()})); } catch (e) { console.error("Error cargando Libro Negro:", e); } };
-    const cargarListaNegra = async () => { try { const snapshot = await getDocs(collection(db, 'listaNegra')); listaNegra = []; snapshot.forEach(doc => listaNegra.push({docId: doc.id, ...doc.data()})); } catch (e) { console.error("Error cargando Lista Negra:", e); } };
-    const cargarInventarioLog = async () => { try { const q = query(collection(db, 'inventario_log'), orderBy('timestamp', 'desc')); const snapshot = await getDocs(q); inventarioLog = []; snapshot.forEach(doc => inventarioLog.push(doc.data())); } catch (e) { console.error("Error cargando log de inventario:", e); } };
-
-    window.gestionarReseteoDatos = async (nombre, esVenta = false) => {
-        const ahora = new Date(), hoyStr = ahora.toISOString().split('T')[0], semanaNum = window.getWeekNumber(ahora);
-        if (esVenta) {
-            let datosVentaDoc = await getDoc(doc(db, 'ventas', nombre));
-            let datosV = datosVentaDoc.exists() ? datosVentaDoc.data() : { productos: {}, fecha: '' };
-            if (!datosV.productos) datosV.productos = {};
-            if (datosV.fecha !== hoyStr) { datosV.fecha = hoyStr; Object.keys(datosV.productos).forEach(k => { datosV.productos[k].hoy = 0; }); }
-            ventas[nombre] = datosV;
-            return datosV;
-        } else {
-            let datosFichajeDoc = await getDoc(doc(db, 'fichajes', nombre));
-            let datosF = datosFichajeDoc.exists() ? datosFichajeDoc.data() : null;
-            if (!datosF || typeof datosF.total !== 'number') datosF = { total: 0, hoy: 0, semana: 0, fecha: hoyStr, numSemana: semanaNum, fichado: false, inicio: null };
-            if (datosF.fecha !== hoyStr) { datosF.hoy = 0; datosF.fecha = hoyStr; }
-            if (datosF.numSemana !== semanaNum) { datosF.semana = 0; datosF.numSemana = semanaNum; }
-            fichajes[nombre] = datosF;
-            return datosF;
-        }
-    };
-    
-    // --- LÓGICA DE LOGIN Y SESIÓN ---
-    window.verificarAccesoVIP = async () => { 
-        const nombre = document.getElementById('nombreInput')?.value.trim().toLowerCase(); 
-        const pass = document.getElementById('passInput')?.value; 
-        if (!nombre || !pass) return alert("Nombre y contraseña son requeridos."); 
-        const empleadoDoc = await getDoc(doc(db, 'empleados', nombre)); 
-        if (empleadoDoc.exists()) { 
-            const empleado = empleadoDoc.data(); 
-            if (window.hashPassword(pass) === empleado.passHash) { 
-                sessionStorage.setItem('currentUser', nombre); 
-                await window.mostrarPanelEmpleados(nombre); 
-            } else { alert('Contraseña incorrecta.'); } 
-        } else { alert('Nombre de usuario no encontrado.'); } 
-    };
-    window.cerrarSesion = () => { 
-        clearTimers(); 
-        sessionStorage.removeItem('currentUser'); 
-        window.mostrarInicio(); 
-    };
-    window.verificarAccesoAdmin = async () => { const pass = document.getElementById('adminPassInput')?.value; if (pass === "D.VaSong11") { await cargarTodosLosEmpleados(); await cargarTodosLosFichajes(); await cargarTodasLasVentas(); await cargarTodasLasHabitaciones(); await cargarTodosLosAnuncios(); await cargarLibroNegro(); await cargarListaNegra(); await cargarInventarioLog(); await window.mostrarPanelAdmin(); } else { alert('Contraseña de administrador incorrecta.'); } };
-
-    // --- VISTAS Y NAVEGACIÓN ---
-    window.irAPanelEmpleado = async () => {
-        const currentUser = sessionStorage.getItem('currentUser');
-        if (currentUser) {
-            await window.mostrarPanelEmpleados(currentUser);
-        } else {
-            window.mostrarLoginVIP();
-        }
-    };
-    window.mostrarInicio = () => { clearTimers(); document.getElementById('contenido').innerHTML = `<div class="p-4 md:p-8 max-w-7xl mx-auto rounded-lg bg-purple-900 bg-opacity-90 shadow-lg"><header class="mb-8 text-center"><h1 class="text-5xl font-extrabold text-white drop-shadow-lg mb-2">Bienvenido a Vanilla</h1><p class="text-purple-300 text-lg">Donde la tentación y la elegancia se encuentran.</p></header><div class="flex flex-col md:flex-row items-center gap-8"><div class="md:w-5/12"><img src="Tito y Marta.png" alt="Tito y Marta" class="rounded-lg shadow-2xl w-full h-auto object-cover" /></div><div class="md:w-7/12 space-y-6"><div class="bg-purple-800 bg-opacity-50 p-4 rounded-lg"><h2 class="text-2xl font-bold text-white mb-2">Tito Giovanni</h2><p class="text-purple-200">El carismático maestro de ceremonias y corazón de Moore. Su elegancia y estilo inconfundible, siempre vestido de morado, garantizan una noche inolvidable. Es el anfitrión perfecto, el alma de la fiesta.</p></div><div class="bg-purple-800 bg-opacity-50 p-4 rounded-lg"><h2 class="text-2xl font-bold text-white mb-2">Marta</h2><p class="text-purple-200">La musa indiscutible del club. Con una actitud que cautiva y una sensualidad que desarma, Marta es la protagonista de los shows más aclamados. Su presencia en el escenario es pura magia y provocación.</p></div></div></div><div class="mt-10 flex justify-center gap-4"><button onclick="mostrarLoginVIP()" class="btn">Área Empleados</button><button onclick="mostrarLoginAdmin()" class="btn" style="background-color: #a855f7;">Tito Giovanni</button></div></div>`; ajustarPosicionChatbot('inicio'); };
-    window.mostrarLoginVIP = () => { clearTimers(); document.getElementById('contenido').innerHTML = `<div class="max-w-md mx-auto bg-black bg-opacity-30 p-8 rounded-lg shadow-lg"><h2 class="text-2xl font-bold mb-4 text-center">Acceso Empleados</h2><div class="mb-4"><label class="block mb-2">Nombre completo:</label><input id="nombreInput" type="text" class="w-full px-3 py-2 text-black rounded" placeholder="nombre y apellido en minúsculas" /></div><div class="mb-4"><label class="block mb-2">Contraseña:</label><input id="passInput" type="password" class="w-full px-3 py-2 text-black rounded" /></div><div class="flex justify-between mt-6"><button onclick="verificarAccesoVIP()" class="btn">Entrar</button><button onclick="mostrarInicio()" class="btn" style="background-color:#5b189b;">Volver</button></div></div>`; ajustarPosicionChatbot('login'); };
-    window.mostrarLoginAdmin = () => { clearTimers(); document.getElementById('contenido').innerHTML = `<div class="max-w-md mx-auto bg-black bg-opacity-50 p-8 rounded-lg shadow-lg border-2 border-purple-400"><h2 class="text-3xl font-bold mb-4 text-center text-purple-300">Acceso Privado - Tito Giovanni</h2><label class="block mb-2">Contraseña de Administrador:</label><input id="adminPassInput" type="password" class="w-full px-3 py-2 text-black rounded" /><div class="flex justify-between mt-6"><button onclick="verificarAccesoAdmin()" class="btn">Entrar</button><button onclick="mostrarInicio()" class="btn" style="background-color:#5b189b;">Volver</button></div></div>`; ajustarPosicionChatbot('login'); };
-    window.crearTarjetaProducto = (producto, esPanelVenta = false, nombreEmpleado = '') => { 
-        let totalVentasHoy = 0, totalVentasHist = 0;
-        if (ventas[nombreEmpleado] && ventas[nombreEmpleado].productos && ventas[nombreEmpleado].productos[producto.id]) {
-            totalVentasHoy = ventas[nombreEmpleado].productos[producto.id].hoy || 0;
-            totalVentasHist = ventas[nombreEmpleado].productos[producto.id].total || 0;
-        }
-        const desc = `Hoy: ${totalVentasHoy} | Total: ${totalVentasHist}`;
-        const inputVentasHTML = esPanelVenta 
-            ? `<div class="mt-2"><input type="number" min="0" value="0" id="input-${producto.id}" class="w-20 px-2 py-1 text-black rounded" onchange="actualizarVentas('${producto.id}', '${nombreEmpleado}', this.value)" /><p class="text-xs mt-1">${desc}</p></div>` 
-            : `<p class="text-purple-300 text-lg font-bold mt-2">$50</p>`;
-        return `<div class="producto-card bg-purple-800 rounded-lg p-2 text-center shadow-md flex flex-col justify-between text-sm"><div><img src="${producto.imagen}" alt="${producto.nombre}" class="mx-auto mb-2 w-20 h-20 object-cover rounded" /><h3 class="text-white font-semibold leading-tight">${producto.nombre}</h3></div><div>${inputVentasHTML}</div></div>`; 
-    };
-    window.mostrarPanelProductos = () => { 
-        clearTimers();
-        const soloProductos = productos.filter(p => !['golosinas_picantes', 'refresco_manzana'].includes(p.id));
-        const productosHTML = soloProductos.map(p => window.crearTarjetaProducto(p, false)).join('');
-
-        const comidasHTML = `<div class="producto-card bg-purple-800 rounded-lg p-2 text-center shadow-md flex flex-col justify-between text-sm"><div><h3 class="text-white font-semibold leading-tight mt-2">Golosinas Picantes</h3></div><div><p class="text-purple-300 text-lg font-bold mt-2">$35</p></div></div><div class="producto-card bg-purple-800 rounded-lg p-2 text-center shadow-md flex flex-col justify-between text-sm"><div><h3 class="text-white font-semibold leading-tight mt-2">Zumo</h3></div><div><p class="text-purple-300 text-lg font-bold mt-2">$35</p></div></div><div class="producto-card bg-purple-800 rounded-lg p-2 text-center shadow-md flex flex-col justify-between text-sm"><div><h3 class="text-white font-semibold leading-tight mt-2">Alcohol</h3></div><div><p class="text-purple-300 text-lg font-bold mt-2">$60</p></div></div>`;
-        const serviciosHTML = `<div class="producto-card bg-purple-800 rounded-lg p-2 text-center shadow-md flex flex-col justify-between text-sm"><div><h3 class="text-white font-semibold leading-tight mt-2">Habitaciones</h3></div><div><p class="text-purple-300 text-lg font-bold mt-2">$2000</p></div></div><div class="producto-card bg-purple-800 rounded-lg p-2 text-center shadow-md flex flex-col justify-between text-sm"><div><h3 class="text-white font-semibold leading-tight mt-2">Bailarín/a Privado/a</h3></div><div><p class="text-purple-300 text-lg font-bold mt-2">$2000</p></div></div>`;
-        const packsPropiosHTML = `<div class="producto-card bg-purple-800 rounded-lg p-2 text-center shadow-md flex flex-col justify-between text-sm"><div><h3 class="text-white font-semibold leading-tight mt-2">5 y 5</h3></div><div><p class="text-purple-300 text-lg font-bold mt-2">$350</p></div></div><div class="producto-card bg-purple-800 rounded-lg p-2 text-center shadow-md flex flex-col justify-between text-sm"><div><h3 class="text-white font-semibold leading-tight mt-2">10 y 10</h3></div><div><p class="text-purple-300 text-lg font-bold mt-2">$700</p></div></div>`;
-        const packsReventaHTML = `<div class="producto-card bg-purple-800 rounded-lg p-2 text-center shadow-md flex flex-col justify-between text-sm"><div><h3 class="text-white font-semibold leading-tight mt-2">5 y 5</h3></div><div><p class="text-purple-300 text-lg font-bold mt-2">$400</p></div></div><div class="producto-card bg-purple-800 rounded-lg p-2 text-center shadow-md flex flex-col justify-between text-sm"><div><h3 class="text-white font-semibold leading-tight mt-2">10 y 10</h3></div><div><p class="text-purple-300 text-lg font-bold mt-2">$800</p></div></div>`;
-
-        document.getElementById('contenido').innerHTML = `
-            <h2 class="text-3xl font-bold mb-6 text-center">Productos y Servicios</h2>
-            <h3 class="text-2xl font-semibold mb-4 border-t border-purple-700 pt-6">Productos</h3><div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">${productosHTML}</div>
-            <h3 class="text-2xl font-semibold mb-4 border-t border-purple-700 pt-6 mt-8">Comidas y Bebidas</h3><div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6">${comidasHTML}</div>
-            <h3 class="text-2xl font-semibold mb-4 border-t border-purple-700 pt-6 mt-8">Packs de Comida y Bebida Propia</h3><div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-6">${packsPropiosHTML}</div>
-            <h3 class="text-2xl font-semibold mb-4 border-t border-purple-700 pt-6 mt-8">Packs de Reventa</h3><div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-6">${packsReventaHTML}</div>
-            <h3 class="text-2xl font-semibold mb-4 border-t border-purple-700 pt-6 mt-8">Servicios</h3><div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-6">${serviciosHTML}</div>
-            <div class="text-center"><button onclick="mostrarInicio()" class="btn mt-8">Volver</button></div>`; 
-        ajustarPosicionChatbot('productos');
-    };
-    window.mostrarPanelHabitaciones = async () => {
-        clearTimers();
-        if (habitaciones.length === 0) await cargarTodasLasHabitaciones();
-        let html = `<div class="max-w-7xl mx-auto text-center"><h1 class="text-4xl font-bold mb-8">Nuestras Habitaciones</h1><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">`;
-        habitaciones.forEach(hab => {
-            const estadoActual = window.getEstadoHabitacion(hab);
-            html += `<div class="border-2 ${estadoActual.estado === 'disponible' ? 'border-purple-600' : 'border-gray-600'} p-4 rounded-lg bg-purple-900 bg-opacity-50 flex flex-col"><div class="flex-grow flex gap-4"><div class="w-1/3 bg-black/20 rounded"></div><div class="w-2/3 text-left"><h2 class="text-2xl font-bold">${hab.nombre}</h2><p class="text-lg ${estadoActual.estado === 'disponible' ? 'text-green-400' : 'text-red-400'}">${estadoActual.texto}</p><div class="mt-2 text-sm"><p class="font-bold mb-1">Reservas para hoy:</p><ul class="list-disc list-inside space-y-1 h-20 overflow-y-auto text-xs">${hab.reservas.filter(r => new Date(r.inicio).toDateString() === new Date().toDateString()).sort((a,b)=>a.inicio-b.inicio).map(r => `<li>${new Date(r.inicio).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})} - ${new Date(r.fin).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})} (${r.cliente})</li>`).join('') || '<li>Ninguna reserva hoy.</li>'}</ul></div></div></div><div id="form-hab-${hab.id}" class="mt-3 text-left border-t border-purple-800 pt-3"><h4 class="font-bold mb-2 text-center">Hacer una nueva reserva:</h4><input type="text" id="cliente-hab-${hab.id}" placeholder="Tu nombre" class="w-full p-2 rounded bg-gray-800 text-white mb-2 text-sm"><div class="flex gap-2"><input type="date" id="fecha-hab-${hab.id}" class="w-full p-2 rounded bg-gray-800 text-white mb-2 text-sm"><input type="time" id="hora-hab-${hab.id}" step="1800" class="w-full p-2 rounded bg-gray-800 text-white mb-2 text-sm"></div><select id="duracion-hab-${hab.id}" class="w-full p-2 rounded bg-gray-800 text-white mb-2 text-sm"><option value="1">1 Hora</option><option value="2">2 Horas</option><option value="3">3 Horas</option></select><button class="btn w-full mt-2" onclick="reservarHabitacion(${hab.id})">Confirmar Reserva</button></div></div>`;
-        });
-        html += `</div><div class="text-center"><button onclick="mostrarInicio()" class="btn mt-8">Volver</button></div></div>`;
-        document.getElementById('contenido').innerHTML = html;
-        const hoy = new Date();
-        const unaSemana = new Date();
-        unaSemana.setDate(hoy.getDate() + 7);
-        const minDate = hoy.toISOString().split('T')[0];
-        const maxDate = unaSemana.toISOString().split('T')[0];
-        document.querySelectorAll('input[type="date"]').forEach(input => {
-            input.min = minDate;
-            input.max = maxDate;
-            input.value = minDate;
-        });
-        ajustarPosicionChatbot('habitaciones');
-    };
-    
-    // --- PANELES DE USUARIO Y ADMIN ---
-    window.mostrarPanelEmpleados = async (nombre) => {
-        clearTimers();
-        await cargarTodosLosFichajes();
-        const datosFichaje = await window.gestionarReseteoDatos(nombre);
-        await window.gestionarReseteoDatos(nombre, true);
+        // --- 2. MANEJO DE TIMERS ---
+        stopAllTimers() { Object.keys(this.state.timers).forEach(t => { if(this.state.timers[t]) clearInterval(this.state.timers[t]); this.state.timers[t] = null; }); },
+        stopPanelTimers() { if(this.state.timers.fichaje) clearInterval(this.state.timers.fichaje); if(this.state.timers.habitaciones) clearInterval(this.state.timers.habitaciones); this.state.timers.fichaje = null; this.state.timers.habitaciones = null;},
+        startClockInTimer(horaInicio, baseHoy, baseSemana, baseTotal) { this.stopPanelTimers(); this.state.timers.fichaje = setInterval(() => { const tiempoSesionElem = document.getElementById('tiempoSesion'); const tiempoHoyElem = document.getElementById('tiempoHoy'); const tiempoSemanaElem = document.getElementById('tiempoSemana'); const tiempoTotalElem = document.getElementById('tiempoTotal'); if (tiempoSesionElem && tiempoHoyElem && tiempoSemanaElem && tiempoTotalElem) { const tiempoSesion = Date.now() - horaInicio; tiempoHoyElem.textContent = this.formatearTiempo(baseHoy + tiempoSesion); tiempoSemanaElem.textContent = this.formatearTiempo(baseSemana + tiempoSesion); tiempoTotalElem.textContent = this.formatearTiempo(baseTotal + tiempoSesion); tiempoSesionElem.textContent = this.formatearTiempo(tiempoSesion); } }, 1000); },
+        startRoomsTimer() { this.state.timers.habitaciones = setInterval(() => { this.state.habitaciones.forEach(hab => { const estadoActual = this.getEstadoHabitacion(hab); let tiempoRestanteElem = document.getElementById(`timer-hab-${hab.id}`); if (tiempoRestanteElem) { if (estadoActual.estado === 'ocupada') { const restante = estadoActual.reservaActual.fin - Date.now(); if (restante > 0) { tiempoRestanteElem.textContent = this.formatearTiempo(restante); } else { tiempoRestanteElem.textContent = "¡TIEMPO AGOTADO!"; tiempoRestanteElem.classList.add('text-red-500'); } } else { tiempoRestanteElem.textContent = "--:--:--"; tiempoRestanteElem.classList.remove('text-red-500');}}});}, 1000); },
+        startDashboardTimer() { this.stopAllTimers(); this.actualizarDashboard(); this.state.timers.dashboard = setInterval(() => this.actualizarDashboard(), 5000); },
+        startLocalOpenTimer(horaInicio) { if (this.state.timers.localOpen) clearInterval(this.state.timers.localOpen); this.state.timers.localOpen = setInterval(() => { const timerElem = document.getElementById('tiempoAbiertoLocal'); if(timerElem) { const tiempoAbierto = Date.now() - horaInicio; timerElem.textContent = this.formatearTiempo(tiempoAbierto); } }, 1000);},
         
-        let tiempoHoy = datosFichaje.hoy, tiempoSemana = datosFichaje.semana, tiempoTotal = datosFichaje.total;
-        if (datosFichaje.fichado) { const t = Date.now() - datosFichaje.inicio; tiempoHoy += t; tiempoSemana += t; tiempoTotal += t; }
-        
-        const productosVentaHTML = productos.map(p => window.crearTarjetaProducto(p, true, nombre)).join('');
-        let habitacionesHTML = '';
-        if (habitaciones.length === 0) await cargarTodasLasHabitaciones();
-        habitaciones.forEach(hab => {
-            const estadoActual = window.getEstadoHabitacion(hab);
-            let controles = '';
-            if (estadoActual.estado === 'disponible') { controles = `<button class="btn text-sm py-2 w-full" onclick="ocuparHabitacionAhora(${hab.id}, '${nombre}')">Ocupar (30 min)</button>`; } 
-            else { controles = `<div class="font-mono text-xl mb-2" id="timer-hab-${hab.id}">--:--:--</div><div class="flex gap-2"><button class="btn text-xs py-1 flex-grow" onclick="anadirTiempoHabitacion(${hab.id}, '${nombre}')">+30 min</button><button class="btn text-xs py-1 flex-grow" style="background-color:#c44" onclick="liberarHabitacion(${hab.id}, '${nombre}')">Liberar</button></div>`; }
-            habitacionesHTML += `<div class="bg-purple-800 p-4 rounded-lg text-center flex flex-col justify-between"><div><p class="font-bold text-lg">${hab.nombre}</p><p class="text-sm ${estadoActual.estado === 'ocupada' ? 'text-red-400' : 'text-green-400'} mb-2">${estadoActual.texto}</p></div><div>${controles}</div></div>`;
-        });
-        
-        const notificacionHTML = `<button onclick="mostrarAnuncios()" class="text-2xl relative">🔔</button>`;
-        const botonesAccionHTML = `<button onclick="mostrarPanelConvenios()" class="btn text-xs py-1">Convenios</button><button onclick="mostrarPanelInventario()" class="btn text-xs py-1">Inventario</button><button onclick="mostrarListaNegraPublica()" class="btn text-xs py-1">Ver Vetados</button>${notificacionHTML}<button class="btn" style="background-color: #d63636;" onclick="cerrarSesion()">Cerrar Sesión</button>`;
-        const timersHTML = `
-            <div class="bg-purple-800 p-4 rounded-lg mb-6 grid grid-cols-2 md:grid-cols-5 gap-4 text-center items-center">
-                <div><p class="text-sm text-purple-300">TIEMPO HOY</p><p id="tiempoHoy" class="font-mono text-xl">${window.formatearTiempo(tiempoHoy)}</p></div>
-                <div><p class="text-sm text-purple-300">TIEMPO SEMANA</p><p id="tiempoSemana" class="font-mono text-xl">${window.formatearTiempo(tiempoSemana)}</p></div>
-                <div><p class="text-sm text-purple-300">TIEMPO TOTAL</p><p id="tiempoTotal" class="font-mono text-xl">${window.formatearTiempo(tiempoTotal)}</p></div>
-                <div class="bg-purple-700 p-2 rounded-lg"><p class="text-sm text-purple-200">SESIÓN ACTUAL</p><p id="tiempoSesion" class="font-mono text-xl font-bold text-white">00:00:00</p></div>
-                <div style="display: none;" class="bg-yellow-600 p-2 rounded-lg"><p class="text-sm text-white">TIEMPO APERTURA</p><p id="tiempoApertura" class="font-mono text-xl font-bold text-white">00:00:00</p></div>
-            </div>`;
-        const botonesFichajeHTML = `
-            <div class="text-center mb-8 flex justify-center items-center gap-4">
-                <button class="btn text-lg px-6 py-3" onclick="fichar('${nombre}')">Fichar Entrada</button>
-                <button class="btn text-lg px-6 py-3" onclick="desfichar('${nombre}')">Fichar Salida</button>
-                <button class="btn text-base px-4 py-2" style="background-color: #16a34a;" onclick="darPackDiarioVentas('${nombre}')">Recibir Pack Diario</button>
-            </div>`;
+        // --- 3. FUNCIONES DE UTILIDAD (HELPERS) ---
+        hashPassword(str) { let hash = 0; if (typeof str !== 'string' || str.length === 0) return "hash_0"; for (let i = 0; i < str.length; i++) { const char = str.charCodeAt(i); hash = ((hash << 5) - hash) + char; hash |= 0; } return "hash_" + Math.abs(hash); },
+        formatearTiempo(ms) { if (isNaN(ms) || ms < 0) ms = 0; const s = Math.floor(ms / 1000), h = String(Math.floor(s / 3600)).padStart(2, '0'), m = String(Math.floor((s % 3600) / 60)).padStart(2, '0'), sec = String(s % 60).padStart(2, '0'); return `${h}:${m}:${sec}`; },
+        formatearTiempoHorasDecimal(ms) { if (isNaN(ms) || ms <= 0) return "0,0"; const horas = ms / (1000 * 60 * 60); return horas.toFixed(1).replace('.', ','); },
+        getEstadoHabitacion(hab) { const now = Date.now(); if (!hab || !hab.reservas) return { estado: 'disponible', texto: 'Disponible', reservaActual: null }; const r = hab.reservas.find(res => now >= res.inicio && now < res.fin); return r ? { estado: 'ocupada', texto: 'Ocupada', reservaActual: r } : { estado: 'disponible', texto: 'Disponible', reservaActual: null }; },
+        getWeekNumber(d) { d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())); d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7)); var yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1)); return Math.ceil((((d - yearStart) / 86400000) + 1)/7); },
+        estaDeVacaciones(empleado) {
+            if (!empleado || !empleado.vacaciones || !Array.isArray(empleado.vacaciones)) {
+                return false;
+            }
+            const ahora = Date.now();
+            return empleado.vacaciones.some(periodo => 
+                periodo && typeof periodo.inicio === 'number' && typeof periodo.fin === 'number' &&
+                ahora >= periodo.inicio && ahora <= periodo.fin
+            );
+        },
 
-        document.getElementById('contenido').innerHTML = `<div class="p-6 bg-purple-900 bg-opacity-90 rounded-lg max-w-6xl mx-auto shadow-lg"><div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-bold">Panel de Fichaje: <span class="text-purple-300 capitalize">${nombre}</span></h2><div class="flex items-center gap-4 flex-wrap">${botonesAccionHTML}</div></div>${timersHTML}${botonesFichajeHTML}<h3 class="text-xl font-semibold mb-4 border-t border-purple-700 pt-6">Gestión de Habitaciones</h3><div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">${habitacionesHTML}</div> <h3 class="text-xl font-semibold mb-4 border-t border-purple-700 pt-6">Registrar Ventas</h3><div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4" id="productosVenta">${productosVentaHTML}</div></div>`;
+        // --- 4. CARGA DE DATOS (FIRESTORE) ---
+        async cargarTodosLosEmpleados() { try { const snapshot = await Firebase.getDocs(Firebase.query(Firebase.collection(db, 'empleados'), Firebase.orderBy('nombre'))); this.state.empleados = []; snapshot.forEach(doc => this.state.empleados.push({ id: doc.id, ...doc.data() })); } catch (e) { console.error("Error cargando empleados:", e); } },
+        async cargarTodosLosFichajes() { try { const snapshot = await Firebase.getDocs(Firebase.collection(db, 'fichajes')); let fichajesData = {}; snapshot.forEach(doc => { fichajesData[doc.id] = doc.data(); }); this.state.fichajes = fichajesData; } catch (e) { console.error("Error cargando fichajes:", e); } },
+        async cargarTodasLasVentas() { try { const snapshot = await Firebase.getDocs(Firebase.collection(db, 'ventas')); this.state.ventas = {}; snapshot.forEach(doc => { this.state.ventas[doc.id] = doc.data(); }); } catch (e) { console.error("Error cargando ventas:", e); } },
+        async cargarTodasLasHabitaciones() { try { const snapshot = await Firebase.getDocs(Firebase.collection(db, 'habitaciones')); if (snapshot.size < this.state.datosHabitacionesBase.length) { for (const habBase of this.state.datosHabitacionesBase) { const habRef = Firebase.doc(db, 'habitaciones', String(habBase.id)); const habDoc = await Firebase.getDoc(habRef); if (!habDoc.exists()) { await Firebase.setDoc(habRef, { ...habBase, reservas: [] }); } } } const finalSnapshot = await Firebase.getDocs(Firebase.query(Firebase.collection(db, 'habitaciones'), Firebase.orderBy('id'))); this.state.habitaciones = []; finalSnapshot.forEach(doc => this.state.habitaciones.push(doc.data())); } catch (e) { console.error("Error cargando/creando habitaciones:", e); }},
+        async cargarInventarioLog() { try { const q = Firebase.query(Firebase.collection(db, 'inventario_log'), Firebase.orderBy('timestamp', 'desc')); const snapshot = await Firebase.getDocs(q); this.state.inventarioLog = []; snapshot.forEach(doc => this.state.inventarioLog.push(doc.data())); } catch (e) { console.error("Error cargando log de inventario:", e); } },
+        async cargarLibroNegro() { try { const snapshot = await Firebase.getDocs(Firebase.collection(db, 'libroNegro')); this.state.libroNegro = []; snapshot.forEach(doc => this.state.libroNegro.push({docId: doc.id, ...doc.data()})); } catch (e) { console.error("Error cargando Libro Negro:", e); } },
+        async cargarListaNegra() { try { const snapshot = await Firebase.getDocs(Firebase.collection(db, 'listaNegra')); this.state.listaNegra = []; snapshot.forEach(doc => this.state.listaNegra.push({docId: doc.id, ...doc.data()})); } catch (e) { console.error("Error cargando Lista Negra:", e); } },
         
-        iniciarRelojHabitaciones();
-        if (datosFichaje.fichado) { 
-            iniciarRelojFichaje(datosFichaje.inicio, datosFichaje.hoy, datosFichaje.semana, datosFichaje.total);
-        }
+        // --- 5. LÓGICA DE VISTAS Y PANELES (UI) ---
+        async irAPanelEmpleado() { const currentUser = sessionStorage.getItem('currentUser'); if (currentUser) { await this.mostrarPanelEmpleados(currentUser); } else { this.mostrarLoginVIP(); }},
+        mostrarInicio() { this.stopAllTimers(); document.getElementById('contenido').innerHTML = `<div class="p-4 md:p-8 max-w-7xl mx-auto rounded-lg bg-purple-900 bg-opacity-90 shadow-lg"><header class="mb-8 text-center"><h1 class="text-5xl font-extrabold text-white drop-shadow-lg mb-2">Bienvenido a Vanilla</h1><p class="text-purple-300 text-lg">Donde la tentación y la elegancia se encuentran.</p></header><div class="flex flex-col md:flex-row items-center gap-8"><div class="md:w-5/12"><img src="Tito y Marta.png" alt="Tito y Marta" class="rounded-lg shadow-2xl w-full h-auto object-cover" /></div><div class="md:w-7/12 space-y-6"><div class="bg-purple-800 bg-opacity-50 p-4 rounded-lg"><h2 class="text-2xl font-bold text-white mb-2">Tito Giovanni</h2><p class="text-purple-200">El carismático maestro de ceremonias y corazón de Moore. Su elegancia y estilo inconfundible, siempre vestido de morado, garantizan una noche inolvidable. Es el anfitrión perfecto, el alma de la fiesta.</p></div><div class="bg-purple-800 bg-opacity-50 p-4 rounded-lg"><h2 class="text-2xl font-bold text-white mb-2">Marta</h2><p class="text-purple-200">La musa indiscutible del club. Con una actitud que cautiva y una sensualidad que desarma, Marta es la protagonista de los shows más aclamados. Su presencia en el escenario es pura magia y provocación.</p></div></div></div><div class="mt-10 flex justify-center gap-4"><button onclick="VanillaApp.mostrarLoginVIP()" class="btn">Área Empleados</button><button onclick="VanillaApp.mostrarLoginAdmin()" class="btn" style="background-color: #a855f7;">Jefes</button></div></div>`; this.ajustarPosicionChatbot(true); },
+        mostrarLoginVIP() { this.stopAllTimers(); document.getElementById('contenido').innerHTML = `<div class="max-w-md mx-auto bg-black bg-opacity-30 p-8 rounded-lg shadow-lg"><h2 class="text-2xl font-bold mb-4 text-center">Acceso Empleados</h2><div class="mb-4"><label class="block mb-2">Nombre completo:</label><input id="nombreInput" type="text" class="w-full px-3 py-2 text-black rounded" placeholder="nombre y apellido en minúsculas" /></div><div class="mb-4"><label class="block mb-2">Contraseña:</label><input id="passInput" type="password" class="w-full px-3 py-2 text-black rounded" /></div><div class="flex justify-between mt-6"><button onclick="VanillaApp.verificarAccesoVIP()" class="btn">Entrar</button><button onclick="VanillaApp.mostrarInicio()" class="btn" style="background-color:#5b189b;">Volver</button></div></div>`; document.getElementById('passInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') this.verificarAccesoVIP(); }); this.ajustarPosicionChatbot(false);},
+        mostrarLoginAdmin() { this.stopAllTimers(); document.getElementById('contenido').innerHTML = `<div class="max-w-md mx-auto bg-black bg-opacity-50 p-8 rounded-lg shadow-lg border-2 border-purple-400"><h2 class="text-3xl font-bold mb-4 text-center text-purple-300">Acceso Privado - Jefes</h2><label class="block mb-2">Contraseña de Jefes:</label><input id="adminPassInput" type="password" class="w-full px-3 py-2 text-black rounded" /><div class="flex justify-between mt-6"><button onclick="VanillaApp.verificarAccesoAdmin()" class="btn">Entrar</button><button onclick="VanillaApp.mostrarInicio()" class="btn" style="background-color:#5b189b;">Volver</button></div></div>`; document.getElementById('adminPassInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') this.verificarAccesoAdmin(); }); this.ajustarPosicionChatbot(false);},
         
-        const estadoRef = doc(db, 'estado_local', 'apertura');
-        const estadoDoc = await getDoc(estadoRef);
-        if (estadoDoc.exists() && estadoDoc.data().esta_abierto) {
-            iniciarRelojApertura(estadoDoc.data().hora_apertura.toMillis());
-        }
+        crearTarjetaProducto(producto, esPanelVenta = false, nombreEmpleado = '') { let totalVentasHoy = 0, totalVentasHist = 0; if (this.state.ventas[nombreEmpleado] && this.state.ventas[nombreEmpleado].productos && this.state.ventas[nombreEmpleado].productos[producto.id]) { totalVentasHoy = this.state.ventas[nombreEmpleado].productos[producto.id].hoy || 0; totalVentasHist = this.state.ventas[nombreEmpleado].productos[producto.id].total || 0; } const desc = `Hoy: ${totalVentasHoy} | Total: ${totalVentasHist}`; const inputVentasHTML = esPanelVenta ? `<div class="mt-2"><input type="number" min="0" value="0" id="input-${producto.id}" class="w-20 px-2 py-1 text-black rounded" onchange="VanillaApp.actualizarVentas('${producto.id}', '${nombreEmpleado}', this.value)" /><p class="text-xs mt-1">${desc}</p></div>` : `<p class="text-purple-300 text-lg font-bold mt-2">$50</p>`; const placeholderSVG = `<svg class="mx-auto mb-2 text-gray-500" width="80" height="80" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"></path></svg>`; const imagenHTML = producto.imagen && !producto.imagen.includes('placeholder') ? `<img src="${producto.imagen}" alt="${producto.nombre}" class="mx-auto mb-2 w-24 h-24 object-cover rounded" onerror="this.src='placeholder.png'"/>` : placeholderSVG; return `<div class="producto-card bg-purple-800 rounded-lg p-2 text-center shadow-md flex flex-col justify-between text-sm"><div>${imagenHTML}<h3 class="text-white font-semibold leading-tight uppercase">${producto.nombre}</h3></div><div>${inputVentasHTML}</div></div>`; },
+        mostrarPanelProductos() { this.stopAllTimers(); this.ajustarPosicionChatbot(false); const productosHTML = this.state.productos.filter(p => !p.id.includes('reventa')).map(p => this.crearTarjetaProducto(p, false)).join(''); const comidasHTML = `<div class="producto-card bg-purple-800 rounded-lg p-2 text-center shadow-md flex flex-col justify-between text-sm"><div><h3 class="text-white font-semibold leading-tight mt-2 uppercase">Zumo</h3></div><div><p class="text-purple-300 text-lg font-bold mt-2">$35</p></div></div><div class="producto-card bg-purple-800 rounded-lg p-2 text-center shadow-md flex flex-col justify-between text-sm"><div><h3 class="text-white font-semibold leading-tight mt-2 uppercase">Alcohol</h3></div><div><p class="text-purple-300 text-lg font-bold mt-2">$60</p></div></div>`; const serviciosHTML = `<div class="producto-card bg-purple-800 rounded-lg p-2 text-center shadow-md flex flex-col justify-between text-sm"><div><h3 class="text-white font-semibold leading-tight mt-2 uppercase">Habitaciones</h3></div><div><p class="text-purple-300 text-lg font-bold mt-2">$2000</p></div></div><div class="producto-card bg-purple-800 rounded-lg p-2 text-center shadow-md flex flex-col justify-between text-sm"><div><h3 class="text-white font-semibold leading-tight mt-2 uppercase">Bailarín/a Privado/a</h3></div><div><p class="text-purple-300 text-lg font-bold mt-2">$2000</p></div></div>`; const packsPropiosHTML = `<div class="producto-card bg-purple-800 rounded-lg p-2 text-center shadow-md flex flex-col justify-between text-sm"><div><h3 class="text-white font-semibold leading-tight mt-2 uppercase">5 y 5</h3></div><div><p class="text-purple-300 text-lg font-bold mt-2">$350</p></div></div><div class="producto-card bg-purple-800 rounded-lg p-2 text-center shadow-md flex flex-col justify-between text-sm"><div><h3 class="text-white font-semibold leading-tight mt-2 uppercase">10 y 10</h3></div><div><p class="text-purple-300 text-lg font-bold mt-2">$700</p></div></div>`; const packsReventaHTML = `<div class="producto-card bg-purple-800 rounded-lg p-2 text-center shadow-md flex flex-col justify-between text-sm"><div><h3 class="text-white font-semibold leading-tight mt-2 uppercase">5 y 5</h3></div><div><p class="text-purple-300 text-lg font-bold mt-2">$400</p></div></div><div class="producto-card bg-purple-800 rounded-lg p-2 text-center shadow-md flex flex-col justify-between text-sm"><div><h3 class="text-white font-semibold leading-tight mt-2 uppercase">10 y 10</h3></div><div><p class="text-purple-300 text-lg font-bold mt-2">$800</p></div></div>`; const packsNuevosHTML = `<div class="producto-card bg-purple-800 rounded-lg p-2 text-center shadow-md flex flex-col justify-between text-sm"><div><h3 class="text-white font-semibold leading-tight mt-2 uppercase">Pack 100 y 100 (Reventa)</h3></div><div><p class="text-purple-300 text-lg font-bold mt-2">$3000</p></div></div><div class="producto-card bg-purple-800 rounded-lg p-2 text-center shadow-md flex flex-col justify-between text-sm"><div><h3 class="text-white font-semibold leading-tight mt-2 uppercase">Pack 100 y 100 (Empleado)</h3></div><div><p class="text-purple-300 text-lg font-bold mt-2">$6300</p></div></div>`; document.getElementById('contenido').innerHTML = `<h2 class="text-3xl font-bold mb-6 text-center uppercase">Productos y Servicios</h2><h3 class="text-2xl font-semibold mb-4 border-t border-purple-700 pt-6 uppercase">Productos</h3><div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">${productosHTML}</div><h3 class="text-2xl font-semibold mb-4 border-t border-purple-700 pt-6 mt-8 uppercase">Comidas y Bebidas</h3><div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-6">${comidasHTML}</div><h3 class="text-2xl font-semibold mb-4 border-t border-purple-700 pt-6 mt-8 uppercase">Packs de Comida y Bebida Propia</h3><div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-6">${packsPropiosHTML}</div><h3 class="text-2xl font-semibold mb-4 border-t border-purple-700 pt-6 mt-8 uppercase">Packs de Reventa</h3><div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-6">${packsReventaHTML}</div><h3 class="text-2xl font-semibold mb-4 border-t border-purple-700 pt-6 mt-8 uppercase">Nuevos Packs</h3><div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-6">${packsNuevosHTML}</div><h3 class="text-2xl font-semibold mb-4 border-t border-purple-700 pt-6 mt-8 uppercase">Servicios</h3><div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-6">${serviciosHTML}</div><div class="text-center"><button onclick="VanillaApp.mostrarInicio()" class="btn mt-8">Volver</button></div>`; },
+        async mostrarPanelHabitaciones() { this.stopAllTimers(); if (this.state.habitaciones.length === 0) await this.cargarTodasLasHabitaciones(); let html = `<div class="max-w-7xl mx-auto text-center"><h1 class="text-4xl font-bold mb-8">Nuestras Habitaciones</h1><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">`; this.state.habitaciones.forEach(hab => { const estadoActual = this.getEstadoHabitacion(hab); const imagenHTML = `<img src="${hab.imagen}" alt="${hab.nombre}" class="habitacion-img mb-4" onerror="this.style.display='none'">`; html += `<div class="border-2 ${estadoActual.estado === 'disponible' ? 'border-purple-600' : 'border-gray-600'} p-4 rounded-lg bg-purple-900 bg-opacity-50 flex flex-col">${imagenHTML}<div class="text-left flex-grow"><h2 class="text-2xl font-bold">${hab.nombre}</h2><p class="text-lg ${estadoActual.estado === 'disponible' ? 'text-green-400' : 'text-red-400'}">${estadoActual.texto}</p><div class="mt-2 text-sm"><p class="font-bold mb-1">Reservas para hoy:</p><ul class="list-disc list-inside space-y-1 h-20 overflow-y-auto text-xs">${hab.reservas.filter(r => new Date(r.inicio).toDateString() === new Date().toDateString()).sort((a,b)=>a.inicio-b.inicio).map(r => `<li>${new Date(r.inicio).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})} - ${new Date(r.fin).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})} (${r.cliente})</li>`).join('') || '<li>Ninguna reserva hoy.</li>'}</ul></div></div><div id="form-hab-${hab.id}" class="mt-3 text-left border-t border-purple-800 pt-3"><h4 class="font-bold mb-2 text-center">Hacer una nueva reserva:</h4><input type="text" id="cliente-hab-${hab.id}" placeholder="Tu nombre" class="w-full p-2 rounded bg-gray-800 text-white mb-2 text-sm"><div class="flex gap-2"><input type="date" id="fecha-hab-${hab.id}" class="w-full p-2 rounded bg-gray-800 text-white mb-2 text-sm"><input type="time" id="hora-hab-${hab.id}" step="1800" class="w-full p-2 rounded bg-gray-800 text-white mb-2 text-sm"></div><select id="duracion-hab-${hab.id}" class="w-full p-2 rounded bg-gray-800 text-white mb-2 text-sm"><option value="1">1 Hora</option><option value="2">2 Horas</option><option value="3">3 Horas</option></select><button class="btn w-full mt-2" onclick="VanillaApp.reservarHabitacion(${hab.id})">Confirmar Reserva</button></div></div>`; }); html += `</div><div class="text-center"><button onclick="VanillaApp.mostrarInicio()" class="btn mt-8">Volver</button></div></div>`; document.getElementById('contenido').innerHTML = html; const hoy = new Date(); const unaSemana = new Date(); unaSemana.setDate(hoy.getDate() + 7); const minDate = hoy.toISOString().split('T')[0]; const maxDate = unaSemana.toISOString().split('T')[0]; document.querySelectorAll('input[type="date"]').forEach(input => { input.min = minDate; input.max = maxDate; input.value = minDate; }); this.ajustarPosicionChatbot(false);},
+        
+        async mostrarPanelEmpleados(nombre) {
+            this.stopAllTimers();
+            this.ajustarPosicionChatbot(false);
+            const empleadoDoc = await Firebase.getDoc(Firebase.doc(db, 'empleados', nombre)); const empleadoData = empleadoDoc.exists() ? empleadoDoc.data() : {};
+            const datosFichaje = await this.gestionarReseteoDatos(nombre); await this.gestionarReseteoDatos(nombre, true);
+            let tiempoHoy = datosFichaje.hoy || 0, tiempoSemana = datosFichaje.semana || 0, tiempoTotal = datosFichaje.total || 0;
+            if (datosFichaje.fichado) { const t = Date.now() - datosFichaje.inicio; tiempoHoy += t; tiempoSemana += t; tiempoTotal += t; }
+            const productosVentaHTML = this.state.productos.map(p => this.crearTarjetaProducto(p, true, nombre)).join('');
+            let habitacionesHTML = ''; if (this.state.habitaciones.length === 0) await this.cargarTodasLasHabitaciones(); this.state.habitaciones.forEach(hab => { const estadoActual = this.getEstadoHabitacion(hab); let controles = (estadoActual.estado === 'disponible') ? `<button class="btn text-sm py-2 w-full" onclick="VanillaApp.ocuparHabitacionAhora(${hab.id}, '${nombre}')">Ocupar (30 min)</button>` : `<div class="font-mono text-xl mb-2" id="timer-hab-${hab.id}">--:--:--</div><div class="flex gap-2"><button class="btn text-xs py-1 flex-grow" onclick="VanillaApp.anadirTiempoHabitacion(${hab.id}, '${nombre}')">+30 min</button><button class="btn text-xs py-1 flex-grow" style="background-color:#c44" onclick="VanillaApp.liberarHabitacion(${hab.id}, '${nombre}')">Liberar</button></div>`; habitacionesHTML += `<div class="bg-purple-800 p-4 rounded-lg text-center flex flex-col justify-between"><div><p class="font-bold text-lg">${hab.nombre}</p><p class="text-sm ${estadoActual.estado === 'ocupada' ? 'text-red-400' : 'text-green-400'} mb-2">${estadoActual.texto}</p></div><div>${controles}</div></div>`; });
+            const botonConveniosHTML = `<button onclick="VanillaApp.mostrarPanelConvenios(${empleadoData.directiva || false})" class="btn text-xs py-1">Convenios</button>`;
+            
+            // BOTÓN DE VACACIONES AÑADIDO Y CORREGIDO
+            const botonesAccionHTML = `<button onclick="VanillaApp.mostrarModalVacaciones('${nombre}')" class="btn text-xs py-1">Vacaciones</button>${botonConveniosHTML}<button onclick="VanillaApp.mostrarPanelInventario()" class="btn text-xs py-1">Inventario</button><button onclick="VanillaApp.mostrarListaNegraPublica()" class="btn text-xs py-1">Ver Vetados</button><button class="btn" style="background-color: #d63636;" onclick="VanillaApp.cerrarSesion()">Cerrar Sesión</button>`;
+            
+            const hoyStr = new Date().toISOString().split('T')[0]; const packRecibido = datosFichaje.ultimoPackDiario === hoyStr;
+            const controlHTML = `<div class="bg-gray-800/50 p-4 rounded-lg mb-6 text-center border border-gray-700"><h3 class="text-lg font-semibold mb-4">Control Global y Personal</h3><div class="grid grid-cols-1 md:grid-cols-2 gap-6"><div class="bg-gray-900/50 p-4 rounded-lg flex flex-col justify-center items-center"><p class="text-base font-bold mb-2">ESTADO DEL LOCAL</p><div class="flex justify-center items-center gap-4"><button id="abrirLocalBtn" class="btn bg-green-600 hover:bg-green-700">Abrir Local</button><button id="cerrarLocalBtn" class="btn bg-red-600 hover:bg-red-700">Cerrar Local</button></div><div class="mt-3"><p id="tiempoAbiertoLocal" class="font-mono text-2xl text-yellow-300">00:00:00</p><div id="ultimoCierreInfo" class="text-xs text-gray-400 mt-1"></div></div></div><div class="bg-gray-900/50 p-4 rounded-lg"><p class="text-base font-bold mb-2">FICHAJE PERSONAL</p><div class="grid grid-cols-2 gap-2 text-center h-full"><div class="p-1 rounded-lg bg-purple-900/50 flex flex-col justify-center"><p class="text-xs text-purple-300">SESIÓN</p><p id="tiempoSesion" class="font-mono text-lg">${this.formatearTiempo(0)}</p></div><div class="p-1 rounded-lg bg-purple-900/50 flex flex-col justify-center"><p class="text-xs text-purple-300">HOY</p><p id="tiempoHoy" class="font-mono text-lg">${this.formatearTiempo(tiempoHoy)}</p></div><div class="p-1 rounded-lg bg-purple-900/50 flex flex-col justify-center"><p class="text-xs text-purple-300">SEMANA</p><p id="tiempoSemana" class="font-mono text-lg">${this.formatearTiempo(tiempoSemana)}</p></div><div class="p-1 rounded-lg bg-purple-900/50 flex flex-col justify-center"><p class="text-xs text-purple-300">TOTAL</p><p id="tiempoTotal" class="font-mono text-lg">${this.formatearTiempo(tiempoTotal)}</p></div></div></div></div><div class="mt-6 flex justify-center items-center gap-4 border-t border-gray-700 pt-4"><button class="btn text-lg px-6 py-3" onclick="VanillaApp.fichar('${nombre}')">Fichar Entrada</button><button class="btn text-lg px-6 py-3" onclick="VanillaApp.desfichar('${nombre}')">Fichar Salida</button><button id="packDiarioBtn" class="btn text-base px-4 py-2" style="background-color: ${packRecibido ? '#581c87' : '#16a34a'};" onclick="VanillaApp.darPackDiarioVentas('${nombre}')" ${packRecibido ? 'disabled' : ''}>${packRecibido ? 'Pack ya recibido' : 'Pack Diario (Venta)'}</button></div></div>`;
+            document.getElementById('contenido').innerHTML = `<div class="p-6 bg-purple-900 bg-opacity-90 rounded-lg max-w-6xl mx-auto shadow-lg"><div class="flex justify-between items-center mb-6 flex-wrap gap-y-4"><h2 class="text-2xl font-bold">Panel de Fichaje: <span class="text-purple-300 capitalize">${nombre}</span></h2><div class="flex items-center gap-2 flex-wrap">${botonesAccionHTML}</div></div>${controlHTML}<h3 class="text-xl font-semibold mb-4 border-t border-purple-700 pt-6">Gestión de Habitaciones</h3><div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">${habitacionesHTML}</div> <h3 class="text-xl font-semibold mb-4 border-t border-purple-700 pt-6">Registrar Ventas</h3><div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4" id="productosVenta">${productosVentaHTML}</div></div>`;
+            
+            await this.actualizarControlesLocal();
+            this.startRoomsTimer();
+            if (datosFichaje.fichado) { this.startClockInTimer(datosFichaje.inicio, datosFichaje.hoy, datosFichaje.semana, datosFichaje.total); }
+            document.getElementById('abrirLocalBtn').onclick = () => this.abrirLocal(); 
+            document.getElementById('cerrarLocalBtn').onclick = () => this.cerrarLocal();
+        },
 
-        ajustarPosicionChatbot('empleados');
-    };
-    window.mostrarPanelAdmin = async () => {
-        clearTimers();
-        const dashboardHTML = `<div class="mb-8 p-6 bg-purple-900 bg-opacity-50 rounded-lg"><h2 class="text-2xl font-bold mb-4">Dashboard en Tiempo Real</h2><div class="grid grid-cols-1 md:grid-cols-2 gap-6"><div><h3 class="font-semibold mb-2">Empleados Activos</h3><ul id="dashboard-empleados" class="space-y-1 text-sm"></ul></div><div><h3 class="font-semibold mb-2">Habitaciones Ocupadas</h3><ul id="dashboard-habitaciones" class="space-y-1 text-sm"></ul></div></div></div>`;
-        const anunciosHTML = `<div class="mb-8 p-6 bg-purple-900 bg-opacity-50 rounded-lg"><h2 class="text-2xl font-bold mb-4">Publicar Anuncio Global</h2><textarea id="anuncioTexto" class="w-full p-2 text-black rounded mb-2" rows="3" placeholder="Escribe tu anuncio aquí..."></textarea><button onclick="publicarAnuncio()" class="btn">Publicar</button></div>`;
-        let tablaEmpleadosHTML = '';
-        empleados.forEach(e => {
-            const f = fichajes[e.nombre] || { hoy: 0, semana: 0, total: 0 };
-            const v = ventas[e.nombre] || { productos: {} };
-            let vH = 0, vT = 0;
-            if (v.productos) { for (const p in v.productos) { vH += v.productos[p].hoy || 0; vT += v.productos[p].total || 0; } }
-            tablaEmpleadosHTML += `<tr class="border-b border-purple-800 hover:bg-purple-900"><td class="p-3 capitalize">${e.nombre}</td><td class="p-3 font-mono">${window.formatearTiempo(f.hoy)}</td><td class="p-3 font-mono">${window.formatearTiempo(f.semana)}</td><td class="p-3 font-mono">${window.formatearTiempo(f.total)}</td><td class="p-3 font-mono text-center">${vH}</td><td class="p-3 font-mono text-center">${vT}</td><td class="p-3 text-center"><button onclick="cambiarContrasena('${e.nombre}')" class="btn text-xs py-1">Pass</button><button onclick="resetearYMostrarContrasena('${e.nombre}')" class="btn text-xs py-1 mx-1" style="background-color:#eab308;" title="Resetear contraseña a 'vainilla123'">***</button><button onclick="eliminarEmpleado('${e.nombre}')" class="text-red-500 hover:text-red-400 font-bold text-lg">X</button></td></tr>`;
-        });
-        const gestionHTML = `<div class="mb-8 p-6 bg-purple-900 bg-opacity-50 rounded-lg"><h2 class="text-2xl font-bold mb-4">Gestionar Empleados</h2><div class="flex flex-col md:flex-row gap-4"><input type="text" id="newEmployeeName" class="flex-grow px-3 py-2 text-black rounded" placeholder="Nombre y apellido..."><input type="password" id="newEmployeePass" class="flex-grow px-3 py-2 text-black rounded" placeholder="Contraseña..."><button onclick="anadirEmpleado()" class="btn">Añadir Empleado</button></div></div>`;
-        const tablaHTML = `<div class="overflow-x-auto bg-purple-900 bg-opacity-80 rounded-lg shadow-xl"><table class="w-full text-left"><thead class="bg-purple-800 text-purple-200 uppercase text-sm"><tr><th class="p-3">Empleado</th><th class="p-3">Hoy</th><th class="p-3">Semana</th><th class="p-3">Total</th><th class="p-3 text-center">Ventas Hoy</th><th class="p-3 text-center">Ventas Total</th><th class="p-3 text-center">Acciones</th></tr></thead><tbody>${tablaEmpleadosHTML}</tbody></table></div>`;
-        const libroNegroHTML = `<div class="mb-8 p-6 bg-purple-900 bg-opacity-50 rounded-lg"><h2 class="text-2xl font-bold mb-4">Libro Negro de Contactos</h2><div class="flex flex-col md:flex-row gap-4 mb-4"><input type="text" id="libroNombre" class="flex-grow px-3 py-2 text-black rounded" placeholder="Nombre del contacto..."><select id="libroRelacion" class="px-3 py-2 text-black rounded"><option value="Aliado">Aliado</option><option value="Rival">Rival</option><option value="Neutral">Neutral</option></select><input type="text" id="libroNotas" class="flex-grow px-3 py-2 text-black rounded" placeholder="Notas..."><button onclick="anadirAlLibroNegro()" class="btn">Añadir</button></div><ul id="listaLibroNegro" class="space-y-2"></ul></div>`;
-        const listaNegraHTML = `<div class="mb-8 p-6 bg-purple-900 bg-opacity-50 rounded-lg"><h2 class="text-2xl font-bold mb-4">Lista Negra (Personas Vetadas)</h2><div class="flex flex-col md:flex-row gap-4 mb-4"><input type="text" id="vetadoNombre" class="flex-grow px-3 py-2 text-black rounded" placeholder="Nombre de la persona..."><input type="text" id="vetadoMotivo" class="flex-grow px-3 py-2 text-black rounded" placeholder="Motivo del veto..."><button onclick="anadirAListaNegra()" class="btn">Vetar</button></div><ul id="listaDeVetados" class="space-y-2"></ul></div>`;
-        const inventarioLogHTML = `<div class="mb-8 p-6 bg-purple-900 bg-opacity-50 rounded-lg"><h2 class="text-2xl font-bold mb-4">Registro de Inventario</h2><div class="text-center mb-4"><button class="btn" onclick="toggleInventarioLog()">Mostrar/Ocultar Registro de Inventario</button></div><ul id="listaInventarioLog" class="space-y-4" style="display: none;"></ul></div>`;
-        document.getElementById('contenido').innerHTML = `<div class="max-w-7xl mx-auto"><h1 class="text-4xl font-bold text-center mb-8">Panel de Administración</h1>${dashboardHTML}${anunciosHTML}${gestionHTML}${tablaHTML}${libroNegroHTML}${listaNegraHTML}${inventarioLogHTML}<div class="text-center mt-8"><button onclick="cerrarSesion()" class="btn">Cerrar Sesión y Volver</button></div></div>`;
-        window.actualizarLibroNegro();
-        window.actualizarListaNegra();
-        window.actualizarInventarioLog();
-        iniciarDashboard();
-        ajustarPosicionChatbot('admin');
-    };
-    
-    // --- ACCIONES Y FUNCIONES COMPLETAS ---
-    window.publicarAnuncio = async () => {
-        const texto = document.getElementById('anuncioTexto').value.trim();
-        if (!texto) return alert('El anuncio no puede estar vacío.');
-        try {
-            await addDoc(collection(db, 'anuncios'), {
-                texto: texto,
-                timestamp: serverTimestamp()
-            });
-            document.getElementById('anuncioTexto').value = '';
-            alert('Anuncio publicado correctamente.');
-            await cargarTodosLosAnuncios();
-        } catch (e) {
-            console.error("Error publicando anuncio:", e);
-            alert('No se pudo publicar el anuncio.');
-        }
-    };
-    window.mostrarAnuncios = async () => {
-        if (anuncios.length === 0) return alert('No hay anuncios recientes.');
-        let mensaje = '--- ANUNCIOS RECIENTES ---\n\n';
-        anuncios.forEach(anuncio => {
-            const fecha = anuncio.timestamp ? anuncio.timestamp.toDate().toLocaleString('es-ES') : 'Fecha no disponible';
-            mensaje += `[${fecha}]\n${anuncio.texto}\n\n`;
-        });
-        alert(mensaje);
-    };
-    window.darPackDiarioVentas = async (nombre) => {
-        alert('Añadiendo 5 golosinas y 5 refrescos a las ventas del día.');
-        await window.actualizarVentas('golosinas_picantes', nombre, 5);
-        await window.actualizarVentas('refresco_manzana', nombre, 5);
-    };
-    window.anadirEmpleado = async () => {
-        const nombreInput = document.getElementById('newEmployeeName');
-        const passInput = document.getElementById('newEmployeePass');
-        const nombre = nombreInput.value.trim().toLowerCase();
-        const pass = passInput.value;
-        if (!nombre || !pass) { return alert('El nombre y la contraseña son obligatorios.'); }
-        try {
-            await setDoc(doc(db, 'empleados', nombre), {
-                nombre: nombre,
-                passHash: window.hashPassword(pass)
-            });
-            alert(`Empleado ${nombre} añadido correctamente.`);
-            nombreInput.value = ''; passInput.value = '';
-            await cargarTodosLosEmpleados(); await mostrarPanelAdmin();
-        } catch (e) { alert('Error al añadir el empleado.'); console.error(e); }
-    };
+        mostrarModalVacaciones(nombreEmpleado) {
+            this.stopAllTimers();
+            this.ajustarPosicionChatbot(false);
+            const hoy = new Date().toISOString().split('T')[0];
+            const modalHTML = `
+                <div class="max-w-lg mx-auto bg-purple-900 bg-opacity-95 p-8 rounded-lg shadow-lg border-2 border-purple-700">
+                    <h2 class="text-2xl font-bold mb-6 text-center">Solicitar Vacaciones</h2>
+                    <div class="mb-4">
+                        <label for="vacacionesInicio" class="block mb-2">Fecha de Inicio:</label>
+                        <input type="date" id="vacacionesInicio" class="w-full px-3 py-2 text-black rounded" min="${hoy}">
+                    </div>
+                    <div class="mb-6">
+                        <label for="vacacionesFin" class="block mb-2">Fecha de Fin (opcional, para un solo día dejar en blanco):</label>
+                        <input type="date" id="vacacionesFin" class="w-full px-3 py-2 text-black rounded" min="${hoy}">
+                    </div>
+                    <p class="text-sm text-purple-300 mb-6">El estado de tus vacaciones se reflejará en el panel de Jefes.</p>
+                    <div class="flex justify-between mt-6">
+                        <button onclick="VanillaApp.solicitarVacaciones('${nombreEmpleado}')" class="btn">Confirmar</button>
+                        <button onclick="VanillaApp.mostrarPanelEmpleados('${nombreEmpleado}')" class="btn" style="background-color:#5b189b;">Volver</button>
+                    </div>
+                </div>
+            `;
+            document.getElementById('contenido').innerHTML = modalHTML;
+        },
 
-    window.fichar = async (nombre) => {
-        const q = query(collection(db, "fichajes"), where("fichado", "==", true));
-        const activeSnapshot = await getDocs(q);
-        if (activeSnapshot.empty) {
-            await setDoc(doc(db, 'estado_local', 'apertura'), { esta_abierto: true, hora_apertura: serverTimestamp() });
-        }
-        let d = await window.gestionarReseteoDatos(nombre);
-        if (!d.fichado) {
-            d.fichado = true;
-            d.inicio = Date.now();
-            fichajes[nombre] = d;
-            try {
-                await setDoc(doc(db, 'fichajes', nombre), d);
-                await window.mostrarPanelEmpleados(nombre);
-            } catch (e) { console.error(e); }
-        }
-    };
-
-    window.desfichar = async (nombre, silent = false) => {
-        detenerRelojFichaje();
-        let d = await window.gestionarReseteoDatos(nombre);
-        if (d.fichado) {
-            const t = Date.now() - d.inicio;
-            d.hoy += t; d.semana += t; d.total += t;
-            d.fichado = false; d.inicio = null;
-            fichajes[nombre] = d;
-            try {
-                await setDoc(doc(db, 'fichajes', nombre), d);
+        async mostrarPanelAdmin() {
+            this.stopAllTimers();
+            this.ajustarPosicionChatbot(false);
+            const dashboardHTML = `<div class="mb-8 p-6 bg-purple-900 bg-opacity-50 rounded-lg"><h2 class="text-2xl font-bold mb-4">Dashboard en Tiempo Real</h2><div class="grid grid-cols-1 md:grid-cols-2 gap-6"><div><h3 class="font-semibold mb-2">Empleados Fichados</h3><ul id="dashboard-empleados" class="space-y-1 text-sm"><li>Cargando...</li></ul></div><div><h3 class="font-semibold mb-2">Habitaciones Ocupadas</h3><ul id="dashboard-habitaciones" class="space-y-1 text-sm"><li>Cargando...</li></ul></div></div></div>`;
+            const anunciosHTML = `<div class="mb-8 p-6 bg-purple-900 bg-opacity-50 rounded-lg"><h2 class="text-2xl font-bold mb-4">Publicar Anuncio Global</h2><textarea id="anuncioTexto" class="w-full p-2 text-black rounded mb-2" rows="3" placeholder="Escribe tu anuncio aquí..."></textarea><div class="flex items-center gap-4"><select id="anuncioDuracion" class="px-3 py-2 text-black rounded"><option value="1">1 Hora</option><option value="4">4 Horas</option><option value="8">8 Horas</option><option value="24">24 Horas</option><option value="0">Permanente</option></select><button onclick="VanillaApp.publicarAnuncio()" class="btn">Publicar</button></div></div>`;
+            
+            let tablaEmpleadosHTML = '';
+            this.state.empleados.forEach(e => {
+                const f = this.state.fichajes[e.id] || {};
+                const v = this.state.ventas[e.id] || {};
+                let vH = 0, vT = 0;
+                if (v.productos) { for (const p in v.productos) { vH += v.productos[p].hoy || 0; vT += v.productos[p].total || 0; } }
                 
-                const q = query(collection(db, "fichajes"), where("fichado", "==", true));
-                const activeSnapshot = await getDocs(q);
-                if (activeSnapshot.docs.filter(doc => doc.id !== nombre).length === 0) { 
-                    const estadoRef = doc(db, 'estado_local', 'apertura');
-                    const estadoDoc = await getDoc(estadoRef);
-                    if (estadoDoc.exists() && estadoDoc.data().esta_abierto) {
-                        const tiempoTotalAbierto = Date.now() - estadoDoc.data().hora_apertura.toMillis();
-                        detenerRelojApertura();
-                        const timerContainer = document.getElementById('tiempoApertura').parentElement;
-                        timerContainer.classList.add('timer-closing-animation');
-                        document.getElementById('tiempoApertura').textContent = formatearTiempoHorasDecimal(tiempoTotalAbierto);
-                        setTimeout(() => {
-                           if(timerContainer) {
-                               timerContainer.style.display = 'none';
-                               timerContainer.classList.remove('timer-closing-animation');
-                           }
-                        }, 5000);
-                        await setDoc(estadoRef, { esta_abierto: false }, { merge: true });
+                const enVacaciones = this.estaDeVacaciones(e);
+                const filaClass = enVacaciones ? 'text-red-500' : '';
+
+                const directivaBtnStyle = e.directiva ? 'background-color:#16a34a;' : 'background-color:#555;'; 
+                const directivaBtn = `<button onclick="VanillaApp.toggleDirectiva('${e.id}')" class="btn text-xs py-1" style="${directivaBtnStyle}" title="Permiso para Convenios">Directiva</button>`; 
+                tablaEmpleadosHTML += `<tr class="border-b border-purple-800 hover:bg-purple-900 ${filaClass}"><td class="p-3 capitalize">${e.id}</td><td class="p-3 font-mono">${this.formatearTiempo(f.hoy)}</td><td class="p-3 font-mono">${this.formatearTiempo(f.semana)}</td><td class="p-3 font-mono">${this.formatearTiempo(f.total)}</td><td class="p-3 font-mono text-center">${vH}</td><td class="p-3 font-mono text-center">${vT}</td><td class="p-3 text-center flex gap-1 justify-center">${directivaBtn}<button onclick="VanillaApp.cambiarContrasena('${e.id}')" class="btn text-xs py-1">Pass</button><button onclick="VanillaApp.eliminarEmpleado('${e.id}')" class="text-red-500 hover:text-red-400 font-bold text-lg px-2">X</button></td></tr>`; 
+            });
+
+            const gestionHTML = `<div class="mb-8 p-6 bg-purple-900 bg-opacity-50 rounded-lg"><h2 class="text-2xl font-bold mb-4">Gestionar Empleados</h2><div class="flex flex-col md:flex-row gap-4"><input type="text" id="newEmployeeName" class="flex-grow px-3 py-2 text-black rounded" placeholder="Nombre y apellido..."><input type="password" id="newEmployeePass" class="flex-grow px-3 py-2 text-black rounded" placeholder="Contraseña..."><button onclick="VanillaApp.anadirEmpleado()" class="btn">Añadir Empleado</button></div></div>`;
+            const tablaHTML = `<div class="overflow-x-auto bg-purple-900 bg-opacity-80 rounded-lg shadow-xl"><table class="w-full text-left"><thead class="bg-purple-800 text-purple-200 uppercase text-sm"><tr><th class="p-3">Empleado</th><th class="p-3">Hoy</th><th class="p-3">Semana</th><th class="p-3">Total</th><th class="p-3 text-center">Ventas Hoy</th><th class="p-3 text-center">Ventas Total</th><th class="p-3 text-center">Acciones</th></tr></thead><tbody>${tablaEmpleadosHTML}</tbody></table></div>`;
+            const libroNegroHTML = `<div class="mb-8 p-6 bg-purple-900 bg-opacity-50 rounded-lg"><h2 class="text-2xl font-bold mb-4">Libro Negro de Contactos</h2><div class="flex flex-col md:flex-row gap-4 mb-4"><input type="text" id="libroNombre" class="flex-grow px-3 py-2 text-black rounded" placeholder="Nombre del contacto..."><select id="libroRelacion" class="px-3 py-2 text-black rounded"><option value="Aliado">Aliado</option><option value="Rival">Rival</option><option value="Neutral">Neutral</option></select><input type="text" id="libroNotas" class="flex-grow px-3 py-2 text-black rounded" placeholder="Notas..."><button onclick="VanillaApp.anadirAlLibroNegro()" class="btn">Añadir</button></div><ul id="listaLibroNegro" class="space-y-2"></ul></div>`;
+            const listaNegraHTML = `<div class="mb-8 p-6 bg-purple-900 bg-opacity-50 rounded-lg"><h2 class="text-2xl font-bold mb-4">Lista Negra (Personas Vetadas)</h2><div class="flex flex-col md:flex-row gap-4 mb-4"><input type="text" id="vetadoNombre" class="flex-grow px-3 py-2 text-black rounded" placeholder="Nombre de la persona..."><input type="text" id="vetadoMotivo" class="flex-grow px-3 py-2 text-black rounded" placeholder="Motivo del veto..."><button onclick="VanillaApp.anadirAListaNegra()" class="btn">Vetar</button></div><ul id="listaDeVetados" class="space-y-2"></ul></div>`;
+            const inventarioLogHTML = `<div class="mb-8 p-6 bg-purple-900 bg-opacity-50 rounded-lg"><h2 class="text-2xl font-bold mb-4">Registro de Inventario</h2><div class="text-center mb-4"><button class="btn" onclick="VanillaApp.toggleInventarioLog()">Mostrar/Ocultar Registro</button></div><ul id="listaInventarioLog" class="space-y-4" style="display: none;"></ul></div>`;
+            document.getElementById('contenido').innerHTML = `<div class="max-w-7xl mx-auto"><h1 class="text-4xl font-bold text-center mb-8">Panel de Jefes</h1>${dashboardHTML}${anunciosHTML}${gestionHTML}${tablaHTML}${libroNegroHTML}${listaNegraHTML}${inventarioLogHTML}<div class="text-center mt-8"><button onclick="VanillaApp.cerrarSesion()" class="btn">Cerrar Sesión y Volver</button></div></div>`;
+            this.actualizarLibroNegro(); this.actualizarListaNegra(); this.actualizarInventarioLog();
+            this.startDashboardTimer();
+        },
+        
+        // --- 6. LÓGICA DE NEGOCIO (ACCIONES) ---
+        async actualizarDashboard() {
+            try {
+                await this.cargarTodosLosFichajes();
+                await this.cargarTodasLasHabitaciones();
+
+                const empleadosElem = document.getElementById('dashboard-empleados');
+                const habitacionesElem = document.getElementById('dashboard-habitaciones');
+
+                if (empleadosElem) {
+                    const empleadosFichados = Object.entries(this.state.fichajes).filter(([_, data]) => data.fichado).map(([id, data]) => ({ id, ...data }));
+                    if (empleadosFichados.length > 0) {
+                        empleadosElem.innerHTML = empleadosFichados.map(e => `<li class="capitalize text-green-400">${e.id} (Desde: ${new Date(e.inicio).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })})</li>`).join('');
+                    } else {
+                        empleadosElem.innerHTML = '<li class="text-gray-400">Nadie ha fichado.</li>';
                     }
                 }
-                if (!silent) await window.mostrarPanelEmpleados(nombre);
 
-            } catch (e) { console.error(e); }
-        }
-    };
-
-    const desficharConBeacon = (nombre) => {
-        console.log('Intentando desfichar con Beacon...');
-        let d = fichajes[nombre];
-        if (!d || !d.fichado) {
-            console.log('No hay datos de fichaje o no está fichado, cancelando Beacon.');
-            return;
-        }
-
-        const t = Date.now() - d.inicio;
-        d.hoy += t; d.semana += t; d.total += t;
-        d.fichado = false; d.inicio = null;
-
-        const projectId = window.firebaseConfig.projectId;
-        const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/fichajes/${nombre}`;
-        
-        const payload = {
-            fields: {
-                fichado: { booleanValue: false },
-                inicio: { nullValue: null },
-                hoy: { integerValue: String(d.hoy) },
-                semana: { integerValue: String(d.semana) },
-                total: { integerValue: String(d.total) },
-                fecha: { stringValue: d.fecha },
-                numSemana: { integerValue: String(d.numSemana) }
+                if (habitacionesElem) {
+                    const habitacionesOcupadas = this.state.habitaciones.filter(h => this.getEstadoHabitacion(h).estado === 'ocupada');
+                    if (habitacionesOcupadas.length > 0) {
+                        habitacionesElem.innerHTML = habitacionesOcupadas.map(h => {
+                            const estado = this.getEstadoHabitacion(h);
+                            const finReserva = new Date(estado.reservaActual.fin).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+                            return `<li class="text-yellow-400">${h.nombre} - Por: <span class="capitalize">${estado.reservaActual.cliente}</span> (hasta ${finReserva})</li>`;
+                        }).join('');
+                    } else {
+                        habitacionesElem.innerHTML = '<li class="text-gray-400">Ninguna habitación ocupada.</li>';
+                    }
+                }
+            } catch(e) {
+                console.error("Error actualizando el dashboard:", e);
+                const empleadosElem = document.getElementById('dashboard-empleados');
+                if(empleadosElem) empleadosElem.innerHTML = '<li>Error al cargar datos.</li>';
+                const habitacionesElem = document.getElementById('dashboard-habitaciones');
+                if(habitacionesElem) habitacionesElem.innerHTML = '<li>Error al cargar datos.</li>';
             }
-        };
+        },
+        async verificarAccesoAdmin() { const pass = document.getElementById('adminPassInput')?.value; if (pass === "Familia101") { await this.cargarTodosLosEmpleados(); await this.cargarTodosLosFichajes(); await this.cargarTodasLasVentas(); await this.cargarTodasLasHabitaciones(); await this.cargarInventarioLog(); await this.cargarLibroNegro(); await this.cargarListaNegra(); await this.mostrarPanelAdmin(); } else { alert('Contraseña de Jefes incorrecta.'); } },
+        async verificarAccesoVIP() { const nombre = document.getElementById('nombreInput')?.value.trim().toLowerCase(); const pass = document.getElementById('passInput')?.value; if (!nombre || !pass) return alert("Nombre y contraseña son requeridos."); try { const fichajeDoc = await Firebase.getDoc(Firebase.doc(db, 'fichajes', nombre)); if (fichajeDoc.exists() && fichajeDoc.data().fichado) { await Firebase.updateDoc(fichajeDoc.ref, { fichado: false, inicio: null }); } } catch(e) { console.error("Error en el failsafe de fichaje:", e); } const empleadoDoc = await Firebase.getDoc(Firebase.doc(db, 'empleados', nombre)); if (empleadoDoc.exists()) { const empleado = empleadoDoc.data(); if (this.hashPassword(pass) === empleado.passHash) { sessionStorage.setItem('currentUser', nombre); await this.mostrarPanelEmpleados(nombre); } else { alert('Contraseña incorrecta.'); } } else { alert('Nombre de usuario no encontrado.'); } },
+        cerrarSesion() { this.stopAllTimers(); sessionStorage.removeItem('currentUser'); this.mostrarInicio(); },
+        async gestionarReseteoDatos(nombre, esVenta = false) { const ahora = new Date(), hoyStr = ahora.toISOString().split('T')[0], semanaNum = this.getWeekNumber(ahora); if (esVenta) { let datosVentaDoc = await Firebase.getDoc(Firebase.doc(db, 'ventas', nombre)); let datosV = datosVentaDoc.exists() ? datosVentaDoc.data() : { productos: {}, fecha: '' }; if (!datosV.productos) datosV.productos = {}; if (datosV.fecha !== hoyStr) { datosV.fecha = hoyStr; Object.keys(datosV.productos).forEach(k => { datosV.productos[k].hoy = 0; }); } this.state.ventas[nombre] = datosV; return datosV; } else { let datosFichajeDoc = await Firebase.getDoc(Firebase.doc(db, 'fichajes', nombre)); let datosF = datosFichajeDoc.exists() ? datosFichajeDoc.data() : { total: 0, hoy: 0, semana: 0, fecha: hoyStr, numSemana: semanaNum, fichado: false, inicio: null }; if (datosF.fecha !== hoyStr) { datosF.hoy = 0; datosF.fecha = hoyStr; datosF.ultimoPackDiario = null; } if (datosF.numSemana !== semanaNum) { datosF.semana = 0; datosF.numSemana = semanaNum; } this.state.fichajes[nombre] = datosF; return datosF; } },
+        async fichar(nombre) { let d = await this.gestionarReseteoDatos(nombre); if (!d.fichado) { d.fichado = true; d.inicio = Date.now(); this.state.fichajes[nombre] = d; try { await Firebase.setDoc(Firebase.doc(db, 'fichajes', nombre), d, { merge: true }); await this.mostrarPanelEmpleados(nombre); } catch (e) { console.error(e); } } },
+        async desfichar(nombre, silent = false) { this.stopPanelTimers(); let d = await this.gestionarReseteoDatos(nombre); if (d.fichado) { const t = Date.now() - d.inicio; d.hoy = (d.hoy || 0) + t; d.semana = (d.semana || 0) + t; d.total = (d.total || 0) + t; d.fichado = false; d.inicio = null; this.state.fichajes[nombre] = d; try { await Firebase.setDoc(Firebase.doc(db, 'fichajes', nombre), d, { merge: true }); if (!silent) await this.mostrarPanelEmpleados(nombre); } catch (e) { console.error(e); } } },
+        async solicitarVacaciones(nombreEmpleado) {
+            const inicioStr = document.getElementById('vacacionesInicio').value;
+            const finStr = document.getElementById('vacacionesFin').value;
+            if (!inicioStr) { return alert('Debes seleccionar al menos una fecha de inicio.'); }
 
-        const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
-        navigator.sendBeacon(url, blob);
-        console.log('Beacon enviado a Firestore.');
-    };
+            const inicio = new Date(inicioStr + 'T00:00:00Z');
+            const fin = new Date((finStr || inicioStr) + 'T23:59:59Z');
 
-    window.eliminarEmpleado = async (nombre) => { 
-        if (confirm(`¿Estás SEGURO de que quieres eliminar a ${nombre}? Esta acción es irreversible.`)) {
-            try { 
-                await deleteDoc(doc(db, 'empleados', nombre)); 
-                await deleteDoc(doc(db, 'fichajes', nombre)); 
-                await deleteDoc(doc(db, 'ventas', nombre)); 
-                alert(`${nombre} ha sido eliminado.`); 
-                await cargarTodosLosEmpleados(); 
-                await cargarTodosLosFichajes(); 
-                await cargarTodasLasVentas(); 
-                await mostrarPanelAdmin(); 
-            } catch (e) { alert("Error al eliminar."); console.error(e); } 
-        } 
-    };
-
-    window.actualizarVentas = async (productoId, nombreEmpleado, cantidad) => {
-        const cantNum = parseInt(cantidad);
-        if (isNaN(cantNum) || cantNum <= 0) return;
-        
-        let datosVenta = await window.gestionarReseteoDatos(nombreEmpleado, true);
-
-        if (!datosVenta.productos[productoId]) {
-            datosVenta.productos[productoId] = { hoy: 0, total: 0 };
-        }
-        datosVenta.productos[productoId].hoy += cantNum;
-        datosVenta.productos[productoId].total += cantNum;
-        ventas[nombreEmpleado] = datosVenta;
-
-        try {
-            await setDoc(doc(db, 'ventas', nombreEmpleado), datosVenta);
-            // No recargamos todo el panel para una actualización rápida
-            const descElem = document.querySelector(`#input-${productoId} + p`);
-            if(descElem) {
-                descElem.textContent = `Hoy: ${datosVenta.productos[productoId].hoy} | Total: ${datosVenta.productos[productoId].total}`;
-            }
-            const inputElem = document.getElementById(`input-${productoId}`);
-            if(inputElem) inputElem.value = 0; // Reseteamos el input
-
-        } catch (e) {
-            console.error(e);
-            await window.mostrarPanelEmpleados(nombreEmpleado); // Recarga completa si falla la actualización parcial
-        }
-    };
-    
-    window.ocuparHabitacionAhora = async (id, nombreEmpleado) => { const hab = habitaciones.find(h => h.id === id); if (hab && window.getEstadoHabitacion(hab).estado === 'disponible') { const ahora = Date.now(); hab.reservas.push({ id: ahora, cliente: 'Ocupación Directa', inicio: ahora, fin: ahora + 30 * 60 * 1000 }); try { await setDoc(doc(db, 'habitaciones', String(hab.id)), hab); await window.mostrarPanelEmpleados(nombreEmpleado); } catch (e) { console.error(e); } }};
-    window.anadirTiempoHabitacion = async (id, nombreEmpleado) => { const hab = habitaciones.find(h => h.id === id); const r = hab.reservas.find(res => Date.now() >= res.inicio && Date.now() < res.fin); if (hab && r) { r.fin += 30 * 60 * 1000; try { await setDoc(doc(db, 'habitaciones', String(hab.id)), hab); await window.mostrarPanelEmpleados(nombreEmpleado); } catch (e) { console.error(e); } } };
-    window.liberarHabitacion = async (id, nombreEmpleado) => { const hab = habitaciones.find(h => h.id === id); const index = hab.reservas.findIndex(r => Date.now() >= r.inicio && Date.now() < r.fin); if (index > -1) { if(confirm(`Liberar habitación?`)) { hab.reservas.splice(index, 1); try { await setDoc(doc(db, 'habitaciones', String(hab.id)), hab); await window.mostrarPanelEmpleados(nombreEmpleado); } catch (e) { console.error(e); } } } };
-    window.reservarHabitacion = async (id) => { const cliente = document.getElementById(`cliente-hab-${id}`).value.trim(), fecha = document.getElementById(`fecha-hab-${id}`).value, hora = document.getElementById(`hora-hab-${id}`).value, duracion = parseInt(document.getElementById(`duracion-hab-${id}`).value); if (!cliente || !fecha || !hora || isNaN(duracion)) return alert('Rellena todos los campos'); const inicio = new Date(`${fecha}T${hora}`); const fin = new Date(inicio.getTime() + duracion*60*60*1000); const hab = habitaciones.find(h => h.id === id); if(hab.reservas.some(r => inicio < r.fin && fin > r.inicio)) return alert('Conflicto de horario'); hab.reservas.push({id: Date.now(), cliente, inicio: inicio.getTime(), fin: fin.getTime()}); try { await setDoc(doc(db,'habitaciones', String(id)), hab); alert('Reserva confirmada'); window.mostrarPanelHabitaciones(); } catch(e) {console.error(e)} };
-    window.anadirAlLibroNegro = async () => { const n = document.getElementById('libroNombre').value.trim(), r = document.getElementById('libroRelacion').value, o = document.getElementById('libroNotas').value.trim(); if (n) { try { const newDoc = await addDoc(collection(db, 'libroNegro'), { nombre: n, relacion: r, notas: o }); libroNegro.push({ docId: newDoc.id, nombre: n, relacion: r, notas: o }); window.actualizarLibroNegro(); document.getElementById('libroNombre').value = ''; document.getElementById('libroNotas').value = ''; } catch(e) { console.error(e); } } };
-    window.eliminarDelLibro = async (docId) => { try { await deleteDoc(doc(db, 'libroNegro', docId)); libroNegro = libroNegro.filter(c => c.docId !== docId); window.actualizarLibroNegro(); } catch(e) { console.error(e); } };
-    window.actualizarLibroNegro = () => { const l = document.getElementById('listaLibroNegro'); if (!l) return; l.innerHTML = ''; libroNegro.forEach(c => { l.innerHTML += `<li class="flex justify-between items-center p-2 bg-purple-800 rounded"><span><strong class="capitalize">${c.nombre}</strong> (${c.relacion}) - ${c.notas}</span><button onclick="eliminarDelLibro('${c.docId}')" class="text-red-500 font-bold px-2">X</button></li>`; }); };
-    window.anadirAListaNegra = async () => { const n = document.getElementById('vetadoNombre').value.trim(), m = document.getElementById('vetadoMotivo').value.trim(); if (n && m) { try { const newDoc = await addDoc(collection(db, 'listaNegra'), { nombre: n, motivo: m }); listaNegra.push({ docId: newDoc.id, nombre: n, motivo: m }); window.actualizarListaNegra(); document.getElementById('vetadoNombre').value = ''; document.getElementById('vetadoMotivo').value = ''; } catch(e) { console.error(e); } } };
-    window.eliminarDeListaNegra = async (docId) => { try { await deleteDoc(doc(db, 'listaNegra', docId)); listaNegra = listaNegra.filter(p => p.docId !== docId); window.actualizarListaNegra(); } catch(e) { console.error(e); } };
-    window.actualizarListaNegra = () => { const l = document.getElementById('listaDeVetados'); if (!l) return; l.innerHTML = ''; listaNegra.forEach(p => { l.innerHTML += `<li class="flex justify-between items-center p-2 bg-red-900 bg-opacity-50 rounded"><span><strong class="capitalize">${p.nombre}</strong> - ${p.motivo}</span><button onclick="eliminarDeListaNegra('${p.docId}')" class="text-white font-bold px-2">X</button></li>`; }); };
-    window.mostrarListaNegraPublica = async () => { await cargarListaNegra(); let msg = "--- LISTA NEGRA ---\n\n"; listaNegra.length === 0 ? msg += "Nadie vetado." : listaNegra.forEach(p => { msg += `- ${p.nombre} (Motivo: ${p.motivo})\n`; }); alert(msg); };
-    window.mostrarPanelConvenios = async () => { clearTimers(); const nombreEmpleado = sessionStorage.getItem('currentUser'); document.getElementById('contenido').innerHTML = `<div class="max-w-7xl mx-auto p-6 bg-purple-900 bg-opacity-90 rounded-lg shadow-lg"><div class="flex justify-between items-center mb-6"><h2 class="text-3xl font-bold">Gestión de Convenios</h2><div><button class="btn" onclick="mostrarPanelInventario()">Ir a Inventario</button><button class="btn" onclick="mostrarPanelEmpleados('${nombreEmpleado}')">Volver al Panel</button></div></div><div class="bg-purple-800 p-4 rounded-lg mb-6 flex flex-col md:flex-row gap-4"><input id="convenioNombreInput" type="text" class="flex-grow px-3 py-2 text-black rounded" placeholder="Nombre del nuevo convenio"/><button onclick="crearConvenio()" class="btn" style="background-color: #16a34a;">Crear Panel de Convenio</button></div><div id="contenedorConvenios" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div></div>`; await window.cargarConvenios(); ajustarPosicionChatbot('convenios'); };
-    window.cargarConvenios = async () => { const contenedor = document.getElementById('contenedorConvenios'); if (!contenedor) return; contenedor.innerHTML = ''; try { const q = await getDocs(query(collection(db, 'convenios'), orderBy('nombre'))); q.forEach(doc => { const c = { id: doc.id, ...doc.data() }; const p = document.createElement('div'); p.className = "bg-purple-800 p-4 rounded-lg shadow-md flex flex-col"; p.innerHTML = `<h3 class="text-xl font-semibold mb-3 capitalize">${c.nombre}</h3><div class="flex-grow mb-4 bg-black bg-opacity-20 rounded min-h-[200px] flex items-center justify-center">${c.imagenURL ? `<img src="${c.imagenURL}" class="panel-image rounded cursor-pointer" onclick="mostrarImagenAmpliada('${c.imagenURL}')"/>` : '<span class="text-purple-300">Sin imagen</span>'}</div><label class="btn text-xs py-1 text-center cursor-pointer">Subir/Cambiar Imagen<input type="file" class="hidden" accept="image/*" onchange="subirImagenConvenio('${c.id}', this.files[0])" /></label><button onclick="eliminarConvenio('${c.id}')" class="btn text-xs py-1 mt-2" style="background-color:#c44">Eliminar</button>`; contenedor.appendChild(p); }); } catch (e) { console.error(e); } };
-    window.crearConvenio = async (nombreConvenio) => { const i = document.getElementById('convenioNombreInput'); const n = nombreConvenio || i.value.trim(); if (!n) return null; try { const newDoc = await addDoc(collection(db, 'convenios'), { nombre: n, imagenURL: null, imagenPath: null }); if(i) i.value = ''; await window.cargarConvenios(); return newDoc.id; } catch (e) { console.error(e); return null; } };
-    window.subirImagenConvenio = async (id, file) => { if (!file) return false; const p = `convenios/${id}/${file.name}`, s = ref(storage, p); try { await uploadBytes(s, file); const url = await getDownloadURL(s); await updateDoc(doc(db, 'convenios', id), { imagenURL: url, imagenPath: p }); if (document.getElementById('contenedorConvenios')) await window.cargarConvenios(); return true; } catch (e) { console.error("Error al subir imagen:", e); return false; } };
-    window.eliminarConvenio = async (id) => { if (confirm("¿Seguro que quieres eliminar este convenio?")) { try { const d = await getDoc(doc(db, 'convenios', id)); if (d.exists() && d.data().imagenPath) { await deleteObject(ref(storage, d.data().imagenPath)); } await deleteDoc(doc(db, 'convenios', id)); await window.cargarConvenios(); } catch (e) { console.error(e); } } };
-    window.mostrarPanelInventario = async () => { clearTimers(); const nombreEmpleado = sessionStorage.getItem('currentUser'); const inventarioRef = doc(db, "inventario_actual", "estado"); const inventarioSnap = await getDoc(inventarioRef); let imagenHTML = '<p class="text-purple-300">No hay imagen de inventario reciente.</p>'; if (inventarioSnap.exists()) { const data = inventarioSnap.data(); if (data.imagenes && data.imagenes.length > 0) { const fecha = data.timestamp.toDate().toLocaleString('es-ES'); const imagenesGrid = data.imagenes.map(url => `<img src="${url}" class="panel-image rounded cursor-pointer" onclick="mostrarImagenAmpliada('${url}')" />`).join(''); imagenHTML = `<div class="flex gap-4 justify-center flex-wrap mb-4">${imagenesGrid}</div><p class="text-sm text-purple-300">Última actualización: ${fecha}</p><p class="text-sm text-purple-300">Subido por: <span class="capitalize">${data.subidoPor}</span></p>`; } } document.getElementById('contenido').innerHTML = `<div class="max-w-4xl mx-auto p-6 bg-purple-900 bg-opacity-90 rounded-lg shadow-lg"><div class="flex justify-between items-center mb-6"><h2 class="text-3xl font-bold">Gestión de Inventario</h2><div><button class="btn" onclick="mostrarPanelConvenios()">Ir a Convenios</button><button class="btn" onclick="mostrarPanelEmpleados('${nombreEmpleado}')">Volver al Panel</button></div></div><div class="bg-purple-800 p-6 rounded-lg text-center"><div id="contenedorImagenInventario" class="mb-6 min-h-[200px] flex flex-col items-center justify-center">${imagenHTML}</div><label class="btn text-lg py-2 px-6 cursor-pointer" style="background-color: #16a34a;">Subir Nueva(s) Imagen(es) de Inventario<input type="file" class="hidden" accept="image/*" multiple onchange="subirImagenInventario(this.files)" /></label></div></div>`; ajustarPosicionChatbot('inventario'); };
-    
-    // --- FUNCIÓN DE SUBIDA DE IMÁGENES (REESCRITA) ---
-    window.subirImagenInventario = async (files, empleadoOverride = null) => {
-        console.log("-> Iniciando subida de imágenes...");
-        const empleado = empleadoOverride || sessionStorage.getItem('currentUser');
-        if (!files || files.length === 0 || !empleado) {
-            console.error("-> ERROR: No se proporcionaron archivos o no hay sesión de empleado.");
-            return false;
-        }
-        
-        const filesToUpload = Array.from(files).slice(0, 3);
-        console.log(`-> ${filesToUpload.length} archivos para subir.`);
-        let imageUrls = [], imagePaths = [];
-
-        try {
-            for (const file of filesToUpload) {
-                const filePath = `inventario/${Date.now()}_${file.name}`;
-                const storageRef = ref(storage, filePath);
-                
-                console.log(`--> Subiendo ${file.name} a ${filePath}...`);
-                await uploadBytes(storageRef, file);
-                console.log(`--> ¡Subida de ${file.name} completada! Obteniendo URL...`);
-                
-                const url = await getDownloadURL(storageRef);
-                console.log(`--> URL obtenida: ${url}`);
-                
-                imageUrls.push(url);
-                imagePaths.push(filePath);
-            }
-
-            const datosInventario = { 
-                imagenes: imageUrls, 
-                imagenPaths: imagePaths, 
-                subidoPor: empleado, 
-                timestamp: serverTimestamp() 
-            };
+            if (inicio > fin) { return alert('La fecha de fin no puede ser anterior a la de inicio.'); }
             
-            console.log("-> Actualizando Firestore...");
-            await setDoc(doc(db, "inventario_actual", "estado"), datosInventario);
-            await addDoc(collection(db, "inventario_log"), datosInventario);
-            console.log("-> ¡Firestore actualizado! Refrescando panel...");
+            const nuevoPeriodo = { inicio: inicio.getTime(), fin: fin.getTime() };
+            const empleadoRef = Firebase.doc(db, 'empleados', nombreEmpleado);
             
-            if (document.getElementById('contenedorImagenInventario')) {
-                await window.mostrarPanelInventario();
+            try {
+                const empleadoDoc = await Firebase.getDoc(empleadoRef);
+                const vacacionesActuales = (empleadoDoc.exists() && Array.isArray(empleadoDoc.data().vacaciones)) ? empleadoDoc.data().vacaciones : [];
+                vacacionesActuales.push(nuevoPeriodo);
+                
+                await Firebase.updateDoc(empleadoRef, { vacaciones: vacacionesActuales });
+                alert('Solicitud de vacaciones registrada. ¡Que las disfrutes!');
+                this.mostrarPanelEmpleados(nombreEmpleado);
+            } catch (e) {
+                console.error("Error al registrar vacaciones:", e);
+                alert('Hubo un error al registrar tus vacaciones.');
             }
-            return true;
-        } catch (e) {
-            console.error("-> ERROR FATAL durante la subida:", e);
-            alert("Hubo un error al subir las imágenes. Revisa la consola (F12) para más detalles.");
-            return false;
-        }
-    };
-
-    window.actualizarInventarioLog = () => { const contenedor = document.getElementById('listaInventarioLog'); if (!contenedor) return; contenedor.innerHTML = ''; if (inventarioLog.length === 0) { contenedor.innerHTML = '<li>No hay registros de inventario.</li>'; return; } inventarioLog.forEach(log => { const fecha = log.timestamp.toDate().toLocaleString('es-ES'); const imgsHTML = log.imagenes ? log.imagenes.map(url => `<img src="${url}" class="w-24 h-24 object-cover rounded cursor-pointer" onclick="mostrarImagenAmpliada('${url}')" />`).join('') : `<img src="${log.imagenURL}" class="w-24 h-24 object-cover rounded cursor-pointer" onclick="mostrarImagenAmpliada('${log.imagenURL}')" />`; contenedor.innerHTML += `<li class="flex items-start gap-4 p-3 bg-purple-800 rounded"><div class="flex gap-2 flex-wrap">${imgsHTML}</div><div><p>Subido por: <strong class="capitalize">${log.subidoPor}</strong></p><p>Fecha: <strong class="font-mono">${fecha}</strong></p></div></li>`; }); };
-    window.toggleInventarioLog = () => { const lista = document.getElementById('listaInventarioLog'); if (lista) { lista.style.display = lista.style.display === 'none' ? 'block' : 'none'; } };
-    window.mostrarImagenAmpliada = (imageUrl) => { const overlay = document.getElementById('image-overlay'); const overlayImage = document.getElementById('overlay-image'); overlayImage.src = imageUrl; overlay.style.display = 'flex'; };
-    window.cerrarImagenAmpliada = () => { const overlay = document.getElementById('image-overlay'); overlay.style.display = 'none'; };
-    window.cambiarContrasena = async (nombre) => { const nuevaPass = prompt(`Introduce la nueva contraseña para ${nombre}:`); if (nuevaPass) { try { await updateDoc(doc(db, 'empleados', nombre), { passHash: window.hashPassword(nuevaPass) }); alert(`Contraseña de ${nombre} actualizada.`); } catch (e) { alert("Error al cambiar la contraseña."); console.error(e); } } };
-    window.resetearYMostrarContrasena = async (nombre) => { const tempPass = "vainilla123"; if (confirm(`¿Seguro que quieres resetear la contraseña de ${nombre} a "${tempPass}"?`)) { try { await updateDoc(doc(db, 'empleados', nombre), { passHash: window.hashPassword(tempPass) }); alert(`¡Hecho! La nueva contraseña temporal para ${nombre} es: ${tempPass}\n\nPídele que la cambie al iniciar sesión.`); } catch (e) { alert("Error al resetear la contraseña."); console.error(e); } } };
-    
-    // --- LÓGICA DEL CHATBOT ---
-    const addMessageToChat = (text, sender) => { const c = document.getElementById('chatbot-messages'); if (!c) return; const m = document.createElement('div'); m.classList.add('chat-message', `${sender}-message`); m.textContent = text; c.appendChild(m); c.scrollTop = c.scrollHeight; };
-    window.handleSendMessage = async () => {
-        console.log("-> CHAT: handleSendMessage iniciado.");
-        const chatbotInput = document.getElementById('chatbot-input'); const messageText = chatbotInput.value.trim(); 
-        if (!messageText && !chatbotImageFile) {
-             console.log("-> CHAT: Mensaje vacío, cancelando.");
-             return;
-        }
-        const currentUser = sessionStorage.getItem('currentUser');
-        if (!currentUser) { addMessageToChat('Debes iniciar sesión como empleado para usar esta función.', 'bot'); return; }
+        },
+        async darPackDiarioVentas(nombre) { const hoyStr = new Date().toISOString().split('T')[0]; const fichajeRef = Firebase.doc(db, 'fichajes', nombre); try { const fichajeDoc = await Firebase.getDoc(fichajeRef); if (fichajeDoc.exists() && fichajeDoc.data().ultimoPackDiario === hoyStr) { alert('Ya has recibido el pack de hoy.'); return; } await this.actualizarVentas('golosinas_picantes', nombre, 5); await this.actualizarVentas('refresco_manzana', nombre, 5); await Firebase.updateDoc(fichajeRef, { ultimoPackDiario: hoyStr }); const packBtn = document.getElementById('packDiarioBtn'); if(packBtn){ packBtn.disabled = true; packBtn.textContent = 'Pack ya recibido'; packBtn.style.backgroundColor = '#581c87'; } } catch(e) { console.error("Error al dar el pack diario:", e); }},
+        async actualizarVentas(productoId, nombreEmpleado, cantidad) { const cantNum = parseInt(cantidad); if (isNaN(cantNum) || cantNum <= 0) return; let datosVenta = await this.gestionarReseteoDatos(nombreEmpleado, true); if (!datosVenta.productos[productoId]) { datosVenta.productos[productoId] = { hoy: 0, total: 0 }; } datosVenta.productos[productoId].hoy += cantNum; datosVenta.productos[productoId].total += cantNum; this.state.ventas[nombreEmpleado] = datosVenta; try { await Firebase.setDoc(Firebase.doc(db, 'ventas', nombreEmpleado), datosVenta); if(document.getElementById('productosVenta')) { const descElem = document.querySelector(`#input-${productoId} + p`); if(descElem) { descElem.textContent = `Hoy: ${datosVenta.productos[productoId].hoy} | Total: ${datosVenta.productos[productoId].total}`; } const inputElem = document.getElementById(`input-${productoId}`); if(inputElem) inputElem.value = 0; } } catch (e) { console.error(e); }},
+        async ocuparHabitacionAhora(id, nombreEmpleado) { const hab = this.state.habitaciones.find(h => h.id === id); if (hab && this.getEstadoHabitacion(hab).estado === 'disponible') { const ahora = Date.now(); hab.reservas.push({ id: ahora, cliente: 'Ocupación Directa', inicio: ahora, fin: ahora + 30 * 60 * 1000 }); try { await Firebase.setDoc(Firebase.doc(db, 'habitaciones', String(hab.id)), hab); await this.mostrarPanelEmpleados(nombreEmpleado); } catch (e) { console.error(e); } }},
+        async anadirTiempoHabitacion(id, nombreEmpleado) { const hab = this.state.habitaciones.find(h => h.id === id); const r = hab.reservas.find(res => Date.now() >= res.inicio && Date.now() < res.fin); if (hab && r) { r.fin += 30 * 60 * 1000; try { await Firebase.setDoc(Firebase.doc(db, 'habitaciones', String(hab.id)), hab); await this.mostrarPanelEmpleados(nombreEmpleado); } catch (e) { console.error(e); } } },
+        async liberarHabitacion(id, nombreEmpleado) { const hab = this.state.habitaciones.find(h => h.id === id); const index = hab.reservas.findIndex(r => Date.now() >= r.inicio && Date.now() < r.fin); if (index > -1) { if(confirm(`Liberar habitación?`)) { hab.reservas.splice(index, 1); try { await Firebase.setDoc(Firebase.doc(db, 'habitaciones', String(hab.id)), hab); await this.mostrarPanelEmpleados(nombreEmpleado); } catch (e) { console.error(e); } } } },
+        async reservarHabitacion(id) { const cliente = document.getElementById(`cliente-hab-${id}`).value.trim(), fecha = document.getElementById(`fecha-hab-${id}`).value, hora = document.getElementById(`hora-hab-${id}`).value, duracion = parseInt(document.getElementById(`duracion-hab-${id}`).value); if (!cliente || !fecha || !hora || isNaN(duracion)) return alert('Rellena todos los campos'); const inicio = new Date(`${fecha}T${hora}`); const fin = new Date(inicio.getTime() + duracion*60*60*1000); const hab = this.state.habitaciones.find(h => h.id === id); if(hab.reservas.some(r => inicio < r.fin && fin > r.inicio)) return alert('Conflicto de horario'); hab.reservas.push({id: Date.now(), cliente, inicio: inicio.getTime(), fin: fin.getTime()}); try { await Firebase.setDoc(Firebase.doc(db,'habitaciones', String(id)), hab); alert('Reserva confirmada'); this.mostrarPanelHabitaciones(); } catch(e) {console.error(e)} },
+        async anadirEmpleado() { const nombreInput = document.getElementById('newEmployeeName'); const passInput = document.getElementById('newEmployeePass'); const nombre = nombreInput.value.trim().toLowerCase(); const pass = passInput.value; if (!nombre || !pass) { return alert('El nombre y la contraseña son obligatorios.'); } try { await Firebase.setDoc(Firebase.doc(db, 'empleados', nombre), { nombre: nombre, passHash: this.hashPassword(pass), directiva: false, vacaciones: [] }); alert(`Empleado ${nombre} añadido correctamente.`); nombreInput.value = ''; passInput.value = ''; await this.cargarTodosLosEmpleados(); await this.mostrarPanelAdmin(); } catch (e) { alert('Error al añadir el empleado.'); } },
+        async toggleDirectiva(empleadoId) { const empleadoRef = Firebase.doc(db, 'empleados', empleadoId); try { const empleadoDoc = await Firebase.getDoc(empleadoRef); if (empleadoDoc.exists()) { const currentStatus = empleadoDoc.data().directiva || false; await Firebase.updateDoc(empleadoRef, { directiva: !currentStatus }); await this.cargarTodosLosEmpleados(); await this.mostrarPanelAdmin(); } } catch (e) { console.error("Error al cambiar estado de directiva:", e); }},
+        async cambiarContrasena(nombre) { const nuevaPass = prompt(`Introduce la nueva contraseña para ${nombre}:`); if (nuevaPass) { try { await Firebase.updateDoc(Firebase.doc(db, 'empleados', nombre), { passHash: this.hashPassword(nuevaPass) }); alert(`Contraseña de ${nombre} actualizada.`); } catch (e) { alert("Error al cambiar la contraseña."); } } },
+        async eliminarEmpleado(nombre) { if (confirm(`¿Estás SEGURO de que quieres eliminar a ${nombre}? Esta acción es irreversible.`)) { try { await Firebase.deleteDoc(Firebase.doc(db, 'empleados', nombre)); await Firebase.deleteDoc(Firebase.doc(db, 'fichajes', nombre)); await Firebase.deleteDoc(Firebase.doc(db, 'ventas', nombre)); alert(`${nombre} ha sido eliminado.`); await this.cargarTodosLosEmpleados(); await this.cargarTodosLosFichajes(); await this.cargarTodasLasVentas(); await this.mostrarPanelAdmin(); } catch (e) { alert("Error al eliminar."); } } },
+        async actualizarControlesLocal() { const abrirBtn = document.getElementById('abrirLocalBtn'); const cerrarBtn = document.getElementById('cerrarLocalBtn'); const tiempoElem = document.getElementById('tiempoAbiertoLocal'); const ultimoCierreInfo = document.getElementById('ultimoCierreInfo'); if (!abrirBtn) return; try { const docSnap = await Firebase.getDoc(Firebase.doc(db, "control_local", "estado")); if (docSnap.exists()) { const estado = docSnap.data(); if (estado.abierto) { abrirBtn.disabled = true; cerrarBtn.disabled = false; this.startLocalOpenTimer(estado.inicioApertura.toMillis()); ultimoCierreInfo.innerHTML = ''; } else { abrirBtn.disabled = false; cerrarBtn.disabled = true; if(this.state.timers.localOpen) clearInterval(this.state.timers.localOpen); this.state.timers.localOpen = null; tiempoElem.textContent = "00:00:00"; let infoHTML = ''; if (estado.ultimoCierre) { infoHTML += `<div>Último cierre: ${estado.ultimoCierre.toDate().toLocaleString('es-ES')}</div>`; } if (estado.duracionUltimaApertura) { infoHTML += `<div class="mt-1">Duración: ${this.formatearTiempoHorasDecimal(estado.duracionUltimaApertura)} horas</div>`; } ultimoCierreInfo.innerHTML = infoHTML; } } else { abrirBtn.disabled = false; cerrarBtn.disabled = true; } } catch (e) { console.error("Error al actualizar controles del local:", e); } },
+        async abrirLocal() { try { await Firebase.setDoc(Firebase.doc(db, "control_local", "estado"), { abierto: true, inicioApertura: Firebase.serverTimestamp(), }, { merge: true }); await this.actualizarControlesLocal(); } catch (e) { console.error("Error al abrir el local:", e); }},
+        async cerrarLocal() { try { const controlDoc = await Firebase.getDoc(Firebase.doc(db, "control_local", "estado")); let duracion = 0; if (controlDoc.exists() && controlDoc.data().inicioApertura) { duracion = Date.now() - controlDoc.data().inicioApertura.toMillis(); } await this.cargarTodosLosFichajes(); for (const nombre in this.state.fichajes) { if (this.state.fichajes[nombre].fichado) { await this.desfichar(nombre, true); } } await Firebase.setDoc(Firebase.doc(db, "control_local", "estado"), { abierto: false, ultimoCierre: Firebase.serverTimestamp(), duracionUltimaApertura: duracion }, { merge: true }); await this.actualizarControlesLocal(); } catch (e) { console.error("Error al cerrar el local:", e); }},
+        async mostrarPanelInventario() { this.stopAllTimers(); this.ajustarPosicionChatbot(false); const nombreEmpleado = sessionStorage.getItem('currentUser'); this.state.inventoryFiles = [null, null, null]; let uploadBoxesHTML = ''; for (let i = 0; i < 3; i++) { uploadBoxesHTML += `<div id="inventory-box-${i}" class="inventory-upload-box" tabindex="0"><span class="placeholder-text text-purple-300">Haz clic y pega (Ctrl+V)</span><img id="inventory-img-${i}" class="hidden"><button id="inventory-remove-${i}" class="remove-btn">&times;</button></div>`; } document.getElementById('contenido').innerHTML = `<div class="max-w-4xl mx-auto p-6 bg-purple-900 bg-opacity-90 rounded-lg shadow-lg"><div class="flex justify-between items-center mb-6"><h2 class="text-3xl font-bold">Gestión de Inventario</h2><button class="btn" onclick="VanillaApp.mostrarPanelEmpleados('${nombreEmpleado}')">Volver al Panel</button></div><div class="bg-purple-800 p-6 rounded-lg text-center"><h3 class="text-xl font-semibold mb-4">Añadir Nuevo Inventario (hasta 3 imágenes)</h3><div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">${uploadBoxesHTML}</div><button id="upload-inventory-btn" class="btn text-lg py-2 px-6" style="background-color: #16a34a;">Guardar Inventario</button><div id="upload-status" class="mt-4 text-yellow-400"></div></div></div>`; for (let i = 0; i < 3; i++) { const box = document.getElementById(`inventory-box-${i}`); const img = document.getElementById(`inventory-img-${i}`); const removeBtn = document.getElementById(`inventory-remove-${i}`); const handleFile = (file) => { if (file && file.type.startsWith('image/')) { this.state.inventoryFiles[i] = file; img.src = URL.createObjectURL(file); img.classList.remove('hidden'); box.classList.add('has-image'); }}; box.addEventListener('paste', e => { e.preventDefault(); handleFile(e.clipboardData.files[0]); }); removeBtn.addEventListener('click', e => { e.stopPropagation(); this.state.inventoryFiles[i] = null; img.src = ''; img.classList.add('hidden'); box.classList.remove('has-image'); }); } document.getElementById('upload-inventory-btn').onclick = () => this.subirInventario(); },
+        async subirInventario() { const empleado = sessionStorage.getItem('currentUser'); const filesToUpload = this.state.inventoryFiles.filter(f => f !== null); const statusElem = document.getElementById('upload-status'); const uploadBtn = document.getElementById('upload-inventory-btn'); if (filesToUpload.length === 0 || !empleado) { statusElem.textContent = "Añade al menos una imagen antes de guardar."; return; } statusElem.textContent = `Subiendo ${filesToUpload.length} imagen(es)...`; uploadBtn.disabled = true; try { const uploadPromises = filesToUpload.map(file => { const filePath = `inventario/${Date.now()}_${file.name}`; const storageRef = Firebase.ref(storage, filePath); return Firebase.uploadBytes(storageRef, file).then(snapshot => Firebase.getDownloadURL(snapshot.ref)); }); const imageUrls = await Promise.all(uploadPromises); const datosInventario = { imagenes: imageUrls, subidoPor: empleado, timestamp: Firebase.serverTimestamp() }; await Firebase.setDoc(Firebase.doc(db, "inventario_actual", "estado"), datosInventario); await Firebase.addDoc(Firebase.collection(db, "inventario_log"), datosInventario); statusElem.textContent = "¡Inventario guardado con éxito!"; setTimeout(() => { if (document.getElementById('upload-status')) this.mostrarPanelInventario(); }, 2000); } catch (e) { console.error("Error fatal en subida de inventario:", e); statusElem.textContent = "Error al subir. Revisa la consola y la configuración CORS de Firebase."; uploadBtn.disabled = false; } },
+        toggleInventarioLog() { const lista = document.getElementById('listaInventarioLog'); if (lista) { lista.style.display = lista.style.display === 'none' ? 'block' : 'none'; } },
+        mostrarImagenAmpliada(imageUrl) { const overlay = document.getElementById('image-overlay'); const overlayImage = document.getElementById('overlay-image'); if(overlay && overlayImage) { overlayImage.src = imageUrl; overlay.style.display = 'flex'; }},
+        async mostrarPanelConvenios(esDirectiva) { this.stopAllTimers(); const nombreEmpleado = sessionStorage.getItem('currentUser'); const adminControls = esDirectiva ? `<div class="flex justify-between items-center mb-6"><h2 class="text-3xl font-bold">Gestión de Convenios</h2><div><button class="btn" style="background-color: #c44;" onclick="VanillaApp.setTodosConveniosRojo()">Poner Todos en Rojo</button><button class="btn" onclick="VanillaApp.mostrarPanelEmpleados('${nombreEmpleado}')">Volver al Panel</button></div></div><div class="bg-purple-800 p-4 rounded-lg mb-6 flex flex-col md:flex-row gap-4"><input id="convenioNombreInput" type="text" class="flex-grow px-3 py-2 text-black rounded" placeholder="Nombre del nuevo convenio"/><button onclick="VanillaApp.crearConvenio()" class="btn" style="background-color: #16a34a;">Crear Panel de Convenio</button></div>` : `<div class="flex justify-between items-center mb-6"><h2 class="text-3xl font-bold">Convenios</h2><button class="btn" onclick="VanillaApp.mostrarPanelEmpleados('${nombreEmpleado}')">Volver al Panel</button></div>`; document.getElementById('contenido').innerHTML = `<div class="max-w-7xl mx-auto p-6 bg-purple-900 bg-opacity-90 rounded-lg shadow-lg">${adminControls}<div id="contenedorConvenios" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div></div>`; await this.cargarConvenios(esDirectiva); },
+        async cargarConvenios(esDirectiva) { const contenedor = document.getElementById('contenedorConvenios'); if (!contenedor) return; contenedor.innerHTML = ''; try { const q = await Firebase.getDocs(Firebase.query(Firebase.collection(db, 'convenios'), Firebase.orderBy('nombre'))); q.forEach(docu => { const c = { id: docu.id, ...docu.data() }; const p = document.createElement('div'); p.className = "bg-purple-800 p-4 rounded-lg shadow-md flex flex-col"; let panelControls = ''; if (esDirectiva) { panelControls = `<div class="flex justify-between items-center mb-3"><h3 class="text-xl font-semibold mb-0 capitalize">${c.nombre}</h3><div class="flex gap-2"><div class="status-indicator bg-green-500 ${c.status === 'green' ? 'active' : ''}" onclick="VanillaApp.setConvenioStatus('${c.id}', 'green')"></div><div class="status-indicator bg-red-500 ${c.status === 'red' ? 'active' : ''}" onclick="VanillaApp.setConvenioStatus('${c.id}', 'red')"></div></div></div><div class="flex-grow mb-4 bg-black bg-opacity-20 rounded min-h-[200px] flex items-center justify-center">${c.imagenURL ? `<img src="${c.imagenURL}" class="panel-image rounded cursor-pointer" onclick="VanillaApp.mostrarImagenAmpliada('${c.imagenURL}')"/>` : '<span class="text-purple-300 text-center">Sin imagen</span>'}</div><label class="btn text-xs py-1 text-center cursor-pointer">Subir/Cambiar Imagen<input type="file" class="hidden" accept="image/*" onchange="VanillaApp.subirImagenConvenio('${c.id}', this.files[0])"></label><button onclick="VanillaApp.eliminarConvenio('${c.id}')" class="btn text-xs py-1 mt-2" style="background-color:#c44">Eliminar</button>`; } else { panelControls = `<h3 class="text-xl font-semibold mb-3 capitalize">${c.nombre}</h3><div class="flex-grow mb-4 bg-black bg-opacity-20 rounded min-h-[200px] flex items-center justify-center">${c.imagenURL ? `<img src="${c.imagenURL}" class="panel-image rounded cursor-pointer" onclick="VanillaApp.mostrarImagenAmpliada('${c.imagenURL}')"/>` : '<span class="text-purple-300 text-center">Sin imagen</span>'}</div>`; } p.innerHTML = panelControls; contenedor.appendChild(p); }); } catch (e) { console.error(e); } },
+        async crearConvenio() { const i = document.getElementById('convenioNombreInput'); const n = i.value.trim(); if (!n) return; try { await Firebase.addDoc(Firebase.collection(db, 'convenios'), { nombre: n, imagenURL: null, imagenPath: null, status: 'neutral' }); i.value = ''; await this.cargarConvenios(true); } catch (e) { console.error(e); } },
+        async eliminarConvenio(id) { if (confirm("¿Seguro?")) { try { const d = await Firebase.getDoc(Firebase.doc(db, 'convenios', id)); if (d.exists() && d.data().imagenPath) { await Firebase.deleteObject(Firebase.ref(storage, d.data().imagenPath)); } await Firebase.deleteDoc(Firebase.doc(db, 'convenios', id)); await this.cargarConvenios(true); } catch (e) { console.error(e); } } },
+        async setConvenioStatus(convenioId, newStatus) { try { await Firebase.updateDoc(Firebase.doc(db, 'convenios', convenioId), { status: newStatus }); await this.cargarConvenios(true); } catch (e) { console.error("Error actualizando estado del convenio:", e); }},
+        async setTodosConveniosRojo() { if (!confirm("¿Marcar TODOS como hostiles?")) return; const batch = Firebase.writeBatch(db); try { const conveniosSnapshot = await Firebase.getDocs(Firebase.collection(db, 'convenios')); conveniosSnapshot.forEach(doc => { batch.update(doc.ref, { status: 'red' }); }); await batch.commit(); await this.cargarConvenios(true); alert("Convenios actualizados."); } catch (e) { console.error("Error al actualizar todos los convenios:", e); }},
+        async subirImagenConvenio(id, file) { if (!file) return; const p = `convenios/${id}/${file.name}`; const s = Firebase.ref(storage, p); try { const docSnap = await Firebase.getDoc(Firebase.doc(db, 'convenios', id)); if (docSnap.exists() && docSnap.data().imagenPath) { try { await Firebase.deleteObject(Firebase.ref(storage, docSnap.data().imagenPath)); } catch (e) { console.warn("La imagen anterior no se pudo borrar:", e.code); } } await Firebase.uploadBytes(s, file); const url = await Firebase.getDownloadURL(s); await Firebase.updateDoc(Firebase.doc(db, 'convenios', id), { imagenURL: url, imagenPath: p }); if (document.getElementById('contenedorConvenios')) this.cargarConvenios(true); } catch (e) { console.error("Error al subir imagen:", e); } },
+        async mostrarListaNegraPublica() { await this.cargarListaNegra(); let msg = "--- LISTA NEGRA ---\n\n"; this.state.listaNegra.length === 0 ? msg += "Nadie vetado." : this.state.listaNegra.forEach(p => { msg += `- ${p.nombre} (Motivo: ${p.motivo})\n`; }); alert(msg); },
+        async actualizarLibroNegro() { await this.cargarLibroNegro(); const l = document.getElementById('listaLibroNegro'); if (!l) return; l.innerHTML = ''; this.state.libroNegro.forEach(c => { l.innerHTML += `<li class="flex justify-between items-center p-2 bg-purple-800 rounded"><span><strong class="capitalize">${c.nombre}</strong> (${c.relacion}) - ${c.notas}</span><button onclick="VanillaApp.eliminarDelLibro('${c.docId}')" class="text-red-500 font-bold px-2">X</button></li>`; }); },
+        async anadirAlLibroNegro() { const n = document.getElementById('libroNombre').value.trim(), r = document.getElementById('libroRelacion').value, o = document.getElementById('libroNotas').value.trim(); if (n) { try { const newDoc = await Firebase.addDoc(Firebase.collection(db, 'libroNegro'), { nombre: n, relacion: r, notas: o }); this.state.libroNegro.push({ docId: newDoc.id, nombre: n, relacion: r, notas: o }); this.actualizarLibroNegro(); document.getElementById('libroNombre').value = ''; document.getElementById('libroNotas').value = ''; } catch(e) { console.error(e); } } },
+        async eliminarDelLibro(docId) { try { await Firebase.deleteDoc(Firebase.doc(db, 'libroNegro', docId)); this.state.libroNegro = this.state.libroNegro.filter(c => c.docId !== docId); this.actualizarLibroNegro(); } catch(e) { console.error(e); } },
+        async actualizarListaNegra() { await this.cargarListaNegra(); const l = document.getElementById('listaDeVetados'); if (!l) return; l.innerHTML = ''; this.state.listaNegra.forEach(p => { l.innerHTML += `<li class="flex justify-between items-center p-2 bg-red-900 bg-opacity-50 rounded"><span><strong class="capitalize">${p.nombre}</strong> - ${p.motivo}</span><button onclick="VanillaApp.eliminarDeListaNegra('${p.docId}')" class="text-white font-bold px-2">X</button></li>`; }); },
+        async anadirAListaNegra() { const n = document.getElementById('vetadoNombre').value.trim(), m = document.getElementById('vetadoMotivo').value.trim(); if (n && m) { try { const newDoc = await Firebase.addDoc(Firebase.collection(db, 'listaNegra'), { nombre: n, motivo: m }); this.state.listaNegra.push({ docId: newDoc.id, nombre: n, motivo: m }); this.actualizarListaNegra(); document.getElementById('vetadoNombre').value = ''; document.getElementById('vetadoMotivo').value = ''; } catch(e) { console.error(e); } } },
+        async eliminarDeListaNegra(docId) { try { await Firebase.deleteDoc(Firebase.doc(db, 'listaNegra', docId)); this.state.listaNegra = this.state.listaNegra.filter(p => p.docId !== docId); this.actualizarListaNegra(); } catch(e) { console.error(e); } },
+        async actualizarInventarioLog() { await this.cargarInventarioLog(); const contenedor = document.getElementById('listaInventarioLog'); if (!contenedor) return; contenedor.innerHTML = ''; if (this.state.inventarioLog.length === 0) { contenedor.innerHTML = '<li>No hay registros de inventario.</li>'; return; } this.state.inventarioLog.forEach(log => { const fecha = log.timestamp.toDate().toLocaleString('es-ES'); const imgsHTML = log.imagenes ? log.imagenes.map(url => `<img src="${url}" class="w-24 h-24 object-cover rounded cursor-pointer" onclick="VanillaApp.mostrarImagenAmpliada('${url}')" />`).join('') : ''; contenedor.innerHTML += `<li class="flex items-start gap-4 p-3 bg-purple-800 rounded"><div class="flex gap-2 flex-wrap">${imgsHTML}</div><div><p>Subido por: <strong class="capitalize">${log.subidoPor}</strong></p><p>Fecha: <strong class="font-mono">${fecha}</strong></p></div></li>`; }); },
+        toggleInventarioLog() { const lista = document.getElementById('listaInventarioLog'); if (lista) { lista.style.display = lista.style.display === 'none' ? 'block' : 'none'; } },
         
-        if (messageText) {
-            console.log(`-> CHAT: Mensaje de texto enviado: "${messageText}"`);
-            addMessageToChat(messageText, 'user');
-        }
-        chatbotInput.value = '';
+        // --- LÓGICA DEL CHATBOT ---
+        addMessageToChat(text, sender) { const container = document.getElementById('chatbot-messages'); if (!container) return; const msgElem = document.createElement('div'); msgElem.classList.add('chat-message', `${sender}-message`); msgElem.textContent = text; container.appendChild(msgElem); container.scrollTop = container.scrollHeight; return msgElem;},
+        async handleSendMessage() { const chatbotInput = document.getElementById('chatbot-input'); if (!chatbotInput) return; const messageText = chatbotInput.value.trim(); if (!messageText) return; this.addMessageToChat(messageText, 'user'); chatbotInput.value = ''; const currentUser = sessionStorage.getItem('currentUser'); if (!currentUser && !messageText.toLowerCase().includes('hola')) { this.addMessageToChat('Debes iniciar sesión para usar la mayoría de mis funciones, amor.', 'bot'); return; } const typingMessage = this.addMessageToChat('Escribiendo...', 'bot'); setTimeout(() => { if (typingMessage) typingMessage.remove(); let mockReply = "Lo siento, cariño, no te he entendido. ¿Puedes repetirlo?"; const userMsg = messageText.toLowerCase(); const keywords = { fichar: ["fichar", "entrar", "inicio", "trabajar"], empleado: ["empleado", "panel", "área", "zona"], producto: ["producto", "vender", "catálogo", "precios"], habitacion: ["habitacion", "cuarto", "suite", "reservar"], hola: ["hola", "buenas", "buenos", "ey"] }; if (keywords.fichar.some(k => userMsg.includes(k))) { if(currentUser) { this.fichar(currentUser); mockReply = "¡A trabajar! Fichaje de entrada registrado, bombón."; } else { mockReply = "Necesitas iniciar sesión para poder fichar, cielo."; } } else if (keywords.hola.some(k => userMsg.includes(k))) { mockReply = `¡Hola, ${currentUser || 'cielo'}! ¿En qué puedo ayudarte hoy?`; } else if (keywords.empleado.some(k => userMsg.includes(k))) { mockReply = "Claro, te llevo a tu zona."; this.irAPanelEmpleado(); } else if (keywords.producto.some(k => userMsg.includes(k))) { mockReply = "¡Marchando un vistazo a nuestros tesoros!"; this.mostrarPanelProductos(); } else if (keywords.habitacion.some(k => userMsg.includes(k))) { mockReply = "Te enseño nuestras suites del placer..."; this.mostrarPanelHabitaciones(); } this.addMessageToChat(mockReply, 'bot'); }, 1000); },
+        ajustarPosicionChatbot(visible) { const bubble = document.getElementById('chatbot-bubble'); if (bubble) { if (visible) bubble.classList.add('visible'); else bubble.classList.remove('visible'); } },
 
-        if (chatbotImageFile) {
-            console.log("-> CHAT: Procesando imagen...");
-            addMessageToChat('Procesando imagen con tu comando...', 'bot');
-            const userMsg = messageText.toLowerCase();
-            // ... (resto de la lógica de imagen del chat)
-        } else {
-            console.log("-> CHAT: Procesando comando de texto...");
-            addMessageToChat('Escribiendo...', 'bot');
-            const chatbotMessages = document.getElementById('chatbot-messages'); const typingMessage = chatbotMessages.lastChild;
-            setTimeout(() => {
-                if (typingMessage) typingMessage.remove(); let mockReply = "Lo siento, no te he entendido."; const userMsg = messageText.toLowerCase();
-                if (userMsg.includes("fichar")) { console.log("-> CHAT: Comando 'fichar' detectado."); mockReply = "fichaje de entrada registrado"; if (currentUser) window.fichar(currentUser); } 
-                else if (userMsg.includes("hola")) { console.log("-> CHAT: Comando 'hola' detectado."); mockReply = "¡Hola, bombón! ¿En qué puedo ayudarte hoy?"; }
-                else if (userMsg.includes("empleado")) { console.log("-> CHAT: Comando 'empleado' detectado."); mockReply = "Claro, te llevo a la zona de empleados."; window.irAPanelEmpleado(); }
-                else if (userMsg.includes("producto")) { console.log("-> CHAT: Comando 'producto' detectado."); mockReply = "¡Marchando un vistazo a nuestros tesoros!"; window.mostrarPanelProductos(); }
-                else if (userMsg.includes("habitacion")) { console.log("-> CHAT: Comando 'habitacion' detectado."); mockReply = "Te enseño nuestras suites del placer..."; window.mostrarPanelHabitaciones(); }
-                addMessageToChat(mockReply, 'bot');
-            }, 1000);
+        // --- INICIALIZACIÓN DE LA APP ---
+        async init() {
+            console.log("Iniciando aplicación Vanilla...");
+            await this.cargarTodosLosEmpleados();
+            await this.cargarTodosLosFichajes();
+            await this.cargarTodasLasHabitaciones();
+            
+            document.getElementById('chatbot-button-wrapper').addEventListener('click', () => { document.getElementById('chatbot-container').style.display = 'flex'; });
+            document.getElementById('chatbot-close').addEventListener('click', () => { document.getElementById('chatbot-container').style.display = 'none'; });
+            document.getElementById('chatbot-minimize').addEventListener('click', () => { document.getElementById('chatbot-container').style.display = 'none'; });
+            document.getElementById('overlay-close-btn').addEventListener('click', () => { document.getElementById('image-overlay').style.display = 'none'; });
+            document.getElementById('chatbot-send').addEventListener('click', () => this.handleSendMessage());
+            document.getElementById('chatbot-input').addEventListener('keypress', (e) => { if (e.key === 'Enter') this.handleSendMessage(); });
+            
+            this.addMessageToChat('¡Hola! Soy Luna, tu asistente en Vanilla. ¿En qué puedo ayudarte?', 'bot');
+
+            const currentUser = sessionStorage.getItem('currentUser');
+            if (currentUser) {
+                await this.irAPanelEmpleado();
+            } else {
+                this.mostrarInicio();
+            }
         }
     };
 
-    // --- INICIALIZACIÓN DE LA APP ---
-    console.log("Iniciando aplicación...");
-    await cargarTodosLosEmpleados();
-    await cargarTodosLosFichajes();
-    await cargarTodasLasHabitaciones();
-    await cargarTodosLosAnuncios();
-    
-    const chatbotContainer = document.getElementById('chatbot-container');
-    const chatbotFileInput = document.getElementById('chatbot-file-input');
-    chatbotContainer.addEventListener('dragover', (e) => { e.preventDefault(); e.stopPropagation(); chatbotContainer.classList.add('drag-over'); });
-    chatbotContainer.addEventListener('dragleave', (e) => { e.preventDefault(); e.stopPropagation(); chatbotContainer.classList.remove('drag-over'); });
-    chatbotContainer.addEventListener('drop', (e) => {
-        e.preventDefault(); e.stopPropagation(); chatbotContainer.classList.remove('drag-over');
-        const file = e.dataTransfer.files[0];
-        if (file && file.type.startsWith('image/')) {
-            chatbotImageFile = file; addMessageToChat('Imagen recibida. Ahora escribe qué hacer con ella (ej: "actualiza inventario").', 'bot');
-        } else { addMessageToChat('Por favor, solo arrastra archivos de imagen.', 'bot'); }
-    });
-    chatbotFileInput.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (file && file.type.startsWith('image/')) {
-            chatbotImageFile = file; addMessageToChat('Imagen seleccionada. Ahora escribe qué hacer con ella.', 'bot');
-        }
-        e.target.value = ''; 
-    });
-    
-    window.addEventListener('beforeunload', (event) => {
-        const currentUser = sessionStorage.getItem('currentUser');
-        if (currentUser && fichajes[currentUser]?.fichado) {
-            desficharConBeacon(currentUser);
-        }
-    });
-    
-    const openChat = () => { document.getElementById('chatbot-container').style.display = 'flex'; };
-    document.getElementById('chatbot-send').addEventListener('click', window.handleSendMessage);
-    document.getElementById('chatbot-input').addEventListener('keypress', (e) => { if (e.key === 'Enter') window.handleSendMessage(); });
-    document.getElementById('chatbot-button-wrapper').addEventListener('click', openChat);
-    document.getElementById('chatbot-close').addEventListener('click', () => { document.getElementById('chatbot-container').style.display = 'none'; });
-    document.getElementById('chatbot-minimize').addEventListener('click', () => { document.getElementById('chatbot-container').style.display = 'none'; });
-    document.getElementById('overlay-close-btn').addEventListener('click', window.cerrarImagenAmpliada);
-    document.getElementById('overlay-image').addEventListener('click', window.cerrarImagenAmpliada);
-    addMessageToChat('¡Hola! Soy Luna, tu asistente en Vanilla. ¿En qué puedo ayudarte?', 'bot');
-    
-    const currentUser = sessionStorage.getItem('currentUser');
-    if (currentUser) {
-        await window.irAPanelEmpleado();
-    } else {
-        window.mostrarInicio();
-    }
+    window.VanillaApp = VanillaApp;
+    VanillaApp.init();
+
 });
 </script>
-<div id="chatbot-button-wrapper">
-    <div id="chatbot-bubble">Si necesitas alguna cosa amor, dime y te ayudo</div>
-    <div id="chatbot-button">
-        <img alt="Asistente de Chat" src="Luna.png"/>
-    </div>
-</div>
-<div id="chatbot-container">
-    <div id="chatbot-header"><span>Asistente Vanilla</span><div><button id="chatbot-minimize" title="Minimizar">_</button><button id="chatbot-close" title="Cerrar">X</button></div></div>
-    <div id="chatbot-messages"></div>
-    <div id="chatbot-input-container">
-        <label for="chatbot-file-input" class="chatbot-action-btn" title="Subir imagen">+</label>
-        <input type="file" id="chatbot-file-input" accept="image/*" style="display: none;" />
-        <input id="chatbot-input" placeholder="Escribe tu mensaje o arrastra una imagen..." type="text"/>
-        <button id="chatbot-send" class="chatbot-action-btn">➤</button>
-    </div>
-</div>
+
 </body>
 </html>
