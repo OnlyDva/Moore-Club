@@ -74,6 +74,7 @@
     .chat-preview-item { position: relative; }
     .chat-preview-img { height: 50px; width: 50px; object-fit: cover; border-radius: 5px; }
     .chat-preview-remove { position: absolute; top: -5px; right: -5px; background: #c44; color: white; border-radius: 50%; width: 18px; height: 18px; border: none; cursor: pointer; font-size: 12px; line-height: 18px; text-align: center; font-weight: bold; }
+    .chat-preview-item.visible .chat-preview-remove { display: block; } /* Changed: Added .visible class for visibility */
     .chat-message img { max-width: 100%; border-radius: 10px; margin-top: 5px; }
 </style>
 <script type="module">
@@ -206,7 +207,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         async cargarTodosLosEmpleados() { try { const snapshot = await Firebase.getDocs(Firebase.query(Firebase.collection(db, 'empleados'), Firebase.orderBy('nombre'))); this.state.empleados = []; snapshot.forEach(doc => this.state.empleados.push({ id: doc.id, ...doc.data() })); } catch (e) { console.error("Error cargando empleados:", e); } },
         async cargarTodosLosFichajes() { try { const snapshot = await Firebase.getDocs(Firebase.collection(db, 'fichajes')); let fichajesData = {}; snapshot.forEach(doc => { fichajesData[doc.id] = doc.data(); }); this.state.fichajes = fichajesData; } catch (e) { console.error("Error cargando fichajes:", e); } },
-        async cargarTodasLasVentas() { try { const snapshot = await Firebase.getDocs(Firebase.collection(db, 'ventas')); this.state.ventas = {}; snapshot.forEach(doc => { this.state.ventas[doc.id] = doc.data(); }); } catch (e) { console.error("Error cargando ventas:", e); } },
+        async cargarTodasLasVentas() { try { const snapshot = await Firebase.getDocs(Firebase.collection(db, 'ventas')); this.state.ventas = {}; snapshot.forEach(doc => { this.state.ventas[doc.id] = doc.data(); }); this.state.productos.forEach(p => { for(const emp in this.state.ventas) { if(!this.state.ventas[emp].productos) this.state.ventas[emp].productos = {}; if(!this.state.ventas[emp].productos[p.id]) this.state.ventas[emp].productos[p.id] = { hoy: 0, total: 0 }; } }); /* Added check and initialization for products in sales data */ } catch (e) { console.error("Error cargando ventas:", e); } },
         async cargarInventarioLog() { try { const q = Firebase.query(Firebase.collection(db, 'inventario_log'), Firebase.orderBy('timestamp', 'desc')); const snapshot = await Firebase.getDocs(q); this.state.inventarioLog = []; snapshot.forEach(doc => this.state.inventarioLog.push(doc.data())); } catch (e) { console.error("Error cargando log de inventario:", e); } },
         async cargarLibroNegro() { try { const snapshot = await Firebase.getDocs(Firebase.collection(db, 'libroNegro')); this.state.libroNegro = []; snapshot.forEach(doc => this.state.libroNegro.push({docId: doc.id, ...doc.data()})); } catch (e) { console.error("Error cargando Libro Negro:", e); } },
         async cargarListaNegra() { try { const snapshot = await Firebase.getDocs(Firebase.collection(db, 'listaNegra')); this.state.listaNegra = []; snapshot.forEach(doc => this.state.listaNegra.push({docId: doc.id, ...doc.data()})); } catch (e) { console.error("Error cargando Lista Negra:", e); } },
@@ -262,7 +263,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const desc = `<p class="text-xs mt-1" id="desc-${producto.id}">Hoy: ${totalVentasHoy} | Total: ${totalVentasHist}</p>`;
             const inputVentasHTML = esPanelVenta 
                 ? `<div class="mt-2">
-                     <div class="flex items-center justify-center gap-2">
+                    <div class="flex items-center justify-center gap-2">
                        <button onclick="VanillaApp.modificarVenta('${producto.id}', '${nombreEmpleado}', -1)" class="btn text-lg py-1 px-3">-</button>
                        <span class="font-bold text-lg w-8 text-center" id="ventas-hoy-${producto.id}">${totalVentasHoy}</span>
                        <button onclick="VanillaApp.modificarVenta('${producto.id}', '${nombreEmpleado}', 1)" class="btn text-lg py-1 px-3">+</button>
@@ -320,9 +321,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     const inicio = new Date(ausencia.inicio).toLocaleDateString('es-ES');
                     const fin = new Date(ausencia.fin).toLocaleDateString('es-ES');
                     return `<li class="flex justify-between items-center p-2 bg-purple-800 rounded">
-                                <span>Del <strong>${inicio}</strong> al <strong>${fin}</strong></span>
-                                <button onclick="VanillaApp.eliminarAusencia('${nombreEmpleado}', ${index}, ${esJefe})" class="btn text-xs py-1" style="background-color:#c44">Eliminar</button>
-                            </li>`;
+                                    <span>Del <strong>${inicio}</strong> al <strong>${fin}</strong></span>
+                                    <button onclick="VanillaApp.eliminarAusencia('${nombreEmpleado}', ${index}, ${esJefe})" class="btn text-xs py-1" style="background-color:#c44">Eliminar</button>
+                                </li>`;
                 }).join('');
 
             const hoy = new Date().toISOString().split('T')[0];
@@ -419,6 +420,11 @@ document.addEventListener('DOMContentLoaded', () => {
         async actualizarDashboard() {
             try {
                 await this.cargarTodosLosFichajes();
+                // Ensure habitaciones are loaded before updating dashboard
+                // This call is now redundant if iniciarListenerHabitaciones is correctly called in init(),
+                // but harmless if not. The listener itself will keep `this.state.habitaciones` updated.
+                // await this.cargarTodasLasHabitaciones(); // No need for manual call here if using snapshot listener
+                
                 const empleadosElem = document.getElementById('dashboard-empleados');
                 const habitacionesElem = document.getElementById('dashboard-habitaciones');
                 if (empleadosElem) {
@@ -808,14 +814,25 @@ document.addEventListener('DOMContentLoaded', () => {
         },
 
         iniciarListenerHabitaciones() {
+            // Se usa onSnapshot para escuchar cambios en tiempo real en la colección 'habitaciones'
             const q = Firebase.query(Firebase.collection(db, "habitaciones"), Firebase.orderBy("id"));
             this.state.unsubscribeHabitaciones = Firebase.onSnapshot(q, (snapshot) => {
                 const habitacionesNuevas = [];
-                snapshot.forEach(doc => habitacionesNuevas.push(doc.data()));
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    // Convertir timestamps de Firebase a números de milisegundos si son de tipo Timestamp
+                    const reservasConvertidas = data.reservas ? data.reservas.map(res => ({
+                        ...res,
+                        inicio: res.inicio && typeof res.inicio.toMillis === 'function' ? res.inicio.toMillis() : res.inicio,
+                        fin: res.fin && typeof res.fin.toMillis === 'function' ? res.fin.toMillis() : res.fin
+                    })) : [];
+                    habitacionesNuevas.push({ ...data, reservas: reservasConvertidas });
+                });
                 this.state.habitaciones = habitacionesNuevas;
 
-                const panelHabitaciones = document.getElementById('panel-habitaciones');
-                if (panelHabitaciones) {
+                // Si estamos en el panel de empleados y tenemos el elemento visible, actualizarlo
+                const panelHabitacionesElem = document.getElementById('panel-habitaciones');
+                if (panelHabitacionesElem) {
                     const currentUser = sessionStorage.getItem('currentUser');
                     let habitacionesHTML = this.state.habitaciones.map(hab => {
                         const estadoActual = this.getEstadoHabitacion(hab);
@@ -824,36 +841,55 @@ document.addEventListener('DOMContentLoaded', () => {
                             : `<div class="font-mono text-xl mb-2" id="timer-hab-${hab.id}">--:--:--</div><div class="flex gap-2"><button class="btn text-xs py-1 flex-grow" onclick="VanillaApp.anadirTiempoHabitacion(${hab.id}, '${currentUser}')">+30 min</button><button class="btn text-xs py-1 flex-grow" style="background-color:#c44" onclick="VanillaApp.liberarHabitacion(${hab.id}, '${currentUser}')">Liberar</button></div>`;
                         return `<div class="bg-purple-800 p-4 rounded-lg text-center flex flex-col justify-between"><div><p class="font-bold text-lg">${hab.nombre}</p><p class="text-sm ${estadoActual.estado === 'ocupada' ? 'text-red-400' : 'text-green-400'} mb-2">${estadoActual.texto}</p></div><div>${controles}</div></div>`;
                     }).join('');
-                    panelHabitaciones.innerHTML = habitacionesHTML;
+                    panelHabitacionesElem.innerHTML = habitacionesHTML;
                 }
+            }, (error) => {
+                console.error("Error al escuchar cambios en habitaciones:", error);
             });
         },
         async init() {
             console.log("Iniciando aplicación Vanilla...");
             this.iniciarListenerAnuncios();
-            this.iniciarListenerHabitaciones();
+            this.iniciarListenerHabitaciones(); // Asegura que las habitaciones se cargan y se mantienen actualizadas
             await this.cargarTodosLosEmpleados();
             await this.cargarTodosLosFichajes();
-            
+            await this.cargarTodasLasVentas(); // <--- AHORA SE CARGAN LAS VENTAS AL INICIAR LA APP
+
+            // Inicialización de los elementos del chatbot
             const chatButtonWrapper = document.getElementById('chatbot-button-wrapper');
             const chatContainer = document.getElementById('chatbot-container');
             const closeButton = document.getElementById('chatbot-close');
             const minimizeButton = document.getElementById('chatbot-minimize');
-            chatButtonWrapper.addEventListener('click', () => {
-                chatContainer.style.display = 'flex';
-                chatButtonWrapper.style.display = 'none';
-            });
-            const closeChat = () => {
-                chatContainer.style.display = 'none';
-                chatButtonWrapper.style.display = 'block';
-            };
-            closeButton.addEventListener('click', closeChat);
-            minimizeButton.addEventListener('click', closeChat);
             
-            document.getElementById('overlay-close-btn').addEventListener('click', () => { document.getElementById('image-overlay').style.display = 'none'; });
-            document.getElementById('chatbot-send').addEventListener('click', () => this.handleSendMessage());
-            document.getElementById('chatbot-input').addEventListener('keypress', (e) => { if (e.key === 'Enter') this.handleSendMessage(); });
-            document.getElementById('chatbot-input-container').addEventListener('paste', (e) => this.handleChatPaste(e));
+            // Asegúrate de que los elementos existen antes de añadir listeners
+            if (chatButtonWrapper) {
+                chatButtonWrapper.addEventListener('click', () => {
+                    if (chatContainer) chatContainer.style.display = 'flex';
+                    chatButtonWrapper.style.display = 'none';
+                });
+            }
+            const closeChat = () => {
+                if (chatContainer) chatContainer.style.display = 'none';
+                if (chatButtonWrapper) chatButtonWrapper.style.display = 'block';
+            };
+            if (closeButton) closeButton.addEventListener('click', closeChat);
+            if (minimizeButton) minimizeButton.addEventListener('click', closeChat);
+            
+            const overlayCloseBtn = document.getElementById('overlay-close-btn');
+            if (overlayCloseBtn) {
+                overlayCloseBtn.addEventListener('click', () => { 
+                    const imageOverlay = document.getElementById('image-overlay');
+                    if (imageOverlay) imageOverlay.style.display = 'none'; 
+                });
+            }
+
+            const chatbotSendBtn = document.getElementById('chatbot-send');
+            const chatbotInputElem = document.getElementById('chatbot-input');
+            const chatbotInputContainer = document.getElementById('chatbot-input-container');
+
+            if (chatbotSendBtn) chatbotSendBtn.addEventListener('click', () => this.handleSendMessage());
+            if (chatbotInputElem) chatbotInputElem.addEventListener('keypress', (e) => { if (e.key === 'Enter') this.handleSendMessage(); });
+            if (chatbotInputContainer) chatbotInputContainer.addEventListener('paste', (e) => this.handleChatPaste(e));
 
             this.addMessageToChat('¡Hola! Soy Luna, tu asistente en Vanilla. ¿En qué puedo ayudarte?', 'bot');
 
@@ -872,6 +908,11 @@ document.addEventListener('DOMContentLoaded', () => {
             await this.cargarTodosLosFichajes();
             await this.cargarTodasLasVentas();
             await this.cargarInventarioLog();
+            // Las habitaciones ya estarán cargadas por el listener, pero puedes forzar una recarga si prefieres
+            // para asegurar los datos más frescos justo antes del informe, aunque onSnapshot ya lo hace en tiempo real.
+            // await this.cargarTodasLasHabitaciones(); // No existe una función cargarTodasLasHabitaciones separada,
+                                                    // se usa iniciarListenerHabitaciones para esto.
+                                                    // Para el informe, usamos this.state.habitaciones que ya está poblado.
 
             const wb = XLSX.utils.book_new();
 
