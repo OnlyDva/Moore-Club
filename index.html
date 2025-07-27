@@ -8,12 +8,43 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+<script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+
 <style>
     body { font-family: 'Inter', sans-serif; background: url('Mooreclub1.jpeg') center top no-repeat; background-size: cover; background-attachment: fixed; color: white; }
     .bg-overlay { background-color: rgba(0, 0, 0, 0.85); }
     .btn { background-color: #6b21a8; color: white; padding: 0.5rem 1rem; border-radius: 0.375rem; font-weight: 600; cursor: pointer; transition: background-color 0.3s; margin-right: 0.5rem; }
     .btn:hover { background-color: #5b189b; }
     .btn:disabled { background-color: #3b0764; cursor: not-allowed; }
+    
+    #anuncio-panel-lateral { 
+        position: fixed; 
+        top: 100px; 
+        left: 20px; 
+        width: 320px; 
+        max-height: 80vh;
+        background-color: rgba(18, 9, 31, 0.85);
+        backdrop-filter: blur(8px);
+        border: 1px solid #6b21a8;
+        border-radius: 10px;
+        padding: 1.5rem;
+        z-index: 9998; 
+        font-weight: bold; 
+        box-shadow: 4px 4px 20px rgba(0,0,0,0.6); 
+        transform: translateX(-120%);
+        transition: transform 0.4s ease-in-out;
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+    }
+    #anuncio-panel-lateral.visible {
+        transform: translateX(0);
+    }
+    #anuncio-cerrar { font-size: 1.5rem; cursor: pointer; background: none; border: none; color: white; position: absolute; top: 10px; right: 15px; }
+    .votacion-btn { background-color: rgba(107, 33, 168, 0.5); border: 1px solid #a855f7; border-radius: 8px; padding: 0.5rem; margin-top: 0.5rem; width: 48%; font-size: 1rem; transition: background-color 0.2s; }
+    .votacion-btn:hover:not(:disabled) { background-color: rgba(107, 33, 168, 0.8); }
+    .votacion-btn:disabled { opacity: 0.6; cursor: not-allowed; background-color: #3b0764; }
+
     .producto-card img, .producto-card svg { border-radius: 0.5rem; height: 96px; width: 96px; object-fit: cover; margin: auto; }
     #contenido { min-height: 60vh; }
     .panel-image { width: 100%; height: 100%; max-height: 200px; object-fit: contain; }
@@ -39,8 +70,6 @@
     #chatbot-input{flex-grow:1;padding:10px;border-radius:20px;border:1px solid #6b21a8;background-color:#333355;color:#fff;box-sizing:border-box;min-width:0}
     .chatbot-action-btn{background-color:transparent;color:#fff;border:none;border-radius:50%;width:40px;height:40px;display:flex;justify-content:center;align-items:center;cursor:pointer;font-size:1.5em;transition:background-color .3s;flex-shrink:0}.chatbot-action-btn:hover{background-color:#5b189b}
     #image-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background-color:rgba(0,0,0,.85);display:none;justify-content:center;align-items:center;z-index:2000}#overlay-image{max-width:90%;max-height:90%;object-fit:contain;cursor:pointer}#overlay-close-btn{position:absolute;top:20px;right:35px;font-size:45px;color:#fff;cursor:pointer;line-height:1}
-
-    /* --- NUEVOS ESTILOS: Previsualización de imágenes en el chat --- */
     #chatbot-image-previews { display: flex; gap: 8px; padding: 0 15px 10px 15px; flex-wrap: wrap; background-color: #1a1a2e;}
     .chat-preview-item { position: relative; }
     .chat-preview-img { height: 50px; width: 50px; object-fit: cover; border-radius: 5px; }
@@ -49,7 +78,7 @@
 </style>
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getFirestore, collection, getDocs, doc, setDoc, updateDoc, deleteDoc, getDoc, query, orderBy, addDoc, serverTimestamp, where, writeBatch } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, doc, setDoc, updateDoc, deleteDoc, getDoc, query, orderBy, addDoc, serverTimestamp, where, writeBatch, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
     import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
     
     const firebaseConfig = {
@@ -66,13 +95,16 @@
     window.db = getFirestore(firebaseApp);
     window.storage = getStorage(firebaseApp);
     window.Firebase = {
-        collection, getDocs, doc, setDoc, updateDoc, deleteDoc, getDoc, query, orderBy, addDoc, serverTimestamp, where, writeBatch,
+        collection, getDocs, doc, setDoc, updateDoc, deleteDoc, getDoc, query, orderBy, addDoc, serverTimestamp, where, writeBatch, onSnapshot,
         ref, uploadBytes, getDownloadURL, deleteObject
     };
 </script>
 </head>
 <body class="text-purple-200">
-<div id="anuncio-container" style="display: none;"></div>
+<div id="anuncio-panel-lateral"></div>
+<audio id="alarm-sound" src="alarm.mp3" preload="auto"></audio>
+<audio id="notification-sound" src="notification.mp3" preload="auto"></audio>
+
 <div class="bg-overlay min-h-screen">
 <nav class="bg-purple-900 text-white px-6 py-4 flex justify-between items-center">
 <h1 class="text-xl font-bold cursor-pointer" onclick="VanillaApp.mostrarInicio()">Vanilla</h1>
@@ -107,10 +139,7 @@
 document.addEventListener('DOMContentLoaded', () => {
 
     const VanillaApp = {
-
-        // --- 1. ESTADO DE LA APP ---
         state: {
-            // ... (resto del estado sin cambios)
             productos: [ 
                 { id: 'tito_griego', nombre: 'Tito Dios Griego', imagen: 'Tito.png' }, { id: 'la_tita', nombre: 'La Tita', imagen: 'Tita.png' }, { id: 'mascara_cat', nombre: 'Máscara “Cat Vanilla”', imagen: 'Mascara.png' }, { id: 'pinzas_led', nombre: 'Pinzas LED “Sweet Pain”', imagen: 'Pinzas.png' }, { id: 'preservativos', nombre: '“Espadas del Deseo”', imagen: 'condones.png' },
                 { id: 'golosinas_picantes', nombre: 'Golosinas Picantes', imagen: 'Golosinas.png' },{ id: 'refresco_manzana', nombre: 'Refresco de Manzana', imagen: 'Refresco.png' },{ id: 'comida_reventa', nombre: 'Comida (Reventa)', imagen: 'comida reventa.png' },{ id: 'alcohol_reventa', nombre: 'Alcohol (Reventa)', imagen: 'alcohol de reventa.png' }
@@ -123,19 +152,44 @@ document.addEventListener('DOMContentLoaded', () => {
             empleados: [], fichajes: {}, ventas: {}, habitaciones: [], inventarioLog: [], libroNegro: [], listaNegra: [],
             timers: { fichaje: null, habitaciones: null, dashboard: null, localOpen: null },
             inventoryFiles: [null, null, null],
-            chatFiles: [], // --- NUEVO: Estado para los archivos del chat
+            chatFiles: [],
+            ultimoAnuncioMostrado: null,
+            unsubscribeHabitaciones: null,
         },
 
-        // --- (El resto de secciones hasta el Chatbot no tienen cambios relevantes) ---
-        // --- 2. MANEJO DE TIMERS ---
         stopAllTimers() { Object.keys(this.state.timers).forEach(t => { if(this.state.timers[t]) clearInterval(this.state.timers[t]); this.state.timers[t] = null; }); },
         stopPanelTimers() { if(this.state.timers.fichaje) clearInterval(this.state.timers.fichaje); if(this.state.timers.habitaciones) clearInterval(this.state.timers.habitaciones); this.state.timers.fichaje = null; this.state.timers.habitaciones = null;},
         startClockInTimer(horaInicio, baseHoy, baseSemana, baseTotal) { this.stopPanelTimers(); this.state.timers.fichaje = setInterval(() => { const tiempoSesionElem = document.getElementById('tiempoSesion'); const tiempoHoyElem = document.getElementById('tiempoHoy'); const tiempoSemanaElem = document.getElementById('tiempoSemana'); const tiempoTotalElem = document.getElementById('tiempoTotal'); if (tiempoSesionElem && tiempoHoyElem && tiempoSemanaElem && tiempoTotalElem) { const tiempoSesion = Date.now() - horaInicio; tiempoHoyElem.textContent = this.formatearTiempo(baseHoy + tiempoSesion); tiempoSemanaElem.textContent = this.formatearTiempo(baseSemana + tiempoSesion); tiempoTotalElem.textContent = this.formatearTiempo(baseTotal + tiempoSesion); tiempoSesionElem.textContent = this.formatearTiempo(tiempoSesion); } }, 1000); },
-        startRoomsTimer() { this.state.timers.habitaciones = setInterval(() => { this.state.habitaciones.forEach(hab => { const estadoActual = this.getEstadoHabitacion(hab); let tiempoRestanteElem = document.getElementById(`timer-hab-${hab.id}`); if (tiempoRestanteElem) { if (estadoActual.estado === 'ocupada') { const restante = estadoActual.reservaActual.fin - Date.now(); if (restante > 0) { tiempoRestanteElem.textContent = this.formatearTiempo(restante); } else { tiempoRestanteElem.textContent = "¡TIEMPO AGOTADO!"; tiempoRestanteElem.classList.add('text-red-500'); } } else { tiempoRestanteElem.textContent = "--:--:--"; tiempoRestanteElem.classList.remove('text-red-500');}}});}, 1000); },
+        startRoomsTimer() {
+            this.state.timers.habitaciones = setInterval(() => {
+                this.state.habitaciones.forEach(hab => {
+                    const ahora = Date.now();
+                    const reservaActual = hab.reservas ? hab.reservas.find(res => ahora >= res.inicio && ahora < res.fin) : null;
+                    const tiempoRestanteElem = document.getElementById(`timer-hab-${hab.id}`);
+                    if (tiempoRestanteElem) {
+                        if (reservaActual) {
+                            const restante = reservaActual.fin - ahora;
+                            if (restante > 0) {
+                                tiempoRestanteElem.textContent = this.formatearTiempo(restante);
+                            } else {
+                                tiempoRestanteElem.textContent = "¡TIEMPO AGOTADO!";
+                                tiempoRestanteElem.classList.add('text-red-500');
+                                if (!reservaActual.alarmaSonada) {
+                                    document.getElementById('alarm-sound').play().catch(e => console.warn("Interacción del usuario necesaria para reproducir audio."));
+                                    reservaActual.alarmaSonada = true;
+                                }
+                            }
+                        } else {
+                            tiempoRestanteElem.textContent = "--:--:--";
+                            tiempoRestanteElem.classList.remove('text-red-500');
+                        }
+                    }
+                });
+            }, 1000);
+        },
         startDashboardTimer() { this.stopAllTimers(); this.actualizarDashboard(); this.state.timers.dashboard = setInterval(() => this.actualizarDashboard(), 5000); },
         startLocalOpenTimer(horaInicio) { if (this.state.timers.localOpen) clearInterval(this.state.timers.localOpen); this.state.timers.localOpen = setInterval(() => { const timerElem = document.getElementById('tiempoAbiertoLocal'); if(timerElem) { const tiempoAbierto = Date.now() - horaInicio; timerElem.textContent = this.formatearTiempo(tiempoAbierto); } }, 1000);},
         
-        // --- 3. FUNCIONES DE UTILIDAD (HELPERS) ---
         hashPassword(str) { let hash = 0; if (typeof str !== 'string' || str.length === 0) return "hash_0"; for (let i = 0; i < str.length; i++) { const char = str.charCodeAt(i); hash = ((hash << 5) - hash) + char; hash |= 0; } return "hash_" + Math.abs(hash); },
         formatearTiempo(ms) { if (isNaN(ms) || ms < 0) ms = 0; const s = Math.floor(ms / 1000), h = String(Math.floor(s / 3600)).padStart(2, '0'), m = String(Math.floor((s % 3600) / 60)).padStart(2, '0'), sec = String(s % 60).padStart(2, '0'); return `${h}:${m}:${sec}`; },
         formatearTiempoHorasDecimal(ms) { if (isNaN(ms) || ms <= 0) return "0,0"; const horas = ms / (1000 * 60 * 60); return horas.toFixed(1).replace('.', ','); },
@@ -150,20 +204,54 @@ document.addEventListener('DOMContentLoaded', () => {
             );
         },
 
-        // --- 4. CARGA DE DATOS (FIRESTORE) ---
         async cargarTodosLosEmpleados() { try { const snapshot = await Firebase.getDocs(Firebase.query(Firebase.collection(db, 'empleados'), Firebase.orderBy('nombre'))); this.state.empleados = []; snapshot.forEach(doc => this.state.empleados.push({ id: doc.id, ...doc.data() })); } catch (e) { console.error("Error cargando empleados:", e); } },
         async cargarTodosLosFichajes() { try { const snapshot = await Firebase.getDocs(Firebase.collection(db, 'fichajes')); let fichajesData = {}; snapshot.forEach(doc => { fichajesData[doc.id] = doc.data(); }); this.state.fichajes = fichajesData; } catch (e) { console.error("Error cargando fichajes:", e); } },
         async cargarTodasLasVentas() { try { const snapshot = await Firebase.getDocs(Firebase.collection(db, 'ventas')); this.state.ventas = {}; snapshot.forEach(doc => { this.state.ventas[doc.id] = doc.data(); }); } catch (e) { console.error("Error cargando ventas:", e); } },
-        async cargarTodasLasHabitaciones() { try { const snapshot = await Firebase.getDocs(Firebase.collection(db, 'habitaciones')); if (snapshot.size < this.state.datosHabitacionesBase.length) { for (const habBase of this.state.datosHabitacionesBase) { const habRef = Firebase.doc(db, 'habitaciones', String(habBase.id)); const habDoc = await Firebase.getDoc(habRef); if (!habDoc.exists()) { await Firebase.setDoc(habRef, { ...habBase, reservas: [] }); } } } const finalSnapshot = await Firebase.getDocs(Firebase.query(Firebase.collection(db, 'habitaciones'), Firebase.orderBy('id'))); this.state.habitaciones = []; finalSnapshot.forEach(doc => this.state.habitaciones.push(doc.data())); } catch (e) { console.error("Error cargando/creando habitaciones:", e); }},
         async cargarInventarioLog() { try { const q = Firebase.query(Firebase.collection(db, 'inventario_log'), Firebase.orderBy('timestamp', 'desc')); const snapshot = await Firebase.getDocs(q); this.state.inventarioLog = []; snapshot.forEach(doc => this.state.inventarioLog.push(doc.data())); } catch (e) { console.error("Error cargando log de inventario:", e); } },
         async cargarLibroNegro() { try { const snapshot = await Firebase.getDocs(Firebase.collection(db, 'libroNegro')); this.state.libroNegro = []; snapshot.forEach(doc => this.state.libroNegro.push({docId: doc.id, ...doc.data()})); } catch (e) { console.error("Error cargando Libro Negro:", e); } },
         async cargarListaNegra() { try { const snapshot = await Firebase.getDocs(Firebase.collection(db, 'listaNegra')); this.state.listaNegra = []; snapshot.forEach(doc => this.state.listaNegra.push({docId: doc.id, ...doc.data()})); } catch (e) { console.error("Error cargando Lista Negra:", e); } },
         
-        // --- 5. LÓGICA DE VISTAS Y PANELES (UI) ---
         async irAPanelEmpleado() { const currentUser = sessionStorage.getItem('currentUser'); if (currentUser) { await this.mostrarPanelEmpleados(currentUser); } else { this.mostrarLoginVIP(); }},
-        mostrarInicio() { this.stopAllTimers(); document.getElementById('contenido').innerHTML = `<div class="p-4 md:p-8 max-w-7xl mx-auto rounded-lg bg-purple-900 bg-opacity-90 shadow-lg"><header class="mb-8 text-center"><h1 class="text-5xl font-extrabold text-white drop-shadow-lg mb-2">Bienvenido a Vanilla</h1><p class="text-purple-300 text-lg">Donde la tentación y la elegancia se encuentran.</p></header><div class="flex flex-col md:flex-row items-center gap-8"><div class="md:w-5/12"><img src="Tito y Marta.png" alt="Tito y Marta" class="rounded-lg shadow-2xl w-full h-auto object-cover" /></div><div class="md:w-7/12 space-y-6"><div class="bg-purple-800 bg-opacity-50 p-4 rounded-lg"><h2 class="text-2xl font-bold text-white mb-2">Tito Giovanni</h2><p class="text-purple-200">El carismático maestro de ceremonias y corazón de Moore. Su elegancia y estilo inconfundible, siempre vestido de morado, garantizan una noche inolvidable. Es el anfitrión perfecto, el alma de la fiesta.</p></div><div class="bg-purple-800 bg-opacity-50 p-4 rounded-lg"><h2 class="text-2xl font-bold text-white mb-2">Marta</h2><p class="text-purple-200">La musa indiscutible del club. Con una actitud que cautiva y una sensualidad que desarma, Marta es la protagonista de los shows más aclamados. Su presencia en el escenario es pura magia y provocación.</p></div></div></div><div class="mt-10 flex justify-center gap-4"><button onclick="VanillaApp.mostrarLoginVIP()" class="btn">Área Empleados</button><button onclick="VanillaApp.mostrarLoginAdmin()" class="btn" style="background-color: #a855f7;">Jefes</button></div></div>`; this.ajustarPosicionChatbot(true); },
-        mostrarLoginVIP() { this.stopAllTimers(); document.getElementById('contenido').innerHTML = `<div class="max-w-md mx-auto bg-black bg-opacity-30 p-8 rounded-lg shadow-lg"><h2 class="text-2xl font-bold mb-4 text-center">Acceso Empleados</h2><div class="mb-4"><label class="block mb-2">Nombre completo:</label><input id="nombreInput" type="text" class="w-full px-3 py-2 text-black rounded" placeholder="nombre y apellido en minúsculas" /></div><div class="mb-4"><label class="block mb-2">Contraseña:</label><input id="passInput" type="password" class="w-full px-3 py-2 text-black rounded" /></div><div class="flex justify-between mt-6"><button onclick="VanillaApp.verificarAccesoVIP()" class="btn">Entrar</button><button onclick="VanillaApp.mostrarInicio()" class="btn" style="background-color:#5b189b;">Volver</button></div></div>`; document.getElementById('passInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') this.verificarAccesoVIP(); }); this.ajustarPosicionChatbot(false);},
-        mostrarLoginAdmin() { this.stopAllTimers(); document.getElementById('contenido').innerHTML = `<div class="max-w-md mx-auto bg-black bg-opacity-50 p-8 rounded-lg shadow-lg border-2 border-purple-400"><h2 class="text-3xl font-bold mb-4 text-center text-purple-300">Acceso Privado - Jefes</h2><label class="block mb-2">Contraseña de Jefes:</label><input id="adminPassInput" type="password" class="w-full px-3 py-2 text-black rounded" /><div class="flex justify-between mt-6"><button onclick="VanillaApp.verificarAccesoAdmin()" class="btn">Entrar</button><button onclick="VanillaApp.mostrarInicio()" class="btn" style="background-color:#5b189b;">Volver</button></div></div>`; document.getElementById('adminPassInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') this.verificarAccesoAdmin(); }); this.ajustarPosicionChatbot(false);},
+        mostrarInicio() { this.stopAllTimers(); if (typeof this.state.unsubscribeHabitaciones === 'function') { this.state.unsubscribeHabitaciones(); } document.getElementById('contenido').innerHTML = `<div class="p-4 md:p-8 max-w-7xl mx-auto rounded-lg bg-purple-900 bg-opacity-90 shadow-lg"><header class="mb-8 text-center"><h1 class="text-5xl font-extrabold text-white drop-shadow-lg mb-2">Bienvenido a Vanilla</h1><p class="text-purple-300 text-lg">Donde la tentación y la elegancia se encuentran.</p></header><div class="flex flex-col md:flex-row items-center gap-8"><div class="md:w-5/12"><img src="Tito y Marta.png" alt="Tito y Marta" class="rounded-lg shadow-2xl w-full h-auto object-cover" /></div><div class="md:w-7/12 space-y-6"><div class="bg-purple-800 bg-opacity-50 p-4 rounded-lg"><h2 class="text-2xl font-bold text-white mb-2">Tito Giovanni</h2><p class="text-purple-200">El carismático maestro de ceremonias y corazón de Moore. Su elegancia y estilo inconfundible, siempre vestido de morado, garantizan una noche inolvidable. Es el anfitrión perfecto, el alma de la fiesta.</p></div><div class="bg-purple-800 bg-opacity-50 p-4 rounded-lg"><h2 class="text-2xl font-bold text-white mb-2">Marta</h2><p class="text-purple-200">La musa indiscutible del club. Con una actitud que cautiva y una sensualidad que desarma, Marta es la protagonista de los shows más aclamados. Su presencia en el escenario es pura magia y provocación.</p></div></div></div><div class="mt-10 flex justify-center gap-4"><button onclick="VanillaApp.mostrarLoginVIP()" class="btn">Área Empleados</button><button onclick="VanillaApp.mostrarLoginAdmin()" class="btn" style="background-color: #a855f7;">Jefes</button></div></div>`; this.ajustarPosicionChatbot(true); },
+        mostrarLoginVIP() {
+            this.stopAllTimers();
+            if (typeof this.state.unsubscribeHabitaciones === 'function') { this.state.unsubscribeHabitaciones(); }
+            document.getElementById('contenido').innerHTML = `
+                <div class="max-w-md mx-auto bg-black bg-opacity-30 p-8 rounded-lg shadow-lg">
+                    <h2 class="text-2xl font-bold mb-4 text-center">Acceso Empleados</h2>
+                    <div class="mb-4">
+                        <label class="block mb-2">Nombre completo:</label>
+                        <input id="nombreInput" type="text" class="w-full px-3 py-2 text-black rounded" placeholder="nombre y apellido en minúsculas" autocomplete="username" />
+                    </div>
+                    <div class="mb-4">
+                        <label class="block mb-2">Contraseña:</label>
+                        <input id="passInput" type="password" class="w-full px-3 py-2 text-black rounded" autocomplete="current-password" />
+                    </div>
+                    <div class="flex justify-between mt-6">
+                        <button onclick="VanillaApp.verificarAccesoVIP()" class="btn">Entrar</button>
+                        <button onclick="VanillaApp.mostrarInicio()" class="btn" style="background-color:#5b189b;">Volver</button>
+                    </div>
+                </div>`;
+            document.getElementById('passInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') this.verificarAccesoVIP(); });
+            this.ajustarPosicionChatbot(false);
+        },
+        mostrarLoginAdmin() {
+            this.stopAllTimers();
+            if (typeof this.state.unsubscribeHabitaciones === 'function') { this.state.unsubscribeHabitaciones(); }
+            document.getElementById('contenido').innerHTML = `
+                <div class="max-w-md mx-auto bg-black bg-opacity-50 p-8 rounded-lg shadow-lg border-2 border-purple-400">
+                    <h2 class="text-3xl font-bold mb-4 text-center text-purple-300">Acceso Privado - Jefes</h2>
+                    <input type="text" name="username" value="jefe-vanilla" autocomplete="username" style="display: none;">
+                    <label class="block mb-2">Contraseña de Jefes:</label>
+                    <input id="adminPassInput" type="password" class="w-full px-3 py-2 text-black rounded" autocomplete="current-password" />
+                    <div class="flex justify-between mt-6">
+                        <button onclick="VanillaApp.verificarAccesoAdmin()" class="btn">Entrar</button>
+                        <button onclick="VanillaApp.mostrarInicio()" class="btn" style="background-color:#5b189b;">Volver</button>
+                    </div>
+                </div>`;
+            document.getElementById('adminPassInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') this.verificarAccesoAdmin(); });
+            this.ajustarPosicionChatbot(false);
+        },
         
         crearTarjetaProducto(producto, esPanelVenta = false, nombreEmpleado = '') {
             let totalVentasHoy = 0, totalVentasHist = 0;
@@ -187,8 +275,8 @@ document.addEventListener('DOMContentLoaded', () => {
             return `<div class="producto-card bg-purple-800 rounded-lg p-2 text-center shadow-md flex flex-col justify-between text-sm"><div>${imagenHTML}<h3 class="text-white font-semibold leading-tight uppercase">${producto.nombre}</h3></div><div>${inputVentasHTML}</div></div>`;
         },
 
-        mostrarPanelProductos() { this.stopAllTimers(); this.ajustarPosicionChatbot(false); const productosHTML = this.state.productos.filter(p => !p.id.includes('reventa')).map(p => this.crearTarjetaProducto(p, false)).join(''); const comidasHTML = `<div class="producto-card bg-purple-800 rounded-lg p-2 text-center shadow-md flex flex-col justify-between text-sm"><div><h3 class="text-white font-semibold leading-tight mt-2 uppercase">Zumo</h3></div><div><p class="text-purple-300 text-lg font-bold mt-2">$35</p></div></div><div class="producto-card bg-purple-800 rounded-lg p-2 text-center shadow-md flex flex-col justify-between text-sm"><div><h3 class="text-white font-semibold leading-tight mt-2 uppercase">Alcohol</h3></div><div><p class="text-purple-300 text-lg font-bold mt-2">$60</p></div></div>`; const serviciosHTML = `<div class="producto-card bg-purple-800 rounded-lg p-2 text-center shadow-md flex flex-col justify-between text-sm"><div><h3 class="text-white font-semibold leading-tight mt-2 uppercase">Habitaciones</h3></div><div><p class="text-purple-300 text-lg font-bold mt-2">$2000</p></div></div><div class="producto-card bg-purple-800 rounded-lg p-2 text-center shadow-md flex flex-col justify-between text-sm"><div><h3 class="text-white font-semibold leading-tight mt-2 uppercase">Bailarín/a Privado/a</h3></div><div><p class="text-purple-300 text-lg font-bold mt-2">$2000</p></div></div>`; const packsPropiosHTML = `<div class="producto-card bg-purple-800 rounded-lg p-2 text-center shadow-md flex flex-col justify-between text-sm"><div><h3 class="text-white font-semibold leading-tight mt-2 uppercase">5 y 5</h3></div><div><p class="text-purple-300 text-lg font-bold mt-2">$350</p></div></div><div class="producto-card bg-purple-800 rounded-lg p-2 text-center shadow-md flex flex-col justify-between text-sm"><div><h3 class="text-white font-semibold leading-tight mt-2 uppercase">10 y 10</h3></div><div><p class="text-purple-300 text-lg font-bold mt-2">$700</p></div></div>`; const packsReventaHTML = `<div class="producto-card bg-purple-800 rounded-lg p-2 text-center shadow-md flex flex-col justify-between text-sm"><div><h3 class="text-white font-semibold leading-tight mt-2 uppercase">5 y 5</h3></div><div><p class="text-purple-300 text-lg font-bold mt-2">$400</p></div></div><div class="producto-card bg-purple-800 rounded-lg p-2 text-center shadow-md flex flex-col justify-between text-sm"><div><h3 class="text-white font-semibold leading-tight mt-2 uppercase">10 y 10</h3></div><div><p class="text-purple-300 text-lg font-bold mt-2">$800</p></div></div>`; const packsNuevosHTML = `<div class="producto-card bg-purple-800 rounded-lg p-2 text-center shadow-md flex flex-col justify-between text-sm"><div><h3 class="text-white font-semibold leading-tight mt-2 uppercase">Pack 100 y 100 (Reventa)</h3></div><div><p class="text-purple-300 text-lg font-bold mt-2">$3000</p></div></div><div class="producto-card bg-purple-800 rounded-lg p-2 text-center shadow-md flex flex-col justify-between text-sm"><div><h3 class="text-white font-semibold leading-tight mt-2 uppercase">Pack 100 y 100 (Empleado)</h3></div><div><p class="text-purple-300 text-lg font-bold mt-2">$6300</p></div></div>`; document.getElementById('contenido').innerHTML = `<h2 class="text-3xl font-bold mb-6 text-center uppercase">Productos y Servicios</h2><h3 class="text-2xl font-semibold mb-4 border-t border-purple-700 pt-6 uppercase">Productos</h3><div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">${productosHTML}</div><h3 class="text-2xl font-semibold mb-4 border-t border-purple-700 pt-6 mt-8 uppercase">Comidas y Bebidas</h3><div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-6">${comidasHTML}</div><h3 class="text-2xl font-semibold mb-4 border-t border-purple-700 pt-6 mt-8 uppercase">Packs de Comida y Bebida Propia</h3><div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-6">${packsPropiosHTML}</div><h3 class="text-2xl font-semibold mb-4 border-t border-purple-700 pt-6 mt-8 uppercase">Packs de Reventa</h3><div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-6">${packsReventaHTML}</div><h3 class="text-2xl font-semibold mb-4 border-t border-purple-700 pt-6 mt-8 uppercase">Nuevos Packs</h3><div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-6">${packsNuevosHTML}</div><h3 class="text-2xl font-semibold mb-4 border-t border-purple-700 pt-6 mt-8 uppercase">Servicios</h3><div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-6">${serviciosHTML}</div><div class="text-center"><button onclick="VanillaApp.mostrarInicio()" class="btn mt-8">Volver</button></div>`; },
-        async mostrarPanelHabitaciones() { this.stopAllTimers(); if (this.state.habitaciones.length === 0) await this.cargarTodasLasHabitaciones(); let html = `<div class="max-w-7xl mx-auto text-center"><h1 class="text-4xl font-bold mb-8">Nuestras Habitaciones</h1><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">`; this.state.habitaciones.forEach(hab => { const estadoActual = this.getEstadoHabitacion(hab); const imagenHTML = `<img src="${hab.imagen}" alt="${hab.nombre}" class="habitacion-img mb-4" onerror="this.style.display='none'">`; html += `<div class="border-2 ${estadoActual.estado === 'disponible' ? 'border-purple-600' : 'border-gray-600'} p-4 rounded-lg bg-purple-900 bg-opacity-50 flex flex-col">${imagenHTML}<div class="text-left flex-grow"><h2 class="text-2xl font-bold">${hab.nombre}</h2><p class="text-lg ${estadoActual.estado === 'disponible' ? 'text-green-400' : 'text-red-400'}">${estadoActual.texto}</p><div class="mt-2 text-sm"><p class="font-bold mb-1">Reservas para hoy:</p><ul class="list-disc list-inside space-y-1 h-20 overflow-y-auto text-xs">${hab.reservas.filter(r => new Date(r.inicio).toDateString() === new Date().toDateString()).sort((a,b)=>a.inicio-b.inicio).map(r => `<li>${new Date(r.inicio).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})} - ${new Date(r.fin).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})} (${r.cliente})</li>`).join('') || '<li>Ninguna reserva hoy.</li>'}</ul></div></div><div id="form-hab-${hab.id}" class="mt-3 text-left border-t border-purple-800 pt-3"><h4 class="font-bold mb-2 text-center">Hacer una nueva reserva:</h4><input type="text" id="cliente-hab-${hab.id}" placeholder="Tu nombre" class="w-full p-2 rounded bg-gray-800 text-white mb-2 text-sm"><div class="flex gap-2"><input type="date" id="fecha-hab-${hab.id}" class="w-full p-2 rounded bg-gray-800 text-white mb-2 text-sm"><input type="time" id="hora-hab-${hab.id}" step="1800" class="w-full p-2 rounded bg-gray-800 text-white mb-2 text-sm"></div><select id="duracion-hab-${hab.id}" class="w-full p-2 rounded bg-gray-800 text-white mb-2 text-sm"><option value="1">1 Hora</option><option value="2">2 Horas</option><option value="3">3 Horas</option></select><button class="btn w-full mt-2" onclick="VanillaApp.reservarHabitacion(${hab.id})">Confirmar Reserva</button></div></div>`; }); html += `</div><div class="text-center"><button onclick="VanillaApp.mostrarInicio()" class="btn mt-8">Volver</button></div></div>`; document.getElementById('contenido').innerHTML = html; const hoy = new Date(); const unaSemana = new Date(); unaSemana.setDate(hoy.getDate() + 7); const minDate = hoy.toISOString().split('T')[0]; const maxDate = unaSemana.toISOString().split('T')[0]; document.querySelectorAll('input[type="date"]').forEach(input => { input.min = minDate; input.max = maxDate; input.value = minDate; }); this.ajustarPosicionChatbot(false);},
+        mostrarPanelProductos() { this.stopAllTimers(); if (typeof this.state.unsubscribeHabitaciones === 'function') { this.state.unsubscribeHabitaciones(); } this.ajustarPosicionChatbot(false); const productosHTML = this.state.productos.filter(p => !p.id.includes('reventa')).map(p => this.crearTarjetaProducto(p, false)).join(''); const comidasHTML = `<div class="producto-card bg-purple-800 rounded-lg p-2 text-center shadow-md flex flex-col justify-between text-sm"><div><h3 class="text-white font-semibold leading-tight mt-2 uppercase">Zumo</h3></div><div><p class="text-purple-300 text-lg font-bold mt-2">$35</p></div></div><div class="producto-card bg-purple-800 rounded-lg p-2 text-center shadow-md flex flex-col justify-between text-sm"><div><h3 class="text-white font-semibold leading-tight mt-2 uppercase">Alcohol</h3></div><div><p class="text-purple-300 text-lg font-bold mt-2">$60</p></div></div>`; const serviciosHTML = `<div class="producto-card bg-purple-800 rounded-lg p-2 text-center shadow-md flex flex-col justify-between text-sm"><div><h3 class="text-white font-semibold leading-tight mt-2 uppercase">Habitaciones</h3></div><div><p class="text-purple-300 text-lg font-bold mt-2">$2000</p></div></div><div class="producto-card bg-purple-800 rounded-lg p-2 text-center shadow-md flex flex-col justify-between text-sm"><div><h3 class="text-white font-semibold leading-tight mt-2 uppercase">Bailarín/a Privado/a</h3></div><div><p class="text-purple-300 text-lg font-bold mt-2">$2000</p></div></div>`; const packsPropiosHTML = `<div class="producto-card bg-purple-800 rounded-lg p-2 text-center shadow-md flex flex-col justify-between text-sm"><div><h3 class="text-white font-semibold leading-tight mt-2 uppercase">5 y 5</h3></div><div><p class="text-purple-300 text-lg font-bold mt-2">$350</p></div></div><div class="producto-card bg-purple-800 rounded-lg p-2 text-center shadow-md flex flex-col justify-between text-sm"><div><h3 class="text-white font-semibold leading-tight mt-2 uppercase">10 y 10</h3></div><div><p class="text-purple-300 text-lg font-bold mt-2">$700</p></div></div>`; const packsReventaHTML = `<div class="producto-card bg-purple-800 rounded-lg p-2 text-center shadow-md flex flex-col justify-between text-sm"><div><h3 class="text-white font-semibold leading-tight mt-2 uppercase">5 y 5</h3></div><div><p class="text-purple-300 text-lg font-bold mt-2">$400</p></div></div><div class="producto-card bg-purple-800 rounded-lg p-2 text-center shadow-md flex flex-col justify-between text-sm"><div><h3 class="text-white font-semibold leading-tight mt-2 uppercase">10 y 10</h3></div><div><p class="text-purple-300 text-lg font-bold mt-2">$800</p></div></div>`; const packsNuevosHTML = `<div class="producto-card bg-purple-800 rounded-lg p-2 text-center shadow-md flex flex-col justify-between text-sm"><div><h3 class="text-white font-semibold leading-tight mt-2 uppercase">Pack 100 y 100 (Reventa)</h3></div><div><p class="text-purple-300 text-lg font-bold mt-2">$3000</p></div></div><div class="producto-card bg-purple-800 rounded-lg p-2 text-center shadow-md flex flex-col justify-between text-sm"><div><h3 class="text-white font-semibold leading-tight mt-2 uppercase">Pack 100 y 100 (Empleado)</h3></div><div><p class="text-purple-300 text-lg font-bold mt-2">$6300</p></div></div>`; document.getElementById('contenido').innerHTML = `<h2 class="text-3xl font-bold mb-6 text-center uppercase">Productos y Servicios</h2><h3 class="text-2xl font-semibold mb-4 border-t border-purple-700 pt-6 uppercase">Productos</h3><div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">${productosHTML}</div><h3 class="text-2xl font-semibold mb-4 border-t border-purple-700 pt-6 mt-8 uppercase">Comidas y Bebidas</h3><div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-6">${comidasHTML}</div><h3 class="text-2xl font-semibold mb-4 border-t border-purple-700 pt-6 mt-8 uppercase">Packs de Comida y Bebida Propia</h3><div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-6">${packsPropiosHTML}</div><h3 class="text-2xl font-semibold mb-4 border-t border-purple-700 pt-6 mt-8 uppercase">Packs de Reventa</h3><div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-6">${packsReventaHTML}</div><h3 class="text-2xl font-semibold mb-4 border-t border-purple-700 pt-6 mt-8 uppercase">Nuevos Packs</h3><div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-6">${packsNuevosHTML}</div><h3 class="text-2xl font-semibold mb-4 border-t border-purple-700 pt-6 mt-8 uppercase">Servicios</h3><div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-6">${serviciosHTML}</div><div class="text-center"><button onclick="VanillaApp.mostrarInicio()" class="btn mt-8">Volver</button></div>`; },
+        async mostrarPanelHabitaciones() { this.stopAllTimers(); if (typeof this.state.unsubscribeHabitaciones === 'function') { this.state.unsubscribeHabitaciones(); } let html = `<div class="max-w-7xl mx-auto text-center"><h1 class="text-4xl font-bold mb-8">Nuestras Habitaciones</h1><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">`; this.state.habitaciones.forEach(hab => { const estadoActual = this.getEstadoHabitacion(hab); const imagenHTML = `<img src="${hab.imagen}" alt="${hab.nombre}" class="habitacion-img mb-4" onerror="this.style.display='none'">`; html += `<div class="border-2 ${estadoActual.estado === 'disponible' ? 'border-purple-600' : 'border-gray-600'} p-4 rounded-lg bg-purple-900 bg-opacity-50 flex flex-col">${imagenHTML}<div class="text-left flex-grow"><h2 class="text-2xl font-bold">${hab.nombre}</h2><p class="text-lg ${estadoActual.estado === 'disponible' ? 'text-green-400' : 'text-red-400'}">${estadoActual.texto}</p><div class="mt-2 text-sm"><p class="font-bold mb-1">Reservas para hoy:</p><ul class="list-disc list-inside space-y-1 h-20 overflow-y-auto text-xs">${hab.reservas.filter(r => new Date(r.inicio).toDateString() === new Date().toDateString()).sort((a,b)=>a.inicio-b.inicio).map(r => `<li>${new Date(r.inicio).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})} - ${new Date(r.fin).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})} (${r.cliente})</li>`).join('') || '<li>Ninguna reserva hoy.</li>'}</ul></div></div><div id="form-hab-${hab.id}" class="mt-3 text-left border-t border-purple-800 pt-3"><h4 class="font-bold mb-2 text-center">Hacer una nueva reserva:</h4><input type="text" id="cliente-hab-${hab.id}" placeholder="Tu nombre" class="w-full p-2 rounded bg-gray-800 text-white mb-2 text-sm"><div class="flex gap-2"><input type="date" id="fecha-hab-${hab.id}" class="w-full p-2 rounded bg-gray-800 text-white mb-2 text-sm"><input type="time" id="hora-hab-${hab.id}" step="1800" class="w-full p-2 rounded bg-gray-800 text-white mb-2 text-sm"></div><select id="duracion-hab-${hab.id}" class="w-full p-2 rounded bg-gray-800 text-white mb-2 text-sm"><option value="1">1 Hora</option><option value="2">2 Horas</option><option value="3">3 Horas</option></select><button class="btn w-full mt-2" onclick="VanillaApp.reservarHabitacion(${hab.id})">Confirmar Reserva</button></div></div>`; }); html += `</div><div class="text-center"><button onclick="VanillaApp.mostrarInicio()" class="btn mt-8">Volver</button></div></div>`; document.getElementById('contenido').innerHTML = html; const hoy = new Date(); const unaSemana = new Date(); unaSemana.setDate(hoy.getDate() + 7); const minDate = hoy.toISOString().split('T')[0]; const maxDate = unaSemana.toISOString().split('T')[0]; document.querySelectorAll('input[type="date"]').forEach(input => { input.min = minDate; input.max = maxDate; input.value = minDate; }); this.ajustarPosicionChatbot(false);},
         
         async mostrarPanelEmpleados(nombre) {
             this.stopAllTimers();
@@ -197,15 +285,21 @@ document.addEventListener('DOMContentLoaded', () => {
             const datosFichaje = await this.gestionarReseteoDatos(nombre); await this.gestionarReseteoDatos(nombre, true);
             let tiempoHoy = datosFichaje.hoy || 0, tiempoSemana = datosFichaje.semana || 0, tiempoTotal = datosFichaje.total || 0;
             if (datosFichaje.fichado) { const t = Date.now() - datosFichaje.inicio; tiempoHoy += t; tiempoSemana += t; tiempoTotal += t; }
+            
             const productosVentaHTML = this.state.productos.map(p => this.crearTarjetaProducto(p, true, nombre)).join('');
-            let habitacionesHTML = ''; if (this.state.habitaciones.length === 0) await this.cargarTodasLasHabitaciones(); this.state.habitaciones.forEach(hab => { const estadoActual = this.getEstadoHabitacion(hab); let controles = (estadoActual.estado === 'disponible') ? `<button class="btn text-sm py-2 w-full" onclick="VanillaApp.ocuparHabitacionAhora(${hab.id}, '${nombre}')">Ocupar (30 min)</button>` : `<div class="font-mono text-xl mb-2" id="timer-hab-${hab.id}">--:--:--</div><div class="flex gap-2"><button class="btn text-xs py-1 flex-grow" onclick="VanillaApp.anadirTiempoHabitacion(${hab.id}, '${nombre}')">+30 min</button><button class="btn text-xs py-1 flex-grow" style="background-color:#c44" onclick="VanillaApp.liberarHabitacion(${hab.id}, '${nombre}')">Liberar</button></div>`; habitacionesHTML += `<div class="bg-purple-800 p-4 rounded-lg text-center flex flex-col justify-between"><div><p class="font-bold text-lg">${hab.nombre}</p><p class="text-sm ${estadoActual.estado === 'ocupada' ? 'text-red-400' : 'text-green-400'} mb-2">${estadoActual.texto}</p></div><div>${controles}</div></div>`; });
+            let habitacionesHTML = this.state.habitaciones.map(hab => {
+                const estadoActual = this.getEstadoHabitacion(hab);
+                let controles = (estadoActual.estado === 'disponible') 
+                    ? `<button class="btn text-sm py-2 w-full" onclick="VanillaApp.ocuparHabitacionAhora(${hab.id}, '${nombre}')">Ocupar (30 min)</button>` 
+                    : `<div class="font-mono text-xl mb-2" id="timer-hab-${hab.id}">--:--:--</div><div class="flex gap-2"><button class="btn text-xs py-1 flex-grow" onclick="VanillaApp.anadirTiempoHabitacion(${hab.id}, '${nombre}')">+30 min</button><button class="btn text-xs py-1 flex-grow" style="background-color:#c44" onclick="VanillaApp.liberarHabitacion(${hab.id}, '${nombre}')">Liberar</button></div>`;
+                return `<div class="bg-purple-800 p-4 rounded-lg text-center flex flex-col justify-between"><div><p class="font-bold text-lg">${hab.nombre}</p><p class="text-sm ${estadoActual.estado === 'ocupada' ? 'text-red-400' : 'text-green-400'} mb-2">${estadoActual.texto}</p></div><div>${controles}</div></div>`;
+            }).join('');
+
             const botonConveniosHTML = `<button onclick="VanillaApp.mostrarPanelConvenios(${empleadoData.directiva || false})" class="btn text-xs py-1">Convenios</button>`;
-            
             const botonesAccionHTML = `<button onclick="VanillaApp.mostrarModalAusencias('${nombre}')" class="btn text-xs py-1">Ausencias</button>${botonConveniosHTML}<button onclick="VanillaApp.mostrarPanelInventario()" class="btn text-xs py-1">Inventario</button><button onclick="VanillaApp.mostrarListaNegraPublica()" class="btn text-xs py-1">Ver Vetados</button><button class="btn" style="background-color: #d63636;" onclick="VanillaApp.cerrarSesion()">Cerrar Sesión</button>`;
-            
             const hoyStr = new Date().toISOString().split('T')[0]; const packRecibido = datosFichaje.ultimoPackDiario === hoyStr;
             const controlHTML = `<div class="bg-gray-800/50 p-4 rounded-lg mb-6 text-center border border-gray-700"><h3 class="text-lg font-semibold mb-4">Control Global y Personal</h3><div class="grid grid-cols-1 md:grid-cols-2 gap-6"><div class="bg-gray-900/50 p-4 rounded-lg flex flex-col justify-center items-center"><p class="text-base font-bold mb-2">ESTADO DEL LOCAL</p><div class="flex justify-center items-center gap-4"><button id="abrirLocalBtn" class="btn bg-green-600 hover:bg-green-700">Abrir Local</button><button id="cerrarLocalBtn" class="btn bg-red-600 hover:bg-red-700">Cerrar Local</button></div><div class="mt-3"><p id="tiempoAbiertoLocal" class="font-mono text-2xl text-yellow-300">00:00:00</p><div id="ultimoCierreInfo" class="text-xs text-gray-400 mt-1"></div></div></div><div class="bg-gray-900/50 p-4 rounded-lg"><p class="text-base font-bold mb-2">FICHAJE PERSONAL</p><div class="grid grid-cols-2 gap-2 text-center h-full"><div class="p-1 rounded-lg bg-purple-900/50 flex flex-col justify-center"><p class="text-xs text-purple-300">SESIÓN</p><p id="tiempoSesion" class="font-mono text-lg">${this.formatearTiempo(0)}</p></div><div class="p-1 rounded-lg bg-purple-900/50 flex flex-col justify-center"><p class="text-xs text-purple-300">HOY</p><p id="tiempoHoy" class="font-mono text-lg">${this.formatearTiempo(tiempoHoy)}</p></div><div class="p-1 rounded-lg bg-purple-900/50 flex flex-col justify-center"><p class="text-xs text-purple-300">SEMANA</p><p id="tiempoSemana" class="font-mono text-lg">${this.formatearTiempo(tiempoSemana)}</p></div><div class="p-1 rounded-lg bg-purple-900/50 flex flex-col justify-center"><p class="text-xs text-purple-300">TOTAL</p><p id="tiempoTotal" class="font-mono text-lg">${this.formatearTiempo(tiempoTotal)}</p></div></div></div></div><div class="mt-6 flex justify-center items-center gap-4 border-t border-gray-700 pt-4"><button class="btn text-lg px-6 py-3" onclick="VanillaApp.fichar('${nombre}')">Fichar Entrada</button><button class="btn text-lg px-6 py-3" onclick="VanillaApp.desfichar('${nombre}')">Fichar Salida</button><button id="packDiarioBtn" class="btn text-base px-4 py-2" style="background-color: ${packRecibido ? '#581c87' : '#16a34a'};" onclick="VanillaApp.darPackDiarioVentas('${nombre}')" ${packRecibido ? 'disabled' : ''}>${packRecibido ? 'Pack ya recibido' : 'Pack Diario (Venta)'}</button></div></div>`;
-            document.getElementById('contenido').innerHTML = `<div class="p-6 bg-purple-900 bg-opacity-90 rounded-lg max-w-6xl mx-auto shadow-lg"><div class="flex justify-between items-center mb-6 flex-wrap gap-y-4"><h2 class="text-2xl font-bold">Panel de Fichaje: <span class="text-purple-300 capitalize">${nombre}</span></h2><div class="flex items-center gap-2 flex-wrap">${botonesAccionHTML}</div></div>${controlHTML}<h3 class="text-xl font-semibold mb-4 border-t border-purple-700 pt-6">Gestión de Habitaciones</h3><div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">${habitacionesHTML}</div> <h3 class="text-xl font-semibold mb-4 border-t border-purple-700 pt-6">Registrar Ventas</h3><div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4" id="productosVenta">${productosVentaHTML}</div></div>`;
+            document.getElementById('contenido').innerHTML = `<div class="p-6 bg-purple-900 bg-opacity-90 rounded-lg max-w-6xl mx-auto shadow-lg"><div class="flex justify-between items-center mb-6 flex-wrap gap-y-4"><h2 class="text-2xl font-bold">Panel de Fichaje: <span class="text-purple-300 capitalize">${nombre}</span></h2><div class="flex items-center gap-2 flex-wrap">${botonesAccionHTML}</div></div>${controlHTML}<h3 class="text-xl font-semibold mb-4 border-t border-purple-700 pt-6">Gestión de Habitaciones</h3><div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8" id="panel-habitaciones">${habitacionesHTML}</div> <h3 class="text-xl font-semibold mb-4 border-t border-purple-700 pt-6">Registrar Ventas</h3><div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4" id="productosVenta">${productosVentaHTML}</div></div>`;
             
             await this.actualizarControlesLocal();
             this.startRoomsTimer();
@@ -263,10 +357,33 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         
         async mostrarPanelAdmin() {
-            this.stopAllTimers();
+            this.stopAllTimers(); if (typeof this.state.unsubscribeHabitaciones === 'function') { this.state.unsubscribeHabitaciones(); }
             this.ajustarPosicionChatbot(false);
             const dashboardHTML = `<div class="mb-8 p-6 bg-purple-900 bg-opacity-50 rounded-lg"><h2 class="text-2xl font-bold mb-4">Dashboard en Tiempo Real</h2><div class="grid grid-cols-1 md:grid-cols-2 gap-6"><div><h3 class="font-semibold mb-2">Empleados Fichados</h3><ul id="dashboard-empleados" class="space-y-1 text-sm"><li>Cargando...</li></ul></div><div><h3 class="font-semibold mb-2">Habitaciones Ocupadas</h3><ul id="dashboard-habitaciones" class="space-y-1 text-sm"><li>Cargando...</li></ul></div></div></div>`;
-            const anunciosHTML = `<div class="mb-8 p-6 bg-purple-900 bg-opacity-50 rounded-lg"><h2 class="text-2xl font-bold mb-4">Publicar Anuncio Global</h2><textarea id="anuncioTexto" class="w-full p-2 text-black rounded mb-2" rows="3" placeholder="Escribe tu anuncio aquí..."></textarea><div class="flex items-center gap-4"><select id="anuncioDuracion" class="px-3 py-2 text-black rounded"><option value="1">1 Hora</option><option value="4">4 Horas</option><option value="8">8 Horas</option><option value="24">24 Horas</option><option value="0">Permanente</option></select><button onclick="VanillaApp.publicarAnuncio()" class="btn">Publicar</button></div></div>`;
+            const anunciosHTML = `
+                <div class="mb-8 p-6 bg-purple-900 bg-opacity-50 rounded-lg">
+                    <h2 class="text-2xl font-bold mb-4">Publicar Anuncio Global</h2>
+                    <textarea id="anuncioTexto" class="w-full p-2 text-black rounded mb-2" rows="3" placeholder="Escribe tu anuncio aquí..."></textarea>
+                    <div class="flex items-center justify-between gap-4 flex-wrap">
+                        <div class="flex items-center gap-4">
+                            <select id="anuncioDuracion" class="px-3 py-2 text-black rounded">
+                                <option value="1">1 Hora</option>
+                                <option value="2">2 Horas</option>
+                                <option value="4">4 Horas</option>
+                                <option value="6">6 Horas</option>
+                                <option value="8">8 Horas</option>
+                                <option value="24">24 Horas</option>
+                                <option value="0">Permanente</option>
+                            </select>
+                            <button onclick="VanillaApp.publicarAnuncio()" class="btn">Publicar</button>
+                            <button onclick="VanillaApp.mostrarResultadosEncuesta()" class="btn" style="background-color:#4a044e;">Ver Resultados</button>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <input type="checkbox" id="anuncioEsEncuesta" class="h-4 w-4">
+                            <label for="anuncioEsEncuesta">Añadir votación (Sí/No)</label>
+                        </div>
+                    </div>
+                </div>`;
             
             let tablaEmpleadosHTML = '';
             this.state.empleados.forEach(e => {
@@ -285,16 +402,23 @@ document.addEventListener('DOMContentLoaded', () => {
             const libroNegroHTML = `<div class="mb-8 p-6 bg-purple-900 bg-opacity-50 rounded-lg"><h2 class="text-2xl font-bold mb-4">Libro Negro de Contactos</h2><div class="flex flex-col md:flex-row gap-4 mb-4"><input type="text" id="libroNombre" class="flex-grow px-3 py-2 text-black rounded" placeholder="Nombre del contacto..."><select id="libroRelacion" class="px-3 py-2 text-black rounded"><option value="Aliado">Aliado</option><option value="Rival">Rival</option><option value="Neutral">Neutral</option></select><input type="text" id="libroNotas" class="flex-grow px-3 py-2 text-black rounded" placeholder="Notas..."><button onclick="VanillaApp.anadirAlLibroNegro()" class="btn">Añadir</button></div><ul id="listaLibroNegro" class="space-y-2"></ul></div>`;
             const listaNegraHTML = `<div class="mb-8 p-6 bg-purple-900 bg-opacity-50 rounded-lg"><h2 class="text-2xl font-bold mb-4">Lista Negra (Personas Vetadas)</h2><div class="flex flex-col md:flex-row gap-4 mb-4"><input type="text" id="vetadoNombre" class="flex-grow px-3 py-2 text-black rounded" placeholder="Nombre de la persona..."><input type="text" id="vetadoMotivo" class="flex-grow px-3 py-2 text-black rounded" placeholder="Motivo del veto..."><button onclick="VanillaApp.anadirAListaNegra()" class="btn">Vetar</button></div><ul id="listaDeVetados" class="space-y-2"></ul></div>`;
             const inventarioLogHTML = `<div class="mb-8 p-6 bg-purple-900 bg-opacity-50 rounded-lg"><h2 class="text-2xl font-bold mb-4">Registro de Inventario</h2><div class="text-center mb-4"><button class="btn" onclick="VanillaApp.toggleInventarioLog()">Mostrar/Ocultar Registro</button></div><ul id="listaInventarioLog" class="space-y-4" style="display: none;"></ul></div>`;
-            document.getElementById('contenido').innerHTML = `<div class="max-w-7xl mx-auto"><h1 class="text-4xl font-bold text-center mb-8">Panel de Jefes</h1>${dashboardHTML}${anunciosHTML}${gestionHTML}${tablaHTML}${libroNegroHTML}${listaNegraHTML}${inventarioLogHTML}<div class="text-center mt-8"><button onclick="VanillaApp.cerrarSesion()" class="btn">Cerrar Sesión y Volver</button></div></div>`;
+            
+            const informesHTML = `
+                <div class="mb-8 p-6 bg-purple-900 bg-opacity-50 rounded-lg">
+                    <h2 class="text-2xl font-bold mb-4">Informes Generales</h2>
+                    <div class="flex justify-center">
+                        <button onclick="VanillaApp.descargarInformeExcel()" class="btn text-lg py-3 px-6" style="background-color: #166534;">Descargar Informe (Excel)</button>
+                    </div>
+                </div>`;
+
+            document.getElementById('contenido').innerHTML = `<div class="max-w-7xl mx-auto"><h1 class="text-4xl font-bold text-center mb-8">Panel de Jefes</h1>${dashboardHTML}${anunciosHTML}${gestionHTML}${tablaHTML}${informesHTML}${libroNegroHTML}${listaNegraHTML}${inventarioLogHTML}<div class="text-center mt-8"><button onclick="VanillaApp.cerrarSesion()" class="btn">Cerrar Sesión y Volver</button></div></div>`;
             this.actualizarLibroNegro(); this.actualizarListaNegra(); this.actualizarInventarioLog();
             this.startDashboardTimer();
         },
         
-        // --- 6. LÓGICA DE NEGOCIO (ACCIONES) ---
         async actualizarDashboard() {
             try {
                 await this.cargarTodosLosFichajes();
-                await this.cargarTodasLasHabitaciones();
                 const empleadosElem = document.getElementById('dashboard-empleados');
                 const habitacionesElem = document.getElementById('dashboard-habitaciones');
                 if (empleadosElem) {
@@ -319,10 +443,37 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             } catch(e) { console.error("Error actualizando el dashboard:", e); }
         },
-        async verificarAccesoAdmin() { await this.cargarTodosLosEmpleados(); await this.cargarTodosLosFichajes(); await this.cargarTodasLasVentas(); await this.cargarTodasLasHabitaciones(); await this.cargarInventarioLog(); await this.cargarLibroNegro(); await this.cargarListaNegra(); await this.mostrarPanelAdmin(); },
+        async verificarAccesoAdmin() { await this.cargarTodosLosEmpleados(); await this.cargarTodosLosFichajes(); await this.cargarTodasLasVentas(); await this.cargarInventarioLog(); await this.cargarLibroNegro(); await this.cargarListaNegra(); await this.mostrarPanelAdmin(); },
         async verificarAccesoVIP() { const nombre = document.getElementById('nombreInput')?.value.trim().toLowerCase(); const pass = document.getElementById('passInput')?.value; if (!nombre || !pass) return alert("Nombre y contraseña son requeridos."); try { const fichajeDoc = await Firebase.getDoc(Firebase.doc(db, 'fichajes', nombre)); if (fichajeDoc.exists() && fichajeDoc.data().fichado) { await Firebase.updateDoc(fichajeDoc.ref, { fichado: false, inicio: null }); } } catch(e) { console.error("Error en el failsafe de fichaje:", e); } const empleadoDoc = await Firebase.getDoc(Firebase.doc(db, 'empleados', nombre)); if (empleadoDoc.exists()) { const empleado = empleadoDoc.data(); if (this.hashPassword(pass) === empleado.passHash) { sessionStorage.setItem('currentUser', nombre); await this.mostrarPanelEmpleados(nombre); } else { alert('Contraseña incorrecta.'); } } else { alert('Nombre de usuario no encontrado.'); } },
-        cerrarSesion() { this.stopAllTimers(); sessionStorage.removeItem('currentUser'); this.mostrarInicio(); },
-        async gestionarReseteoDatos(nombre, esVenta = false) { const ahora = new Date(), hoyStr = ahora.toISOString().split('T')[0], semanaNum = this.getWeekNumber(ahora); if (esVenta) { let datosVentaDoc = await Firebase.getDoc(Firebase.doc(db, 'ventas', nombre)); let datosV = datosVentaDoc.exists() ? datosVentaDoc.data() : { productos: {}, fecha: '' }; if (!datosV.productos) datosV.productos = {}; if (datosV.fecha !== hoyStr) { datosV.fecha = hoyStr; Object.keys(datosV.productos).forEach(k => { datosV.productos[k].hoy = 0; }); } this.state.ventas[nombre] = datosV; return datosV; } else { let datosFichajeDoc = await Firebase.getDoc(Firebase.doc(db, 'fichajes', nombre)); let datosF = datosFichajeDoc.exists() ? datosFichajeDoc.data() : { total: 0, hoy: 0, semana: 0, fecha: hoyStr, numSemana: semanaNum, fichado: false, inicio: null }; if (datosF.fecha !== hoyStr) { datosF.hoy = 0; datosF.fecha = hoyStr; datosF.ultimoPackDiario = null; } if (datosF.numSemana !== semanaNum) { datosF.semana = 0; datosF.numSemana = semanaNum; } this.state.fichajes[nombre] = datosF; return datosF; } },
+        cerrarSesion() { this.stopAllTimers(); if (typeof this.state.unsubscribeHabitaciones === 'function') { this.state.unsubscribeHabitaciones(); } sessionStorage.removeItem('currentUser'); this.mostrarInicio(); },
+        async gestionarReseteoDatos(nombre, esVenta = false) {
+            const ahora = new Date(), hoyStr = ahora.toISOString().split('T')[0], semanaNum = this.getWeekNumber(ahora);
+            if (esVenta) {
+                let datosVentaDoc = await Firebase.getDoc(Firebase.doc(db, 'ventas', nombre));
+                let datosV = datosVentaDoc.exists() ? datosVentaDoc.data() : { productos: {}, fecha: '' };
+                if (!datosV.productos) datosV.productos = {};
+                if (datosV.fecha !== hoyStr) {
+                    datosV.fecha = hoyStr;
+                    Object.keys(datosV.productos).forEach(k => { datosV.productos[k].hoy = 0; });
+                }
+                this.state.ventas[nombre] = datosV;
+                return datosV;
+            } else {
+                let datosFichajeDoc = await Firebase.getDoc(Firebase.doc(db, 'fichajes', nombre));
+                let datosF = datosFichajeDoc.exists() ? datosFichajeDoc.data() : { total: 0, hoy: 0, semana: 0, fecha: hoyStr, numSemana: semanaNum, fichado: false, inicio: null };
+                if (datosF.fecha !== hoyStr) {
+                    datosF.hoy = 0;
+                    datosF.fecha = hoyStr;
+                    datosF.ultimoPackDiario = null;
+                }
+                if (datosF.numSemana !== semanaNum) {
+                    datosF.semana = 0;
+                    datosF.numSemana = semanaNum;
+                }
+                this.state.fichajes[nombre] = datosF;
+                return datosF;
+            }
+        },
         async fichar(nombre) { let d = await this.gestionarReseteoDatos(nombre); if (!d.fichado) { d.fichado = true; d.inicio = Date.now(); this.state.fichajes[nombre] = d; try { await Firebase.setDoc(Firebase.doc(db, 'fichajes', nombre), d, { merge: true }); await this.mostrarPanelEmpleados(nombre); } catch (e) { console.error(e); } } },
         async desfichar(nombre, silent = false) { this.stopPanelTimers(); let d = await this.gestionarReseteoDatos(nombre); if (d.fichado) { const t = Date.now() - d.inicio; d.hoy = (d.hoy || 0) + t; d.semana = (d.semana || 0) + t; d.total = (d.total || 0) + t; d.fichado = false; d.inicio = null; this.state.fichajes[nombre] = d; try { await Firebase.setDoc(Firebase.doc(db, 'fichajes', nombre), d, { merge: true }); if (!silent) await this.mostrarPanelEmpleados(nombre); } catch (e) { console.error(e); } } },
         
@@ -373,9 +524,9 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (e) { console.error(e); }
         },
         async darPackDiarioVentas(nombre) { const hoyStr = new Date().toISOString().split('T')[0]; const fichajeRef = Firebase.doc(db, 'fichajes', nombre); try { const fichajeDoc = await Firebase.getDoc(fichajeRef); if (fichajeDoc.exists() && fichajeDoc.data().ultimoPackDiario === hoyStr) { alert('Ya has recibido el pack de hoy.'); return; } await this.modificarVenta('golosinas_picantes', nombre, 5); await this.modificarVenta('refresco_manzana', nombre, 5); await Firebase.updateDoc(fichajeRef, { ultimoPackDiario: hoyStr }); const packBtn = document.getElementById('packDiarioBtn'); if(packBtn){ packBtn.disabled = true; packBtn.textContent = 'Pack ya recibido'; packBtn.style.backgroundColor = '#581c87'; } } catch(e) { console.error("Error:", e); }},
-        async ocuparHabitacionAhora(id, nombreEmpleado) { const hab = this.state.habitaciones.find(h => h.id === id); if (hab && this.getEstadoHabitacion(hab).estado === 'disponible') { const ahora = Date.now(); hab.reservas.push({ id: ahora, cliente: 'Ocupación Directa', inicio: ahora, fin: ahora + 30 * 60 * 1000 }); try { await Firebase.setDoc(Firebase.doc(db, 'habitaciones', String(hab.id)), hab); await this.mostrarPanelEmpleados(nombreEmpleado); } catch (e) { console.error(e); } }},
-        async anadirTiempoHabitacion(id, nombreEmpleado) { const hab = this.state.habitaciones.find(h => h.id === id); const r = hab.reservas.find(res => Date.now() >= res.inicio && Date.now() < res.fin); if (hab && r) { r.fin += 30 * 60 * 1000; try { await Firebase.setDoc(Firebase.doc(db, 'habitaciones', String(hab.id)), hab); await this.mostrarPanelEmpleados(nombreEmpleado); } catch (e) { console.error(e); } } },
-        async liberarHabitacion(id, nombreEmpleado) { const hab = this.state.habitaciones.find(h => h.id === id); const index = hab.reservas.findIndex(r => Date.now() >= r.inicio && Date.now() < r.fin); if (index > -1) { if(confirm(`Liberar habitación?`)) { hab.reservas.splice(index, 1); try { await Firebase.setDoc(Firebase.doc(db, 'habitaciones', String(hab.id)), hab); await this.mostrarPanelEmpleados(nombreEmpleado); } catch (e) { console.error(e); } } } },
+        async ocuparHabitacionAhora(id, nombreEmpleado) { const hab = this.state.habitaciones.find(h => h.id === id); if (hab && this.getEstadoHabitacion(hab).estado === 'disponible') { const ahora = Date.now(); hab.reservas.push({ id: ahora, cliente: 'Ocupación Directa', inicio: ahora, fin: ahora + 30 * 60 * 1000 }); try { await Firebase.setDoc(Firebase.doc(db, 'habitaciones', String(hab.id)), hab); } catch (e) { console.error(e); } }},
+        async anadirTiempoHabitacion(id, nombreEmpleado) { const hab = this.state.habitaciones.find(h => h.id === id); const r = hab.reservas.find(res => Date.now() >= res.inicio && Date.now() < res.fin); if (hab && r) { r.fin += 30 * 60 * 1000; try { await Firebase.setDoc(Firebase.doc(db, 'habitaciones', String(hab.id)), hab); } catch (e) { console.error(e); } } },
+        async liberarHabitacion(id, nombreEmpleado) { const hab = this.state.habitaciones.find(h => h.id === id); const index = hab.reservas.findIndex(r => Date.now() >= r.inicio && Date.now() < r.fin); if (index > -1) { if(confirm(`Liberar habitación?`)) { hab.reservas.splice(index, 1); try { await Firebase.setDoc(Firebase.doc(db, 'habitaciones', String(hab.id)), hab); } catch (e) { console.error(e); } } } },
         async reservarHabitacion(id) { const cliente = document.getElementById(`cliente-hab-${id}`).value.trim(), fecha = document.getElementById(`fecha-hab-${id}`).value, hora = document.getElementById(`hora-hab-${id}`).value, duracion = parseInt(document.getElementById(`duracion-hab-${id}`).value); if (!cliente || !fecha || !hora || isNaN(duracion)) return alert('Rellena todos los campos'); const inicio = new Date(`${fecha}T${hora}`); const fin = new Date(inicio.getTime() + duracion*60*60*1000); const hab = this.state.habitaciones.find(h => h.id === id); if(hab.reservas.some(r => inicio < r.fin && fin > r.inicio)) return alert('Conflicto de horario'); hab.reservas.push({id: Date.now(), cliente, inicio: inicio.getTime(), fin: fin.getTime()}); try { await Firebase.setDoc(Firebase.doc(db,'habitaciones', String(id)), hab); alert('Reserva confirmada'); this.mostrarPanelHabitaciones(); } catch(e) {console.error(e)} },
         async anadirEmpleado() { const nombreInput = document.getElementById('newEmployeeName'); const passInput = document.getElementById('newEmployeePass'); const nombre = nombreInput.value.trim().toLowerCase(); const pass = passInput.value; if (!nombre || !pass) { return alert('El nombre y la contraseña son obligatorios.'); } try { await Firebase.setDoc(Firebase.doc(db, 'empleados', nombre), { nombre: nombre, passHash: this.hashPassword(pass), directiva: false, ausencias: [] }); alert(`Empleado ${nombre} añadido correctamente.`); nombreInput.value = ''; passInput.value = ''; await this.cargarTodosLosEmpleados(); await this.mostrarPanelAdmin(); } catch (e) { alert('Error al añadir el empleado.'); } },
         async toggleDirectiva(empleadoId) { const empleadoRef = Firebase.doc(db, 'empleados', empleadoId); try { const empleadoDoc = await Firebase.getDoc(empleadoRef); if (empleadoDoc.exists()) { const currentStatus = empleadoDoc.data().directiva || false; await Firebase.updateDoc(empleadoRef, { directiva: !currentStatus }); await this.cargarTodosLosEmpleados(); await this.mostrarPanelAdmin(); } } catch (e) { console.error("Error:", e); }},
@@ -405,14 +556,12 @@ document.addEventListener('DOMContentLoaded', () => {
         async actualizarInventarioLog() { await this.cargarInventarioLog(); const contenedor = document.getElementById('listaInventarioLog'); if (!contenedor) return; contenedor.innerHTML = ''; if (this.state.inventarioLog.length === 0) { contenedor.innerHTML = '<li>No hay registros de inventario.</li>'; return; } this.state.inventarioLog.forEach(log => { const fecha = log.timestamp.toDate().toLocaleString('es-ES'); const imgsHTML = log.imagenes ? log.imagenes.map(url => `<img src="${url}" class="w-24 h-24 object-cover rounded cursor-pointer" onclick="VanillaApp.mostrarImagenAmpliada('${url}')" />`).join('') : ''; contenedor.innerHTML += `<li class="flex items-start gap-4 p-3 bg-purple-800 rounded"><div class="flex gap-2 flex-wrap">${imgsHTML}</div><div><p>Subido por: <strong class="capitalize">${log.subidoPor}</strong></p><p>Fecha: <strong class="font-mono">${fecha}</strong></p></div></li>`; }); },
         toggleInventarioLog() { const lista = document.getElementById('listaInventarioLog'); if (lista) { lista.style.display = lista.style.display === 'none' ? 'block' : 'none'; } },
         
-        // --- LÓGICA DEL CHATBOT ---
-        // --- MODIFICACIÓN: addMessageToChat ahora acepta HTML ---
         addMessageToChat(content, sender) {
             const container = document.getElementById('chatbot-messages');
             if (!container) return;
             const msgElem = document.createElement('div');
             msgElem.classList.add('chat-message', `${sender}-message`);
-            msgElem.innerHTML = content; // Usamos innerHTML para renderizar las imágenes
+            msgElem.innerHTML = content;
             container.appendChild(msgElem);
             container.scrollTop = container.scrollHeight;
             return msgElem;
@@ -421,14 +570,22 @@ document.addEventListener('DOMContentLoaded', () => {
             const chatbotInput = document.getElementById('chatbot-input');
             const messageText = chatbotInput.value.trim();
             const files = this.state.chatFiles;
+            const currentUser = sessionStorage.getItem('currentUser');
 
             if (!messageText && files.length === 0) return;
 
-            let messageHTML = messageText ? `<p>${messageText}</p>` : '';
+            let messageHTML = messageText ? `<p>${messageText.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</p>` : '';
             chatbotInput.value = '';
 
             if (files.length > 0) {
-                const typingMessage = this.addMessageToChat('Subiendo imágenes...', 'user');
+                const tempId = `msg-${Date.now()}`;
+                let previewHTML = messageHTML;
+                files.forEach(file => {
+                    previewHTML += `<img src="${URL.createObjectURL(file)}" alt="Cargando..." style="opacity: 0.5; max-width: 100%; border-radius: 10px; margin-top: 5px;">`;
+                });
+                const tempMessage = this.addMessageToChat(previewHTML, 'user');
+                tempMessage.id = tempId;
+
                 try {
                     const uploadPromises = files.map(file => {
                         const filePath = `chat_uploads/${Date.now()}_${file.name}`;
@@ -436,32 +593,73 @@ document.addEventListener('DOMContentLoaded', () => {
                         return Firebase.uploadBytes(storageRef, file).then(snapshot => Firebase.getDownloadURL(snapshot.ref));
                     });
                     const imageUrls = await Promise.all(uploadPromises);
+                    
+                    let finalHTML = messageText ? `<p>${messageText.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</p>` : '';
                     imageUrls.forEach(url => {
-                        messageHTML += `<img src="${url}" alt="Imagen subida" class="chat-message-image cursor-pointer" onclick="VanillaApp.mostrarImagenAmpliada('${url}')">`;
+                        finalHTML += `<img src="${url}" alt="Imagen subida" class="chat-message-image cursor-pointer" onclick="VanillaApp.mostrarImagenAmpliada('${url}')">`;
                     });
-                    typingMessage.remove();
+                    document.getElementById(tempId).innerHTML = finalHTML;
                 } catch (e) {
                     console.error("Error subiendo imágenes al chat:", e);
-                    typingMessage.innerHTML = "Error al subir imágenes.";
+                    document.getElementById(tempId).innerHTML += "<p class='text-red-400 text-xs'>Error al subir imágenes.</p>";
                 }
+            } else {
+                this.addMessageToChat(messageHTML, 'user');
             }
             
-            this.addMessageToChat(messageHTML, 'user');
             this.state.chatFiles = [];
             this.renderChatPreviews();
 
             setTimeout(() => {
                 let mockReply = "Lo siento, cariño, no te he entendido. ¿Puedes repetirlo?";
+                const userMsg = messageText.toLowerCase();
+
+                const keywords = {
+                    fichar: ["fichar", "entrar", "inicio", "trabajar"],
+                    empleado: ["empleado", "panel", "área", "zona"],
+                    producto: ["producto", "vender", "catálogo", "precios"],
+                    habitacion: ["habitacion", "cuarto", "suite", "reservar"],
+                    hola: ["hola", "buenas", "buenos", "ey"]
+                };
+
+                if (!messageText) {
+                    this.addMessageToChat("¡Qué buena pinta tiene eso, amor!", 'bot');
+                    return;
+                }
+
+                if (keywords.fichar.some(k => userMsg.includes(k))) {
+                    if(currentUser) {
+                        this.fichar(currentUser);
+                        mockReply = "¡A trabajar! Fichaje de entrada registrado, bombón.";
+                    } else {
+                        mockReply = "Necesitas iniciar sesión para poder fichar, cielo.";
+                    }
+                } else if (keywords.empleado.some(k => userMsg.includes(k))) {
+                    mockReply = "Claro, te llevo ahora mismo a tu zona, amor.";
+                    this.irAPanelEmpleado();
+                } else if (keywords.producto.some(k => userMsg.includes(k))) {
+                    mockReply = "¡Marchando un vistazo a nuestros tesoros!";
+                    this.mostrarPanelProductos();
+                } else if (keywords.habitacion.some(k => userMsg.includes(k))) {
+                    mockReply = "Te enseño ahora mismo nuestras suites del placer...";
+                    this.mostrarPanelHabitaciones();
+                } else if (keywords.hola.some(k => userMsg.includes(k))) {
+                    mockReply = `¡Hola, ${currentUser || 'cielo'}! Soy Luna, ¿en qué puedo ayudarte hoy?`;
+                }
+                
                 this.addMessageToChat(mockReply, 'bot');
             }, 1000);
         },
-        // --- NUEVAS FUNCIONES PARA EL CHAT ---
         handleChatPaste(e) {
             const file = e.clipboardData.files[0];
             if (file && file.type.startsWith('image/')) {
                 e.preventDefault();
-                this.state.chatFiles.push(file);
-                this.renderChatPreviews();
+                if (this.state.chatFiles.length < 3) {
+                    this.state.chatFiles.push(file);
+                    this.renderChatPreviews();
+                } else {
+                    alert("Puedes adjuntar un máximo de 3 imágenes.");
+                }
             }
         },
         renderChatPreviews() {
@@ -488,12 +686,154 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         ajustarPosicionChatbot(visible) { const bubble = document.getElementById('chatbot-bubble'); if (bubble) { if (visible) bubble.classList.add('visible'); else bubble.classList.remove('visible'); } },
 
-        // --- INICIALIZACIÓN DE LA APP ---
+        async publicarAnuncio() {
+            const texto = document.getElementById('anuncioTexto').value;
+            const duracionHoras = parseInt(document.getElementById('anuncioDuracion').value);
+            const esEncuesta = document.getElementById('anuncioEsEncuesta').checked;
+            if (!texto) return alert("El anuncio no puede estar vacío.");
+            
+            const ahora = Date.now();
+            const expiraEn = duracionHoras === 0 ? ahora + (10 * 365 * 24 * 60 * 60 * 1000) : ahora + (duracionHoras * 60 * 60 * 1000);
+            
+            const anuncioData = { texto, expiraEn, publicadoEn: ahora, esEncuesta };
+            if (esEncuesta) {
+                anuncioData.votos = {};
+            }
+
+            try {
+                const anuncioRef = Firebase.doc(db, "configuracion", "anuncio_global");
+                await Firebase.setDoc(anuncioRef, anuncioData);
+                alert("Anuncio publicado con éxito.");
+                document.getElementById('anuncioTexto').value = '';
+                document.getElementById('anuncioEsEncuesta').checked = false;
+            } catch (e) { console.error("Error al publicar anuncio:", e); alert("No se pudo publicar el anuncio."); }
+        },
+        iniciarListenerAnuncios() {
+            const anuncioRef = Firebase.doc(db, "configuracion", "anuncio_global");
+            Firebase.onSnapshot(anuncioRef, (doc) => {
+                const container = document.getElementById('anuncio-panel-lateral');
+                if (doc.exists()) {
+                    const anuncio = doc.data();
+                    const ahora = Date.now();
+                    
+                    if (anuncio.expiraEn > ahora) {
+                        const currentUser = sessionStorage.getItem('currentUser');
+                        let contenidoHTML = `<h3 class="text-xl text-purple-300 border-b-2 border-purple-700 pb-2 mb-4">Anuncio</h3><p class="text-base flex-grow">${anuncio.texto}</p>`;
+                        if (anuncio.esEncuesta) {
+                            const haVotado = currentUser && anuncio.votos && anuncio.votos[currentUser];
+                            contenidoHTML += `
+                                <div class="mt-4">
+                                    <h4 class="text-md font-semibold mb-2">¿Confirmas?</h4>
+                                    <div class="flex justify-between gap-2">
+                                        <button class="votacion-btn" onclick="VanillaApp.votarEnAnuncio('si')" ${haVotado ? 'disabled' : ''}>✅ Sí</button>
+                                        <button class="votacion-btn" onclick="VanillaApp.votarEnAnuncio('no')" ${haVotado ? 'disabled' : ''}>❌ No</button>
+                                    </div>
+                                </div>
+                            `;
+                        }
+                        container.innerHTML = `${contenidoHTML}<button id="anuncio-cerrar">&times;</button>`;
+                        container.classList.add('visible');
+                        
+                        document.getElementById('anuncio-cerrar').onclick = () => container.classList.remove('visible');
+
+                        if (this.state.ultimoAnuncioMostrado !== anuncio.publicadoEn) {
+                            document.getElementById('notification-sound').play().catch(e => console.warn("Interacción del usuario necesaria para reproducir audio."));
+                            this.state.ultimoAnuncioMostrado = anuncio.publicadoEn;
+                        }
+                    } else {
+                        container.classList.remove('visible');
+                    }
+                } else {
+                    container.classList.remove('visible');
+                }
+            });
+        },
+        async votarEnAnuncio(voto) {
+            const currentUser = sessionStorage.getItem('currentUser');
+            if (!currentUser) return alert("Debes iniciar sesión para poder votar.");
+            
+            const anuncioRef = Firebase.doc(db, "configuracion", "anuncio_global");
+            try {
+                await Firebase.updateDoc(anuncioRef, {
+                    [`votos.${currentUser}`]: voto
+                });
+            } catch (e) {
+                console.error("Error al registrar el voto:", e);
+                alert("No se pudo registrar tu voto.");
+            }
+        },
+        async mostrarResultadosEncuesta() {
+            const anuncioRef = Firebase.doc(db, "configuracion", "anuncio_global");
+            const docSnap = await Firebase.getDoc(anuncioRef);
+
+            if (!docSnap.exists() || !docSnap.data().esEncuesta) {
+                return alert("No hay ninguna encuesta activa en este momento.");
+            }
+
+            const anuncio = docSnap.data();
+            const votos = anuncio.votos || {};
+            const votosSi = [];
+            const votosNo = [];
+
+            for (const empleado in votos) {
+                if (votos[empleado] === 'si') {
+                    votosSi.push(empleado);
+                } else {
+                    votosNo.push(empleado);
+                }
+            }
+
+            let resultadosHTML = `
+                <h3 class="text-xl font-bold mb-4">Resultados para: "${anuncio.texto}"</h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <h4 class="font-semibold text-green-400 mb-2">Han votado SÍ (✅):</h4>
+                        <ul class="list-disc list-inside">${votosSi.map(e => `<li class="capitalize">${e}</li>`).join('') || '<li>Nadie ha votado sí.</li>'}</ul>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-red-400 mb-2">Han votado NO (❌):</h4>
+                        <ul class="list-disc list-inside">${votosNo.map(e => `<li class="capitalize">${e}</li>`).join('') || '<li>Nadie ha votado no.</li>'}</ul>
+                    </div>
+                </div>
+            `;
+            
+            const overlay = document.getElementById('image-overlay');
+            overlay.innerHTML = `<div class="bg-purple-900 p-8 rounded-lg max-w-2xl w-full relative">${resultadosHTML}<span id="overlay-close-btn-resultados" class="cursor-pointer absolute top-2 right-4 text-2xl">&times;</span></div>`;
+            overlay.style.display = 'flex';
+            overlay.querySelector('#overlay-close-btn-resultados').onclick = () => {
+                overlay.style.display = 'none';
+                overlay.innerHTML = '<span id="overlay-close-btn">&times;</span><img id="overlay-image" src="" alt="Imagen ampliada">';
+                document.getElementById('overlay-close-btn').onclick = () => document.getElementById('image-overlay').style.display = 'none';
+            };
+        },
+
+        iniciarListenerHabitaciones() {
+            const q = Firebase.query(Firebase.collection(db, "habitaciones"), Firebase.orderBy("id"));
+            this.state.unsubscribeHabitaciones = Firebase.onSnapshot(q, (snapshot) => {
+                const habitacionesNuevas = [];
+                snapshot.forEach(doc => habitacionesNuevas.push(doc.data()));
+                this.state.habitaciones = habitacionesNuevas;
+
+                const panelHabitaciones = document.getElementById('panel-habitaciones');
+                if (panelHabitaciones) {
+                    const currentUser = sessionStorage.getItem('currentUser');
+                    let habitacionesHTML = this.state.habitaciones.map(hab => {
+                        const estadoActual = this.getEstadoHabitacion(hab);
+                        let controles = (estadoActual.estado === 'disponible') 
+                            ? `<button class="btn text-sm py-2 w-full" onclick="VanillaApp.ocuparHabitacionAhora(${hab.id}, '${currentUser}')">Ocupar (30 min)</button>` 
+                            : `<div class="font-mono text-xl mb-2" id="timer-hab-${hab.id}">--:--:--</div><div class="flex gap-2"><button class="btn text-xs py-1 flex-grow" onclick="VanillaApp.anadirTiempoHabitacion(${hab.id}, '${currentUser}')">+30 min</button><button class="btn text-xs py-1 flex-grow" style="background-color:#c44" onclick="VanillaApp.liberarHabitacion(${hab.id}, '${currentUser}')">Liberar</button></div>`;
+                        return `<div class="bg-purple-800 p-4 rounded-lg text-center flex flex-col justify-between"><div><p class="font-bold text-lg">${hab.nombre}</p><p class="text-sm ${estadoActual.estado === 'ocupada' ? 'text-red-400' : 'text-green-400'} mb-2">${estadoActual.texto}</p></div><div>${controles}</div></div>`;
+                    }).join('');
+                    panelHabitaciones.innerHTML = habitacionesHTML;
+                }
+            });
+        },
         async init() {
             console.log("Iniciando aplicación Vanilla...");
+            this.iniciarListenerAnuncios();
+            this.iniciarListenerHabitaciones();
             await this.cargarTodosLosEmpleados();
             await this.cargarTodosLosFichajes();
-            await this.cargarTodasLasHabitaciones();
             
             const chatButtonWrapper = document.getElementById('chatbot-button-wrapper');
             const chatContainer = document.getElementById('chatbot-container');
@@ -513,7 +853,6 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('overlay-close-btn').addEventListener('click', () => { document.getElementById('image-overlay').style.display = 'none'; });
             document.getElementById('chatbot-send').addEventListener('click', () => this.handleSendMessage());
             document.getElementById('chatbot-input').addEventListener('keypress', (e) => { if (e.key === 'Enter') this.handleSendMessage(); });
-            // --- NUEVO: Event listener para pegar imágenes ---
             document.getElementById('chatbot-input-container').addEventListener('paste', (e) => this.handleChatPaste(e));
 
             this.addMessageToChat('¡Hola! Soy Luna, tu asistente en Vanilla. ¿En qué puedo ayudarte?', 'bot');
@@ -524,6 +863,83 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 this.mostrarInicio();
             }
+        },
+
+        async descargarInformeExcel() {
+            alert("Preparando los informes. La descarga comenzará en breve.");
+            
+            await this.cargarTodosLosEmpleados();
+            await this.cargarTodosLosFichajes();
+            await this.cargarTodasLasVentas();
+            await this.cargarInventarioLog();
+
+            const wb = XLSX.utils.book_new();
+
+            const datosHorarios = this.state.empleados.map(e => {
+                const f = this.state.fichajes[e.id] || { hoy: 0, semana: 0, total: 0 };
+                return { Empleado: e.nombre, Horas_Hoy: this.formatearTiempo(f.hoy), Horas_Semana: this.formatearTiempo(f.semana), Horas_Total: this.formatearTiempo(f.total) };
+            });
+            if (datosHorarios.length > 0) {
+                const wsHorarios = XLSX.utils.json_to_sheet(datosHorarios);
+                XLSX.utils.book_append_sheet(wb, wsHorarios, "Horarios Empleados");
+            }
+
+            const datosVentas = [];
+            for (const empleado in this.state.ventas) {
+                for (const productoId in this.state.ventas[empleado].productos) {
+                    const productoInfo = this.state.productos.find(p => p.id === productoId);
+                    datosVentas.push({ Empleado: empleado, Producto: productoInfo ? productoInfo.nombre : productoId, Ventas_Hoy: this.state.ventas[empleado].productos[productoId].hoy || 0, Ventas_Total: this.state.ventas[empleado].productos[productoId].total || 0 });
+                }
+            }
+            if (datosVentas.length > 0) {
+                const wsVentas = XLSX.utils.json_to_sheet(datosVentas);
+                XLSX.utils.book_append_sheet(wb, wsVentas, "Ventas");
+            }
+
+            const datosAusencias = [];
+            this.state.empleados.forEach(e => {
+                if (e.ausencias && e.ausencias.length > 0) {
+                    e.ausencias.forEach(a => {
+                        datosAusencias.push({ Empleado: e.nombre, Inicio_Ausencia: new Date(a.inicio).toLocaleDateString('es-ES'), Fin_Ausencia: new Date(a.fin).toLocaleDateString('es-ES') });
+                    });
+                }
+            });
+            if (datosAusencias.length > 0) {
+                const wsAusencias = XLSX.utils.json_to_sheet(datosAusencias);
+                XLSX.utils.book_append_sheet(wb, wsAusencias, "Ausencias");
+            }
+            
+            const datosInventario = this.state.inventarioLog.map(log => ({
+                Subido_Por: log.subidoPor,
+                Fecha: log.timestamp.toDate().toLocaleString('es-ES'),
+                Imagenes: (log.imagenes && Array.isArray(log.imagenes)) ? log.imagenes.map(url => `=HIPERVINCULO("${url}"; "Ver Imagen")`).join(' | ') : ""
+            }));
+            if (datosInventario.length > 0) {
+                const wsInventario = XLSX.utils.json_to_sheet(datosInventario);
+                XLSX.utils.book_append_sheet(wb, wsInventario, "Inventario");
+            }
+
+            const datosReservas = [];
+            this.state.habitaciones.forEach(h => {
+                if (h.reservas && h.reservas.length > 0) {
+                    h.reservas.forEach(r => {
+                        datosReservas.push({ Habitacion: h.nombre, Cliente: r.cliente, Inicio_Reserva: new Date(r.inicio).toLocaleString('es-ES'), Fin_Reserva: new Date(r.fin).toLocaleString('es-ES') });
+                    });
+                }
+            });
+            if (datosReservas.length > 0) {
+                const wsReservas = XLSX.utils.json_to_sheet(datosReservas);
+                XLSX.utils.book_append_sheet(wb, wsReservas, "Reservas Habitaciones");
+            }
+
+            const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+            const blob = new Blob([wbout], { type: 'application/octet-stream' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'Informe_General_Vanilla.xlsx';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
     };
 
